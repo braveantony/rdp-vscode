@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1600" height="1040" viewBox="0 0 1600 1040">
+<rect width="1600" height="1040" fill="#ffffff"/>
+<defs>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#495057"/></marker>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1c64c8"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2b8a3e"/></marker>
+<marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#d9480f"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c92a2a"/></marker>
+</defs>
+<g font-family="&quot;Noto Sans CJK TC&quot;,&quot;Noto Sans TC&quot;,&quot;Microsoft JhengHei&quot;,&quot;PingFang TC&quot;,sans-serif" fill="#212529" font-size="16">
+<text x="32" y="45" font-size="26" text-anchor="start" font-weight="700">
+<tspan x="32" dy="0">整體架構</tspan>
+</text>
+<rect x="32" y="66" width="16" height="16" rx="3" fill="#f1f3f5" stroke="#495057"/>
+<text x="56" y="80" font-size="13" text-anchor="start">
+<tspan x="56" dy="0">使用者／用戶端</tspan>
+</text>
+<rect x="190" y="66" width="16" height="16" rx="3" fill="#e7f1ff" stroke="#1c64c8"/>
+<text x="214" y="80" font-size="13" text-anchor="start">
+<tspan x="214" dy="0">rdp-vscode</tspan>
+</text>
+<rect x="390" y="66" width="16" height="16" rx="3" fill="#e6f6ea" stroke="#2b8a3e"/>
+<text x="414" y="80" font-size="13" text-anchor="start">
+<tspan x="414" dy="0">tkadm</tspan>
+</text>
+<rect x="520" y="66" width="16" height="16" rx="3" fill="#fff4e0" stroke="#d9480f"/>
+<text x="544" y="80" font-size="13" text-anchor="start">
+<tspan x="544" dy="0">叢集網路／K8s 物件</tspan>
+</text>
+<rect x="770" y="66" width="26" height="16" rx="3" fill="#ffffff" stroke="#495057" stroke-dasharray="6 4"/>
+<text x="804" y="80" font-size="13"><tspan x="804" dy="0">虛線框 = 待 Task 0 驗證（括號內為題號）</tspan></text>
+<rect x="32" y="125" width="430" height="95" rx="12" fill="#f1f3f5" stroke="#495057" stroke-width="2"/>
+<text x="247.0" y="165.6" font-size="16" text-anchor="middle">
+<tspan x="247.0" dy="0">使用者電腦</tspan>
+<tspan x="247.0" dy="25">RDP client：Windows 遠端桌面 / Remmina</tspan>
+</text>
+<path d="M 247 220 V 290" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<text x="270" y="260" font-size="16" text-anchor="start">
+<tspan x="270" dy="0">RDP → &lt;節點 IP&gt;:30390（NodePort）→ pod :3389</tspan>
+</text>
+<rect x="32" y="290" width="710" height="460" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="55" y="325" font-size="20" text-anchor="start" font-weight="700">
+<tspan x="55" dy="0">Pod rdp-vscode</tspan>
+</text>
+<text x="55" y="352" font-size="15" text-anchor="start">
+<tspan x="55" dy="0">namespace rdp-vscode，image debian:trixie-slim</tspan>
+</text>
+<rect x="55" y="390" width="265" height="90" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="187.5" y="428.1" font-size="16" text-anchor="middle">
+<tspan x="187.5" dy="0">xrdp + xrdp-sesman</tspan>
+<tspan x="187.5" dy="25">每條連線一個 Xorg</tspan>
+</text>
+<rect x="385" y="390" width="325" height="90" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="547.5" y="440.6" font-size="16" text-anchor="middle">
+<tspan x="547.5" dy="0">startwm.sh（每個 session 一份）</tspan>
+</text>
+<path d="M 320 435 H 385" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="385" y="570" width="325" height="140" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="547.5" y="620.6" font-size="16" text-anchor="middle">
+<tspan x="547.5" dy="0">VSCodium</tspan>
+<tspan x="547.5" dy="25">Open Remote-SSH</tspan>
+<tspan x="547.5" dy="25">繁中語言包、Simple Browser</tspan>
+</text>
+<rect x="55" y="500" width="265" height="55" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="187.5" y="533" font-size="16" text-anchor="middle"><tspan x="187.5" dy="0">openbox（kiosk）</tspan></text>
+<path d="M 400 480 V 527 H 320" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M 680 480 V 570" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M 320 540 H 370 V 555 H 547 V 570" fill="none" stroke="#495057" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="460" y="545" font-size="14"><tspan x="460" dy="0">管理視窗</tspan></text>
+<rect x="55" y="590" width="295" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="202.5" y="631.9" font-size="14" text-anchor="middle">
+<tspan x="202.5" dy="0">/etc/ssh/ssh_config.d/</tspan>
+<tspan x="202.5" dy="23">rdp-vscode.conf</tspan>
+<tspan x="202.5" dy="23">由 env 或 ConfigMap 產生</tspan>
+</text>
+<path d="M 350 650 H 385" fill="none" stroke="#1c64c8" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrow-blue)"/>
+<rect x="1040" y="375" width="525" height="315" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2"/>
+<text x="1065" y="412" font-size="18" text-anchor="start" font-weight="700">
+<tspan x="1065" dy="0">Pod tkadm（namespace taroko，Alpine）</tspan>
+</text>
+<rect x="1065" y="440" width="475" height="90" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1302.5" y="478.1" font-size="16" text-anchor="middle">
+<tspan x="1302.5" dy="0">~/.vscodium-server：</tspan>
+<tspan x="1302.5" dy="25">reh-alpine-x64，自動下載（T0-3）</tspan>
+</text>
+<rect x="1065" y="548" width="475" height="54" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1302.5" y="580.6" font-size="16" text-anchor="middle">
+<tspan x="1302.5" dy="0">redhat.vscode-yaml：遠端自動安裝（T0-4）</tspan>
+</text>
+<rect x="1165" y="620" width="275" height="48" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2"/>
+<text x="1302.5" y="649.6" font-size="16" text-anchor="middle">
+<tspan x="1302.5" dy="0">kubectl</tspan>
+</text>
+<path d="M 710 600 H 900 V 320 H 1300 V 375" fill="none" stroke="#2b8a3e" stroke-width="2" marker-end="url(#arrow-green)"/>
+<text x="770" y="265" font-size="16" text-anchor="start">
+<tspan x="770" dy="0">SSH tkadm.taroko:22100（使用者輸入密碼 bigred）</tspan>
+</text>
+<text x="770" y="293" font-size="13" text-anchor="start">
+<tspan x="770" dy="0">ControlMaster 共用 30 分鐘：僅 env 產生的設定（T0-7）</tspan>
+</text>
+<rect x="1100" y="760" width="405" height="65" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
+<text x="1302.5" y="798.1" font-size="16" text-anchor="middle">
+<tspan x="1302.5" dy="0">Kubernetes API</tspan>
+</text>
+<path d="M 1302 668 V 760" fill="none" stroke="#d9480f" stroke-width="2" marker-end="url(#arrow-amber)"/>
+<text x="1320" y="730" font-size="15" text-anchor="start">
+<tspan x="1320" dy="0">kubectl apply</tspan>
+</text>
+<rect x="1040" y="910" width="525" height="90" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
+<text x="1302.5" y="948.1" font-size="16" text-anchor="middle">
+<tspan x="1302.5" dy="0">web app：Deployment + ClusterIP Service</tspan>
+<tspan x="1302.5" dy="25">例：web.default</tspan>
+</text>
+<path d="M 1302 825 V 910" fill="none" stroke="#d9480f" stroke-width="2" marker-end="url(#arrow-amber)"/>
+<path d="M 550 710 V 955 H 1040" fill="none" stroke="#d9480f" stroke-width="2" marker-end="url(#arrow-amber)"/>
+<text x="570" y="870" font-size="15" text-anchor="start">
+<tspan x="570" dy="0">HTTP http://web.default.svc.tk8s.k8s</tspan>
+<tspan x="570" dy="24">pod 內直接解析</tspan>
+</text>
+<rect x="32" y="800" width="440" height="95" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
+<text x="252.0" y="840.6" font-size="16" text-anchor="middle">
+<tspan x="252.0" dy="0">CoreDNS</tspan>
+<tspan x="252.0" dy="25">cluster domain：tk8s.k8s</tspan>
+</text>
+<path d="M 247 750 V 800" fill="none" stroke="#d9480f" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrow-amber)"/>
+<text x="265" y="780" font-size="14" text-anchor="start">
+<tspan x="265" dy="0">DNS 解析</tspan>
+</text>
+</g>
+</svg>

@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1240" height="1740" viewBox="0 0 1240 1740">
+<rect width="1240" height="1740" fill="#ffffff"/>
+<defs>
+<marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#495057"/></marker>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1c64c8"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2b8a3e"/></marker>
+<marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#d9480f"/></marker>
+<marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c92a2a"/></marker>
+</defs>
+<g font-family="&quot;Noto Sans CJK TC&quot;,&quot;Noto Sans TC&quot;,&quot;Microsoft JhengHei&quot;,&quot;PingFang TC&quot;,sans-serif" fill="#212529" font-size="16">
+<text x="32" y="45" font-size="26" text-anchor="start" font-weight="700">
+<tspan x="32" dy="0">RDP Session 生命週期</tspan>
+</text>
+<rect x="32" y="66" width="16" height="16" rx="3" fill="#e7f1ff" stroke="#1c64c8"/>
+<text x="56" y="80" font-size="13" text-anchor="start">
+<tspan x="56" dy="0">Session 流程</tspan>
+</text>
+<rect x="232" y="66" width="16" height="16" rx="3" fill="#f1f3f5" stroke="#495057"/>
+<text x="256" y="80" font-size="13" text-anchor="start">
+<tspan x="256" dy="0">共用設定提醒</tspan>
+</text>
+<rect x="440" y="66" width="26" height="16" rx="3" fill="#ffffff" stroke="#495057" stroke-dasharray="6 4"/>
+<text x="474" y="80" font-size="13"><tspan x="474" dy="0">虛線框 = 待 Task 0 驗證（括號內為題號）</tspan></text>
+<rect x="70" y="120" width="790" height="80" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="465.0" y="153.1" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">1　RDP 連線</tspan>
+<tspan x="465.0" dy="25">xrdp 登入畫面輸入帳密（例 bigred/bigred）</tspan>
+</text>
+<path d="M 465 200 V 230" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="230" width="790" height="90" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="465.0" y="268.1" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">2　sesman 啟動此連線專屬的 Xorg（Policy=Separate）</tspan>
+<tspan x="465.0" dy="25">以登入帳號執行 startwm.sh</tspan>
+</text>
+<path d="M 465 320 V 350" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="350" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="465.0" y="390.6" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">3　建立 session 目錄 /tmp/sess/&lt;display&gt;.&lt;uid&gt;/（data、run）（T0-6）</tspan>
+<tspan x="465.0" dy="25">data/User → ~/.config/VSCodium/User</tspan>
+<tspan x="465.0" dy="25">symlink：設定共用、可持久化</tspan>
+</text>
+<path d="M 465 470 V 500" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="500" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="465.0" y="540.6" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">4　sync-extensions.sh：同步預裝 extension（T0-8）</tspan>
+<tspan x="465.0" dy="25">/opt/rdp-vscode/extensions → ~/.vscode-oss/extensions</tspan>
+<tspan x="465.0" dy="25">版本不同才換；使用者自己裝的不動</tspan>
+</text>
+<path d="M 465 620 V 650" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="650" width="790" height="65" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="465.0" y="688.1" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">5　啟動 openbox（kiosk：最大化、無邊框）</tspan>
+</text>
+<path d="M 465 715 V 745" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="745" width="790" height="105" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="465.0" y="778.1" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">6 啟動 VSCodium（背景執行並 wait $!）（T0-2）</tspan>
+<tspan x="465.0" dy="25">--user-data-dir &lt;session&gt;/data --locale zh-tw</tspan>
+<tspan x="465.0" dy="25">--remote ssh-remote+tkadm /home/bigred</tspan>
+</text>
+<path d="M 465 850 V 880" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="880" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="465.0" y="920.6" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">7　跳出 tkadm 密碼框 → 輸入 bigred（T0-3）</tspan>
+<tspan x="465.0" dy="25">tkadm 下載／啟動 vscodium-server</tspan>
+<tspan x="465.0" dy="25">左下角顯示 SSH: tkadm</tspan>
+</text>
+<path d="M 465 1000 V 1030" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="70" y="1030" width="790" height="80" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="465.0" y="1063.1" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">8　使用者工作中</tspan>
+<tspan x="465.0" dy="25">terminal 在 tkadm、YAML 補全、Simple Browser</tspan>
+</text>
+<rect x="900" y="350" width="305" height="265" rx="12" fill="#f1f3f5" stroke="#495057" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1052.5" y="427.75" font-size="15" text-anchor="middle">
+<tspan x="1052.5" dy="0">同一帳號同時登入兩次：（T0-6）</tspan>
+<tspan x="1052.5" dy="24">Xorg 與 session 目錄</tspan>
+<tspan x="1052.5" dy="24">各自獨立；</tspan>
+<tspan x="1052.5" dy="24">VSCodium 設定、</tspan>
+<tspan x="1052.5" dy="24">extension 目錄與 tkadm</tspan>
+<tspan x="1052.5" dy="24">的 bigred 帳號仍然共用</tspan>
+</text>
+<path d="M 465 1110 V 1150" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M 465 1150 L 595 1220 L 465 1290 L 335 1220 Z" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="465" y="1226" font-size="17" text-anchor="middle">
+<tspan x="465" dy="0">結束方式？</tspan>
+</text>
+<path d="M 335 1220 H 220 V 1330" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M 595 1220 H 930 V 1330" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="60" y="1330" width="320" height="65" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="220.0" y="1368.1" font-size="16" text-anchor="middle">
+<tspan x="220.0" dy="0">關閉 VSCodium</tspan>
+</text>
+<rect x="705" y="1330" width="450" height="65" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="930.0" y="1368.1" font-size="16" text-anchor="middle">
+<tspan x="930.0" dy="0">RDP 斷線但未關閉</tspan>
+</text>
+<path d="M 930 1395 V 1430" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="640" y="1430" width="580" height="85" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="930.0" y="1465.6" font-size="16" text-anchor="middle">
+<tspan x="930.0" dy="0">KillDisconnected：120 秒後</tspan>
+<tspan x="930.0" dy="25">sesman 對 startwm.sh 送 SIGTERM → trap 觸發清理</tspan>
+</text>
+<rect x="230" y="1550" width="770" height="85" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="615.0" y="1585.6" font-size="16" text-anchor="middle">
+<tspan x="615.0" dy="0">startwm.sh 清理（trap）：結束 dbus、子程序</tspan>
+<tspan x="615.0" dy="25">刪除 /tmp/sess/&lt;display&gt;.&lt;uid&gt;</tspan>
+</text>
+<path d="M 220 1395 V 1592 H 230" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M 930 1515 V 1550" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="365" y="1670" width="500" height="50" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="615.0" y="1700.6" font-size="16" text-anchor="middle">
+<tspan x="615.0" dy="0">RDP session 結束（登出）</tspan>
+</text>
+<path d="M 615 1635 V 1670" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+</g>
+</svg>
