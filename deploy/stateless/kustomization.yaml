@@ -1,0 +1,12 @@
+# Stateless: /home is an emptyDir, so files and settings are lost when the pod restarts.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rdp-vscode
+resources:
+- ../base
+patches:
+- path: home-emptydir.yaml
+secretGenerator:
+- name: rdp-vscode-users
+  files:
+  - users=users.txt

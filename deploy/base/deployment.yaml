@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rdp-vscode
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate          # all RDP sessions live inside this one pod
+  selector:
+    matchLabels:
+      app: rdp-vscode
+  template:
+    metadata:
+      labels:
+        app: rdp-vscode
+    spec:
+      affinity:
+        nodeAffinity:         # 優先排到 worker；單節點叢集也能排到 control-plane
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: DoesNotExist
+      containers:
+      - name: desktop
+        image: ghcr.io/braveantony/rdp-vscode:1.0
+        imagePullPolicy: IfNotPresent
+        # Runs as root: xrdp-sesman needs PAM and setuid to the login accounts.
+        # Xorg, openbox and VSCodium run as each account.
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+        - name: MAX_SESSIONS        # 同時連線上限；每多一人約加 1Gi 記憶體
+          value: "3"
+        - name: SSH_HOST_ALIAS      # VSCodium 自動連線的 ssh Host 名稱；空字串表示不自動連線
+          value: "tkadm"
+        - name: SSH_HOST
+          value: "tkadm.taroko"
+        - name: SSH_PORT
+          value: "22100"
+        - name: SSH_USER
+          value: "bigred"
+        - name: SSH_REMOTE_FOLDER   # 連線後開啟的遠端資料夾
+          value: "/home/bigred"
+        - name: VSCODIUM_LOCALE     # zh-tw 或 en
+          value: "zh-tw"
+        ports:
+        - name: rdp
+          containerPort: 3389
+        readinessProbe:
+          tcpSocket:
+            port: rdp
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: rdp
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:             # 以 MAX_SESSIONS=3 估算
+            cpu: "4"
+            memory: "4Gi"
+        volumeMounts:
+        - name: users          # 帳號清單：一行一個「帳號:密碼」
+          mountPath: /etc/rdp-vscode/users
+          subPath: users
+          readOnly: true
+        - name: ssh-config     # 選用：整份取代由 SSH_* 產生的 ssh 設定
+          mountPath: /etc/rdp-vscode/ssh
+          readOnly: true
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: users
+        secret:
+          secretName: rdp-vscode-users   # 由 overlay 的 secretGenerator 產生
+          defaultMode: 0400
+      - name: ssh-config
+        configMap:
+          name: rdp-vscode-ssh           # 範例見 ../example/ssh-configmap
+          optional: true
+      - name: dshm             # 預設 /dev/shm 只有 64MiB，VSCodium 載入中文字型時會崩潰
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1Gi

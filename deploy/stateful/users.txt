@@ -1,0 +1,4 @@
+# RDP login accounts, one "user:password" per line (UIDs follow the order).
+# WARNING: change the default password. Anyone who can reach NodePort 30390
+# with it can reach tkadm, and through its kubectl, the whole cluster.
+bigred:bigred

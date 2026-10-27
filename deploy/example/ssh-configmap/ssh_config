@@ -1,0 +1,16 @@
+# Mounted at /etc/rdp-vscode/ssh/config; replaces the config built from SSH_*.
+# Keep a Host whose name matches SSH_HOST_ALIAS so VSCodium connects on login.
+Host tkadm
+  HostName tkadm.taroko
+  Port 22100
+  User bigred
+  StrictHostKeyChecking accept-new
+  UserKnownHostsFile /dev/null
+  LogLevel ERROR
+  GSSAPIAuthentication no
+
+Host lab
+  HostName 10.0.0.5
+  Port 22
+  User bigred
+  GSSAPIAuthentication no

@@ -1,0 +1,11 @@
+# Example: replace the generated ssh config with your own file (ssh_config).
+# kubectl apply -k deploy/example/ssh-configmap
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rdp-vscode
+resources:
+- ../../stateless
+configMapGenerator:
+- name: rdp-vscode-ssh
+  files:
+  - config=ssh_config

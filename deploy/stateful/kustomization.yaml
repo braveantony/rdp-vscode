@@ -1,0 +1,15 @@
+# Stateful: /home is a PVC from the cluster's default StorageClass. That class
+# must bind on first use (WaitForFirstConsumer, e.g. local-path) or be network
+# storage; see README.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rdp-vscode
+resources:
+- ../base
+- pvc.yaml
+patches:
+- path: home-pvc.yaml
+secretGenerator:
+- name: rdp-vscode-users
+  files:
+  - users=users.txt

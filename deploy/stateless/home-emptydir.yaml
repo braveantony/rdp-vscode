@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rdp-vscode
+spec:
+  template:
+    spec:
+      containers:
+      - name: desktop
+        volumeMounts:
+        - name: home
+          mountPath: /home
+      volumes:
+      - name: home
+        emptyDir: {}
