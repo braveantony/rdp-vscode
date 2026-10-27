@@ -1,0 +1,12 @@
+{
+  "update.mode": "none",
+  "extensions.autoUpdate": false,
+  "telemetry.telemetryLevel": "off",
+  "workbench.startupEditor": "none",
+  "security.workspace.trust.enabled": false,
+  "remote.SSH.defaultExtensions": ["redhat.vscode-yaml"],
+  "remote.SSH.verifyUnknownHosts": "accept",
+  "yaml.schemas": {
+    "kubernetes": ["*.yaml", "*.yml"]
+  }
+}
