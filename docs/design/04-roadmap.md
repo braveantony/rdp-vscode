@@ -58,10 +58,10 @@
 
 ### Task 7：tk8s e2e 驗收
 - ⚠️ **Step 0：重建 tk8s 的 `local-path` SC**（見 [03-deployment.md](03-deployment.md#tk8s-前置作業)）
-- `tests/e2e/run.sh [stateless|stateful|all]`：build image → 載入節點 → 部署 → RDP 登入 → 逐項驗證
+- `test/e2e/run.sh [stateless|stateful|all]`：build image → 載入節點 → 部署 → RDP 登入 → 逐項驗證
 - **完成條件：** 自動化的驗收項目全部通過，手動清單交給使用者確認（見 [05-acceptance.md](05-acceptance.md)）
 
 ### Task 8：文件與發佈
-- 寫 `README.md`、`README.zh-TW.md`、`build-image.md`、`user-guide.md`
+- 寫 `README.md`、`README.zh-TW.md`、`docs/build-image.md`、`docs/user-guide.md`
 - ⚠️ **Step 6：建立 GitHub repo、推送 image 到 ghcr.io**
 - ⚠️ **Step 7：開 GitHub issue，記錄 `-firefox` 版本還沒有 e2e 涵蓋的部分**

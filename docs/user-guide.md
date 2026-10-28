@@ -1,6 +1,6 @@
 # VSCodium 遠端桌面使用手冊
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`（`:1.0-firefox` 另見第 5 節）。安裝方式見 [README](README.zh-TW.md#快速開始)。
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`（`:1.0-firefox` 另見第 5 節）。安裝方式見 [README](../README.zh-TW.md#快速開始)。
 
 用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動 SSH 到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
@@ -77,7 +77,7 @@ kubectl delete deploy/web svc/web
 | `User does not exist, or could not be authenticated` | RDP 帳號或密碼錯誤 | 向管理者確認帳密 |
 | `Max session limit reached` | 已經有 3 個桌面在使用 | 等別人登出；剛斷線的桌面要 120 秒後才會釋放 |
 | 一直跳出 tkadm 的密碼框 | 密碼錯誤，或 `tkadm` 的 sshd 不允許埠轉發 | 確認密碼；仍然不行請管理者檢查 `AllowTcpForwarding` |
-| 登入後畫面閃一下就斷線 | Pod 的 `/dev/shm` 太小，VSCodium 啟動時崩潰 | 請管理者確認部署有掛 `/dev/shm`（見 README 的「資源」） |
+| 登入後畫面閃一下就斷線 | Pod 的 `/dev/shm` 太小，VSCodium 啟動時崩潰 | 請管理者確認部署有掛 `/dev/shm`（見 [architecture.md](architecture.md) 的「其他連線」） |
 | 重新連線後，原本開的檔案分頁不見了 | 每次連線都是新的桌面 | 從檔案總管重新開啟；檔案在 `tkadm` 上，不會遺失 |
 
 > 本手冊的步驟已於 2026-10-28 在 tk8s 上，以 FreeRDP 模擬遠端桌面連線實測：xrdp 登入、輸入 tkadm 密碼後連線、在 tkadm 用 `kubectl` 部署 nginx、在 Pod 內用 FQDN 開啟、關掉 VSCodium 後登出、同一個帳號同時登入兩次、斷線後清除、stateful 模式在 Pod 重啟後保留設定。尚未用實體 Windows 電腦實測；剪貼簿貼上中文、YAML 補全畫面、Firefox 版本的操作尚未實測。

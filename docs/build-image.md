@@ -42,22 +42,26 @@ ls
 
 ```text
 rdp-vscode/
-├── Dockerfile                     # 版本號在開頭的 ARG
-├── rootfs/                        # 整個目錄 COPY 到映像檔的 /
-│   ├── etc/xrdp/startwm.sh        # 每條連線的啟動和清理
-│   ├── etc/skel/.config/          # 新 home 的 openbox 和 VSCodium 預設設定
-│   └── opt/rdp-vscode/            # entrypoint、帳號、SSH 設定、extension 同步
-├── rootfs-firefox/                # 只有 WITH_FIREFOX=1 才會用到
-├── deploy/                        # kustomize：base、stateless、stateful
-└── tests/                         # unit、image、deploy、e2e 測試
+├── VERSION                        # 目前版本
+├── install.sh                     # 快速開始的 curl | bash 安裝腳本
+├── images/rdp-vscode/
+│   ├── Dockerfile                 # 版本號在開頭的 ARG
+│   ├── rootfs/                    # 整個目錄 COPY 到映像檔的 /
+│   │   ├── etc/xrdp/startwm.sh    # 每條連線的啟動和清理
+│   │   ├── etc/skel/.config/      # 新 home 的 openbox 和 VSCodium 預設設定
+│   │   └── opt/rdp-vscode/        # entrypoint、帳號、SSH 設定、extension 同步
+│   └── rootfs-firefox/            # 只有 WITH_FIREFOX=1 才會用到
+├── manifests/                     # kustomize：base、stateless、stateful、example
+├── docs/                          # 本文件、架構、使用手冊、設計文件
+└── test/                          # unit、image、deploy、e2e 測試
 ```
 
 ## Step 2：建置兩個 tag
 
 ```bash
 cd ~/rdp-vscode
-podman build -t ghcr.io/braveantony/rdp-vscode:1.0 .
-podman build --build-arg WITH_FIREFOX=1 -t ghcr.io/braveantony/rdp-vscode:1.0-firefox .
+podman build -t ghcr.io/braveantony/rdp-vscode:1.0 images/rdp-vscode
+podman build --build-arg WITH_FIREFOX=1 -t ghcr.io/braveantony/rdp-vscode:1.0-firefox images/rdp-vscode
 podman image ls ghcr.io/braveantony/rdp-vscode
 ```
 
@@ -69,11 +73,13 @@ podman image ls ghcr.io/braveantony/rdp-vscode
 
 ```bash
 cd ~/rdp-vscode
-bash tests/unit/ssh-config.test.sh
-bash tests/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.0
-bash tests/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.0-firefox --firefox
-bash tests/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.0
-bash tests/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.0
+bash test/unit/ssh-config.test.sh
+bash test/unit/install.test.sh
+bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.0
+bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.0
+bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.0-firefox --firefox
+bash test/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.0
+bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.0
 ```
 
 每個測試最後一行都應該是 `N passed, 0 failed`。
@@ -82,11 +88,11 @@ bash tests/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.0
 
 ```bash
 cd ~/rdp-vscode
-bash tests/image/session.test.sh ghcr.io/braveantony/rdp-vscode:1.0
-bash tests/deploy/render.test.sh
+bash test/image/session.test.sh ghcr.io/braveantony/rdp-vscode:1.0
+bash test/deploy/render.test.sh
 ```
 
-`session.test.sh` 會用 FreeRDP 實際登入，約需 5 分鐘，截圖存在 `tests/e2e/out/`。
+`session.test.sh` 會用 FreeRDP 實際登入，約需 5 分鐘，截圖存在 `test/e2e/out/`。
 
 ## Step 4：載入 tk8s 的節點
 
@@ -102,13 +108,13 @@ done
 rm -f /tmp/rdp-vscode.tar
 ```
 
-要用 Firefox 版時，把上面的 `:1.0` 換成 `:1.0-firefox`，並在 `deploy/base/deployment.yaml` 改 `image:`。
+要用 Firefox 版時，把上面的 `:1.0` 換成 `:1.0-firefox`，並在 `manifests/base/deployment.yaml` 改 `image:`。
 
 ## Step 5：tk8s 的前置設定
 
 這兩項只要做一次。
 
-**`tkadm` 的 sshd 要允許本機埠轉發。** tkadm 是 Alpine，openssh 預設 `AllowTcpForwarding no`，Open Remote-SSH 會連不上。修改方式和紀錄見 [docs/ops/2026-10-27-tkadm-sshd-forwarding.md](docs/ops/2026-10-27-tkadm-sshd-forwarding.md)。確認：
+**`tkadm` 的 sshd 要允許本機埠轉發。** tkadm 是 Alpine，openssh 預設 `AllowTcpForwarding no`，Open Remote-SSH 會連不上。修改方式和紀錄見 [ops/2026-10-27-tkadm-sshd-forwarding.md](ops/2026-10-27-tkadm-sshd-forwarding.md)。確認：
 
 ```bash
 kubectl -n taroko exec deploy/tkadm -c tkadm -- /usr/sbin/sshd -T | grep allowtcpforwarding
@@ -122,13 +128,13 @@ kubectl -n taroko exec deploy/tkadm -c tkadm -- /usr/sbin/sshd -T | grep allowtc
 kubectl get sc local-path -o jsonpath='{.volumeBindingMode}{"\n"}'
 ```
 
-應該顯示 `WaitForFirstConsumer`。如果是 `Immediate`，修改方式和紀錄見 [docs/ops/2026-10-28-tk8s-local-path-sc.md](docs/ops/2026-10-28-tk8s-local-path-sc.md)。
+應該顯示 `WaitForFirstConsumer`。如果是 `Immediate`，修改方式和紀錄見 [ops/2026-10-28-tk8s-local-path-sc.md](ops/2026-10-28-tk8s-local-path-sc.md)。
 
 ## Step 6：部署並從區網連線
 
 ```bash
 cd ~/rdp-vscode
-kubectl apply -k deploy/stateless
+kubectl apply -k manifests/stateless
 kubectl -n rdp-vscode rollout status deploy/rdp-vscode
 kubectl -n rdp-vscode get pod -o wide
 ```
@@ -149,14 +155,14 @@ sudo loginctl enable-linger $USER
 systemctl --user enable podman-restart.service
 ```
 
-完整的驗收（stateless 和 stateful 都會部署、登入、逐項檢查，最後刪掉 namespace）：
+完整的驗收（stateless 用 checkout 裡的 `install.sh` 部署、stateful 用 kustomize 部署，各自登入、逐項檢查，最後刪掉 namespace）：
 
 ```bash
 cd ~/rdp-vscode
-bash tests/e2e/run.sh all
+bash test/e2e/run.sh all
 ```
 
-`run.sh` 會自己建置 `localhost/rdp-vscode:dev` 並載入節點，約需 25 分鐘。它結束時會刪除 `rdp-vscode` namespace，所以不要在正式使用中的叢集上執行；要保留部署，設 `E2E_KEEP=1`。只能用眼睛確認的項目列在 [tests/e2e/manual-checklist.md](tests/e2e/manual-checklist.md)。
+`run.sh` 會自己建置 `localhost/rdp-vscode:dev` 並載入節點，約需 25 分鐘。它結束時會刪除 `rdp-vscode` namespace，所以不要在正式使用中的叢集上執行；要保留部署，設 `E2E_KEEP=1`。只能用眼睛確認的項目列在 [test/e2e/manual-checklist.md](../test/e2e/manual-checklist.md)。
 
 ## Step 7：推到 ghcr.io
 
@@ -172,7 +178,7 @@ podman push ghcr.io/braveantony/rdp-vscode:1.0-firefox
 
 ## 升級 VSCodium
 
-版本號都在 `Dockerfile` 開頭：
+版本號都在 `images/rdp-vscode/Dockerfile` 開頭：
 
 ```dockerfile
 ARG VSCODIUM_VERSION=1.143.17183
@@ -195,7 +201,7 @@ ARG ZH_HANT_VERSION=1.131.0
    curl -fsSL https://open-vsx.org/api/MS-CEINTL/vscode-language-pack-zh-hant | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["version"], d["engines"])'
    ```
 
-3. 修改 `Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和 `tests/e2e/run.sh all`。新 tag 用新的版本號，例如 `:1.1`，並同步修改 `deploy/base/deployment.yaml` 的 `image:`。
+3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和 `test/e2e/run.sh all`。新 tag 用新的版本號，例如 `:1.1`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。
 
 使用者的 home 裡如果有舊版的預裝 extension，下次登入時會自動換成映像檔裡的版本；自己裝的 extension 不會被動到。
 
@@ -211,4 +217,4 @@ ARG ZH_HANT_VERSION=1.131.0
 | 在 ssh 設定加了 `ControlMaster` 沒有效果 | Open Remote-SSH 用內建的 SSH 實作，不呼叫系統的 `ssh`，所以不會讀這些設定 |
 | `codium --version` 在映像檔裡印出 super user 警告 | VSCodium 拒絕以 root 執行；測試時要用一般使用者（例如 `--user 65534`） |
 
-> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置兩個 tag、Step 3 的所有測試、Step 4 載入三個節點、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；`tests/e2e/run.sh all` 22 項通過；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 7 的推送，以及 Windows 實機連線尚未實測。
+> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置兩個 tag、Step 3 的所有測試、Step 4 載入三個節點、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；`test/e2e/run.sh all` 22 項通過；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 7 的推送，以及 Windows 實機連線尚未實測。

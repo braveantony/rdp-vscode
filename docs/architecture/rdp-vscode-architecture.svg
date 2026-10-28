@@ -1,0 +1,300 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="1960" viewBox="0 0 2480 1960"><rect width="100%" height="100%" fill="#f4f7fb"/>
+<text x="50" y="75" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="44" fill="#20334b">rdp-vscode｜系統運作架構</text>
+<rect x="410" y="130" width="2020" height="1640" fill="#eaf1f9" stroke="#93adc7"/>
+<text x="440" y="178" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="32" fill="#20334b">Kubernetes 叢集</text>
+<rect x="440" y="350" width="1180" height="1300" fill="#f8fbff" stroke="#9fb9d3"/>
+<text x="1000" y="395" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">namespace：rdp-vscode</text>
+<rect x="470" y="710" width="1130" height="920" fill="#ffffff" stroke="#6e98bf"/>
+<text x="500" y="752" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="32" fill="#20334b">rdp-vscode Pod</text>
+<polyline points="490,775 501,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="510,775 521,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="530,775 541,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="550,775 561,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="570,775 581,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="590,775 601,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="610,775 621,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="630,775 641,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="650,775 661,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="670,775 681,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="690,775 701,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="710,775 721,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="730,775 741,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="750,775 761,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="770,775 781,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="790,775 801,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="810,775 821,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="830,775 841,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="850,775 861,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="870,775 881,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="890,775 901,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="910,775 921,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="930,775 941,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="950,775 961,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="970,775 981,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="990,775 1001,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1010,775 1021,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1030,775 1041,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1050,775 1061,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1070,775 1081,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1090,775 1101,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1110,775 1121,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1130,775 1141,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1150,775 1161,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1170,775 1181,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1190,775 1201,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1210,775 1221,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1230,775 1241,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1250,775 1261,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1270,775 1281,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1290,775 1301,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1310,775 1321,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1330,775 1341,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1350,775 1361,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1370,775 1381,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1390,775 1401,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1410,775 1421,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1430,775 1441,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1450,775 1461,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1470,775 1481,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1490,775 1501,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1510,775 1521,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1530,775 1541,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1550,775 1561,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1570,775 1580,775" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1605 501,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="510,1605 521,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="530,1605 541,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="550,1605 561,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="570,1605 581,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="590,1605 601,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="610,1605 621,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="630,1605 641,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="650,1605 661,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="670,1605 681,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="690,1605 701,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="710,1605 721,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="730,1605 741,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="750,1605 761,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="770,1605 781,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="790,1605 801,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="810,1605 821,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="830,1605 841,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="850,1605 861,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="870,1605 881,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="890,1605 901,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="910,1605 921,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="930,1605 941,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="950,1605 961,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="970,1605 981,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="990,1605 1001,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1010,1605 1021,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1030,1605 1041,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1050,1605 1061,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1070,1605 1081,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1090,1605 1101,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1110,1605 1121,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1130,1605 1141,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1150,1605 1161,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1170,1605 1181,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1190,1605 1201,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1210,1605 1221,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1230,1605 1241,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1250,1605 1261,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1270,1605 1281,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1290,1605 1301,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1310,1605 1321,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1330,1605 1341,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1350,1605 1361,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1370,1605 1381,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1390,1605 1401,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1410,1605 1421,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1430,1605 1441,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1450,1605 1461,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1470,1605 1481,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1490,1605 1501,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1510,1605 1521,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1530,1605 1541,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1550,1605 1561,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1570,1605 1580,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,775 490,786" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,795 490,806" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,815 490,826" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,835 490,846" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,855 490,866" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,875 490,886" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,895 490,906" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,915 490,926" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,935 490,946" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,955 490,966" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,975 490,986" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,995 490,1006" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1015 490,1026" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1035 490,1046" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1055 490,1066" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1075 490,1086" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1095 490,1106" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1115 490,1126" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1135 490,1146" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1155 490,1166" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1175 490,1186" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1195 490,1206" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1215 490,1226" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1235 490,1246" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1255 490,1266" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1275 490,1286" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1295 490,1306" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1315 490,1326" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1335 490,1346" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1355 490,1366" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1375 490,1386" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1395 490,1406" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1415 490,1426" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1435 490,1446" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1455 490,1466" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1475 490,1486" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1495 490,1506" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1515 490,1526" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1535 490,1546" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1555 490,1566" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1575 490,1586" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="490,1595 490,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,775 1580,786" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,795 1580,806" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,815 1580,826" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,835 1580,846" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,855 1580,866" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,875 1580,886" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,895 1580,906" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,915 1580,926" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,935 1580,946" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,955 1580,966" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,975 1580,986" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,995 1580,1006" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1015 1580,1026" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1035 1580,1046" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1055 1580,1066" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1075 1580,1086" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1095 1580,1106" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1115 1580,1126" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1135 1580,1146" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1155 1580,1166" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1175 1580,1186" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1195 1580,1206" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1215 1580,1226" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1235 1580,1246" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1255 1580,1266" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1275 1580,1286" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1295 1580,1306" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1315 1580,1326" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1335 1580,1346" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1355 1580,1366" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1375 1580,1386" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1395 1580,1406" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1415 1580,1426" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1435 1580,1446" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1455 1580,1466" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1475 1580,1486" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1495 1580,1506" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1515 1580,1526" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1535 1580,1546" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1555 1580,1566" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1575 1580,1586" fill="none" stroke="#78909f" stroke-width="2"/>
+<polyline points="1580,1595 1580,1605" fill="none" stroke="#78909f" stroke-width="2"/>
+<text x="520" y="818" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">container：desktop（單一 container）</text>
+<text x="520" y="855" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="24" fill="#596e85">ghcr.io/braveantony/rdp-vscode:1.0</text>
+<rect x="1650" y="800" width="750" height="640" fill="#f8fbff" stroke="#9fb9d3"/>
+<text x="1680" y="845" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">namespace：taroko</text>
+<rect x="40" y="220" width="320" height="110" fill="#ffffff" stroke="#ced9e5"/>
+<text x="62" y="260" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">Windows mstsc</text>
+<text x="62" y="300" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">Mac Windows App</text>
+<text x="48" y="375" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="26" fill="#3375b9">連入即是 VSCodium</text>
+<rect x="500" y="220" width="550" height="110" fill="#ffffff" stroke="#ced9e5"/>
+<text x="522" y="260" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">叢集節點（node）</text>
+<text x="522" y="300" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">NodePort :30390</text>
+<rect x="500" y="430" width="550" height="110" fill="#ffffff" stroke="#ced9e5"/>
+<text x="522" y="470" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">Service：rdp-vscode</text>
+<text x="522" y="510" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">30390 → 3389</text>
+<rect x="1100" y="430" width="450" height="110" fill="#fff7e9" stroke="#ced9e5"/>
+<text x="1122" y="470" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">Secret</text>
+<text x="1122" y="510" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">/etc/rdp-vscode/users</text>
+<rect x="1100" y="570" width="450" height="110" fill="#fff7e9" stroke="#ced9e5"/>
+<text x="1122" y="610" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">ConfigMap（選用）</text>
+<text x="1122" y="650" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">/etc/rdp-vscode/ssh/config</text>
+<rect x="520" y="890" width="980" height="130" fill="#edf5ff" stroke="#ced9e5"/>
+<text x="1410" y="913" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">process</text>
+<text x="540" y="949" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">① xrdp :3389／xrdp-sesman</text>
+<text x="540" y="993" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#435b70">驗證帳號、每次登入開一個新桌面</text>
+<rect x="520" y="1130" width="980" height="300" fill="#eef8f4" stroke="#ced9e5"/>
+<text x="1400" y="1155" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">session</text>
+<text x="542" y="1180" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">② Xorg session × N</text>
+<text x="542" y="1220" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#435b70">每次登入一個獨立桌面</text>
+<text x="542" y="1255" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="23" fill="#596e85">openbox · 關掉 VSCodium 就登出</text>
+<rect x="550" y="1300" width="920" height="110" fill="#ffffff" stroke="#ced9e5"/>
+<text x="1370" y="1324" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">process</text>
+<text x="572" y="1348" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">VSCodium（全螢幕）</text>
+<text x="572" y="1390" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#435b70">Open Remote-SSH · 繁中語言包 · Integrated Browser</text>
+<polyline points="1000,1268 1000,1300" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="993,1288 1000,1300" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="1007,1288 1000,1300" fill="none" stroke="#3375b9" stroke-width="6"/>
+<rect x="520" y="1490" width="450" height="85" fill="#f1f4f7" stroke="#ced9e5"/>
+<text x="885" y="1513" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">volume</text>
+<text x="540" y="1550" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="26" fill="#20334b">/home：emptyDir 或 PVC</text>
+<rect x="1000" y="1490" width="370" height="85" fill="#f1f4f7" stroke="#ced9e5"/>
+<text x="1285" y="1513" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">volume</text>
+<text x="1020" y="1550" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="26" fill="#20334b">/dev/shm：記憶體 1Gi</text>
+<rect x="1680" y="880" width="690" height="530" fill="#edf8f8" stroke="#ced9e5"/>
+<text x="1700" y="925" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">叢集管理 Pod：tkadm</text>
+<text x="1700" y="969" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">tkadm.taroko :22100</text>
+<text x="1700" y="1008" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="24" fill="#596e85">sshd：AllowTcpForwarding local</text>
+<rect x="1700" y="1080" width="650" height="130" fill="#ffffff" stroke="#ced9e5"/>
+<text x="2260" y="1103" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">process</text>
+<text x="1720" y="1139" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">③ vscodium-server</text>
+<text x="1720" y="1183" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="22" fill="#435b70">~/.vscodium-server（Alpine 版，首次連線自動下載）</text>
+<rect x="1700" y="1280" width="210" height="100" fill="#ffffff" stroke="#ced9e5"/>
+<text x="1722" y="1320" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">kubectl</text>
+<rect x="2020" y="1455" width="330" height="60" fill="#fff7ed" stroke="#ced9e5"/>
+<text x="2042" y="1495" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">Kubernetes API</text>
+<rect x="1680" y="1530" width="690" height="150" fill="#fff7ed" stroke="#ced9e5"/>
+<text x="1702" y="1570" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">你的 Web 服務</text>
+<text x="1702" y="1610" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">http://&lt;svc&gt;.&lt;ns&gt;.svc.&lt;cluster-domain&gt;</text>
+<polyline points="360,275 500,275" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="488,282 500,275" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="488,268 500,275" fill="none" stroke="#3375b9" stroke-width="6"/>
+<text x="415" y="253" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#3375b9">RDP</text>
+<polyline points="760,330 760,430" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="753,418 760,430" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="767,418 760,430" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="760,540 480,540 480,950 520,950" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="508,957 520,950" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="508,943 520,950" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="1000,1020 1000,1130" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="993,1118 1000,1130" fill="none" stroke="#3375b9" stroke-width="6"/>
+<polyline points="1007,1118 1000,1130" fill="none" stroke="#3375b9" stroke-width="6"/>
+<text x="1025" y="1080" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#3375b9">開新桌面</text>
+<polyline points="1550,485 1560,485 1560,945 1500,945" fill="none" stroke="#b78a3f" stroke-width="3"/>
+<polyline points="1512,938 1500,945" fill="none" stroke="#b78a3f" stroke-width="3"/>
+<polyline points="1512,952 1500,945" fill="none" stroke="#b78a3f" stroke-width="3"/>
+<text x="1430" y="875" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#b78a3f">帳號</text>
+<polyline points="1320,680 1320,775" fill="none" stroke="#b78a3f" stroke-width="3"/>
+<polyline points="1313,763 1320,775" fill="none" stroke="#b78a3f" stroke-width="3"/>
+<polyline points="1327,763 1320,775" fill="none" stroke="#b78a3f" stroke-width="3"/>
+<text x="1350" y="735" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#b78a3f">SSH 設定</text>
+<polyline points="1470,1350 1635,1350 1635,700 2300,700 2300,880" fill="none" stroke="#298b68" stroke-width="3"/>
+<polyline points="2293,868 2300,880" fill="none" stroke="#298b68" stroke-width="3"/>
+<polyline points="2307,868 2300,880" fill="none" stroke="#298b68" stroke-width="3"/>
+<text x="1665" y="680" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#298b68">SSH（輸入 tkadm 密碼）</text>
+<polyline points="2020,1025 2020,1080" fill="none" stroke="#298b68" stroke-width="3"/>
+<polyline points="2013,1068 2020,1080" fill="none" stroke="#298b68" stroke-width="3"/>
+<polyline points="2027,1068 2020,1080" fill="none" stroke="#298b68" stroke-width="3"/>
+<text x="2045" y="1063" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#298b68">轉發</text>
+<polyline points="1910,1330 1980,1330 1980,1485 2020,1485" fill="none" stroke="#cf7b32" stroke-width="3"/>
+<polyline points="2008,1492 2020,1485" fill="none" stroke="#cf7b32" stroke-width="3"/>
+<polyline points="2008,1478 2020,1485" fill="none" stroke="#cf7b32" stroke-width="3"/>
+<text x="2005" y="1395" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="23" fill="#cf7b32">kubectl apply</text>
+<polyline points="1400,1410 1400,1715 2020,1715 2020,1680" fill="none" stroke="#cf7b32" stroke-width="3"/>
+<polyline points="2027,1692 2020,1680" fill="none" stroke="#cf7b32" stroke-width="3"/>
+<polyline points="2013,1692 2020,1680" fill="none" stroke="#cf7b32" stroke-width="3"/>
+<text x="1660" y="1750" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#cf7b32">Integrated Browser</text>
+<text x="440" y="1840" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#596e85">粗藍：VSCodium 桌面主路徑　　綠：SSH　　橙：HTTP／kubectl　　金：帳號與設定</text>
+<text x="440" y="1890" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#596e85">虛線框 = container，內部方塊 = process／session／volume</text>
+</svg>

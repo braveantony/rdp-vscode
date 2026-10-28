@@ -6,15 +6,15 @@
 
 | 目錄 | 用途 | `/home` |
 |---|---|---|
-| `deploy/base` | Namespace、Deployment、Service，以及共用的 volume 設定 | 不掛載 |
-| `deploy/stateless` | 實驗或教學用，pod 重建後回到乾淨狀態 | emptyDir |
-| `deploy/stateful` | 要保留 VSCodium 設定和使用者自己裝的 extension | PVC `rdp-vscode-home` |
-| `deploy/example/ssh-configmap` | 範例：用 ConfigMap 自訂 ssh_config（以 stateless 為基礎） | emptyDir |
+| `manifests/base` | Namespace、Deployment、Service，以及共用的 volume 設定 | 不掛載 |
+| `manifests/stateless` | 實驗或教學用，pod 重建後回到乾淨狀態 | emptyDir |
+| `manifests/stateful` | 要保留 VSCodium 設定和使用者自己裝的 extension | PVC `rdp-vscode-home` |
+| `manifests/example/ssh-configmap` | 範例：用 ConfigMap 自訂 ssh_config（以 stateless 為基礎） | emptyDir |
 
 部署方式：
 
 ```bash
-kubectl apply -k deploy/stateless   # 或 deploy/stateful
+kubectl apply -k manifests/stateless   # 或 manifests/stateful
 ```
 
 ## Stateless 和 Stateful 的差異

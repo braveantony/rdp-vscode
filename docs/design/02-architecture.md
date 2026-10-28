@@ -57,20 +57,22 @@ rdp-vscode pod
 rdp-vscode/
 ├── LICENSE                         # Apache-2.0
 ├── README.md / README.zh-TW.md
-├── build-image.md / user-guide.md
-├── Dockerfile
-├── rootfs/                         # 會複製進 image
-│   ├── opt/rdp-vscode/
-│   │   ├── entrypoint.sh           # 帳號、home、TLS、SSH 設定，最後啟動 xrdp
-│   │   ├── accounts.sh             # 解析 users 檔，建立或更新帳號
-│   │   ├── ssh-config.sh           # 依環境變數或 ConfigMap 產生 ssh_config
-│   │   ├── sync-extensions.sh      # 同步預裝 extension
-│   │   ├── languagepacks.js        # 啟動前產生 languagepacks.json，讓 --locale 立即生效
-│   │   └── vsix/                   # 預裝 extension 的 .vsix（build 時下載）
-│   ├── etc/xrdp/startwm.sh         # 每個 session 的啟動與清理
-│   └── etc/skel/                   # 新 home 的初始內容（openbox kiosk 設定、VSCodium 預設設定）
-├── rootfs-firefox/                 # 只有 WITH_FIREFOX=1 時才會複製
-├── deploy/                         # kustomize（見 03-deployment.md）
-├── tests/                          # unit、image、deploy、e2e 測試
-└── docs/
+├── VERSION
+├── install.sh                      # 快速開始的 curl | bash 安裝腳本
+├── images/rdp-vscode/
+│   ├── Dockerfile
+│   ├── rootfs/                     # 會複製進 image
+│   │   ├── opt/rdp-vscode/
+│   │   │   ├── entrypoint.sh       # 帳號、home、TLS、SSH 設定，最後啟動 xrdp
+│   │   │   ├── accounts.sh         # 解析 users 檔，建立或更新帳號
+│   │   │   ├── ssh-config.sh       # 依環境變數或 ConfigMap 產生 ssh_config
+│   │   │   ├── sync-extensions.sh  # 同步預裝 extension
+│   │   │   ├── languagepacks.js    # 啟動前產生 languagepacks.json，讓 --locale 立即生效
+│   │   │   └── vsix/               # 預裝 extension 的 .vsix（build 時下載）
+│   │   ├── etc/xrdp/startwm.sh     # 每個 session 的啟動與清理
+│   │   └── etc/skel/               # 新 home 的初始內容（openbox kiosk 設定、VSCodium 預設設定）
+│   └── rootfs-firefox/             # 只有 WITH_FIREFOX=1 時才會複製
+├── manifests/                      # kustomize（見 03-deployment.md）
+├── test/                           # unit、image、deploy、e2e 測試
+└── docs/                           # architecture.md、user-guide.md、build-image.md、design/、ops/
 ```

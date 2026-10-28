@@ -126,7 +126,7 @@ review 時實際測試發現 **tk8s 的 cluster domain 是 `tk8s.k8s`，不是 `
 ## 5. 文件（D19）
 
 - `README.md`（英文）和 `README.zh-TW.md`（繁中）
-- `build-image.md`、`user-guide.md`：繁中逐步手冊
+- `docs/build-image.md`、`docs/user-guide.md`：繁中逐步手冊（目錄結構對齊 rdp-firefox）
 - 程式碼註解和 commit message：英文
 
 ## 6. 實作後的修正

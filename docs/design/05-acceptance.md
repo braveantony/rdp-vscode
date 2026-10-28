@@ -1,12 +1,12 @@
 # 05 驗收標準
 
-在 tk8s 上實際驗證。「自動」的部分由 `tests/e2e/run.sh` 執行；「手動」的部分列在 `tests/e2e/manual-checklist.md`，需要人看畫面確認。
+在 tk8s 上實際驗證。「自動」的部分由 `test/e2e/run.sh` 執行；「手動」的部分列在 `test/e2e/manual-checklist.md`，需要人看畫面確認。
 
 ## 10 項驗收標準
 
 | # | 驗收項目 | 自動驗證 | 手動確認 |
 |---|---|---|---|
-| AC1 | `kubectl apply -k deploy/stateless` 後，pod 會 Ready | `kubectl wait` 180 秒內 Ready | — |
+| AC1 | `kubectl apply -k manifests/stateless` 後，pod 會 Ready | `kubectl wait` 180 秒內 Ready | — |
 | AC2 | 用 RDP 連 `<節點 IP>:30390`，以 bigred/bigred 登入 | FreeRDP 登入後，pod 裡出現 bigred 的 Xorg | — |
 | AC3 | 畫面是全螢幕 VSCodium，自動跳出 tkadm 密碼框；輸入密碼後，左下角顯示 `SSH: tkadm` | codium 的啟動參數包含 `ssh-remote+tkadm`；輸入密碼後，tkadm 上出現**比 marker 檔新**的 server 檔案 | 畫面和左下角的連線狀態 |
 | AC4 | 在 VSCodium terminal（tkadm 上）部署 nginx | `kubectl create deploy web` 和 `expose` 成功 | 在 VSCodium 裡實際操作 |
