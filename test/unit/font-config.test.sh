@@ -30,15 +30,15 @@ check() { # name, VSCODIUM_FONT value ("-" = unset), expected families
 }
 
 say fonts
-check default - $'JetBrains Mono\nNoto Sans Mono CJK TC'
+check default - $'Cascadia Code\nNoto Sans Mono CJK TC'
 check jetbrains-mono jetbrains-mono $'JetBrains Mono\nNoto Sans Mono CJK TC'
 check cascadia-code cascadia-code $'Cascadia Code\nNoto Sans Mono CJK TC'
 check noto noto 'Noto Sans Mono CJK TC'
-check empty '' $'JetBrains Mono\nNoto Sans Mono CJK TC'
+check empty '' $'Cascadia Code\nNoto Sans Mono CJK TC'
 
 say bad-value
 err=$(VSCODIUM_FONT=comic bash "$GEN" 2>&1 >/dev/null); rc=$?
 [ "$rc" -eq 0 ] && grep -q '^\[entrypoint\] unknown VSCODIUM_FONT' <<<"$err" && pass "bad-value warns" || bad "bad-value: rc=$rc err=$err"
-check bad-value-falls-back comic $'JetBrains Mono\nNoto Sans Mono CJK TC'
+check bad-value-falls-back comic $'Cascadia Code\nNoto Sans Mono CJK TC'
 
 finish

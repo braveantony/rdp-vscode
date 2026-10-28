@@ -7,13 +7,13 @@
 set -eu
 
 cjk="Noto Sans Mono CJK TC"
-case ${VSCODIUM_FONT:-jetbrains-mono} in
+case ${VSCODIUM_FONT:-cascadia-code} in
   jetbrains-mono) first="JetBrains Mono" ;;
   cascadia-code) first="Cascadia Code" ;;
   noto) first="" ;;
   *)
-    echo "[entrypoint] unknown VSCODIUM_FONT: $VSCODIUM_FONT (want jetbrains-mono, cascadia-code or noto); using jetbrains-mono" >&2
-    first="JetBrains Mono" ;;
+    echo "[entrypoint] unknown VSCODIUM_FONT: $VSCODIUM_FONT (want cascadia-code, jetbrains-mono or noto); using cascadia-code" >&2
+    first="Cascadia Code" ;;
 esac
 
 cat <<XML

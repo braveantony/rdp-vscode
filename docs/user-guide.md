@@ -58,7 +58,7 @@ kubectl -n default delete deploy/web svc/web
 - **關掉 VSCodium 就登出**：按 `Ctrl+Q` 或右上角的關閉按鈕，遠端桌面隨即中斷。
 - **斷線後無法接回原本的桌面**：重新連線一定會拿到新的 VSCodium，原本的桌面會在斷線 2 分鐘後關閉。尚未存檔的內容會遺失，請隨時存檔；已存檔的檔案在 `tkadm` 上，不受影響。
 - **多人同時使用**：每次登入都有自己的桌面和 VSCodium，同一個帳號也可以同時登入兩次。同時最多 3 個桌面（所有帳號合計），超過時會看到 `Max session limit reached`。
-- **換字型**：編輯器和終端機預設用 JetBrains Mono，管理者可以改成其他字型。想自己換，按 `Ctrl+,` 搜尋 `font family`，在「Editor: Font Family」填字型名稱，例如 `'Cascadia Code', 'Noto Sans Mono CJK TC'`；最後一個字型是用來顯示中文的。終端機沒有另外設定時會跟著用同一套字型。
+- **換字型**：編輯器和終端機預設用 Cascadia Code，管理者可以改成其他字型。想自己換，按 `Ctrl+,` 搜尋 `font family`，在「Editor: Font Family」填字型名稱，例如 `'JetBrains Mono', 'Noto Sans Mono CJK TC'`；最後一個字型是用來顯示中文的。終端機沒有另外設定時會跟著用同一套字型。
 - **設定會共用**：同一個帳號在不同桌面改的設定（例如字型大小）是同一份。管理者沒有設定保留資料時，系統重建後設定會回到預設值；有設定時會保留。
 - **大家共用 tkadm 上的 bigred**：不同的 RDP 帳號連到 `tkadm` 後都是同一個使用者，彼此看得到、也改得到對方的檔案。
 - **輸入中文**：遠端桌面裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。

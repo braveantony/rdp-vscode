@@ -45,8 +45,8 @@ spec:
           value: "/home/bigred"
         - name: VSCODIUM_LOCALE     # zh-tw 或 en
           value: "zh-tw"
-        - name: VSCODIUM_FONT       # jetbrains-mono、cascadia-code 或 noto
-          value: "jetbrains-mono"
+        - name: VSCODIUM_FONT       # cascadia-code、jetbrains-mono 或 noto
+          value: "cascadia-code"
         ports:
         - name: rdp
           containerPort: 3389

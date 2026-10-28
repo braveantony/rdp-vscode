@@ -46,7 +46,7 @@ for o in stateless stateful example/ssh-configmap; do
   expect "$name" "optional ssh ConfigMap at /etc/rdp-vscode/ssh" \
     'vol_at("/etc/rdp-vscode/ssh")["configMap"]["name"].startswith("rdp-vscode-ssh") and vol_at("/etc/rdp-vscode/ssh")["configMap"]["optional"] is True'
   expect "$name" "env defaults" \
-    'env == {"MAX_SESSIONS": "3", "SSH_HOST_ALIAS": "tkadm", "SSH_HOST": "tkadm.taroko", "SSH_PORT": "22100", "SSH_USER": "bigred", "SSH_REMOTE_FOLDER": "/home/bigred", "VSCODIUM_LOCALE": "zh-tw", "VSCODIUM_FONT": "jetbrains-mono"}'
+    'env == {"MAX_SESSIONS": "3", "SSH_HOST_ALIAS": "tkadm", "SSH_HOST": "tkadm.taroko", "SSH_PORT": "22100", "SSH_USER": "bigred", "SSH_REMOTE_FOLDER": "/home/bigred", "VSCODIUM_LOCALE": "zh-tw", "VSCODIUM_FONT": "cascadia-code"}'
   expect "$name" "strategy Recreate" 'dep["spec"]["strategy"]["type"] == "Recreate"'
 done
 

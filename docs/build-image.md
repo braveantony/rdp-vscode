@@ -10,7 +10,7 @@
 | 編輯器 | VSCodium 1.143.17183（固定版本），由 openbox 撐滿整個畫面、沒有邊框；關掉 VSCodium 就登出 |
 | 自動連線 | 預裝 Open Remote-SSH 0.5.1，登入後自動以 SSH 連到 `tkadm`；遠端第一次連線時自動安裝 `redhat.vscode-yaml` |
 | 中文介面 | 預裝繁體中文語言包 1.131.0，`VSCODIUM_LOCALE` 切換 `zh-tw` 或 `en` |
-| 字型 | 預裝 JetBrains Mono 和 Cascadia Code，`VSCODIUM_FONT` 選擇編輯器和終端機的預設字型；中文用 Noto Sans Mono CJK TC |
+| 字型 | 預裝 Cascadia Code 和 JetBrains Mono，`VSCODIUM_FONT` 選擇編輯器和終端機的預設字型；中文用 Noto Sans Mono CJK TC |
 | 多人同時使用 | sesman `Policy=Separate`：每次登入都有自己的桌面和 VSCodium 資料目錄（`/tmp/sess/<display>.<uid>`），同一個帳號的設定透過 symlink 共用 |
 | 安全 | 帳密在啟動時由 Secret 設定，不寫進映像檔；每個 Pod 自己產生 TLS 憑證和 RSA 金鑰 |
 
