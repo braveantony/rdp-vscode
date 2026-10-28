@@ -168,7 +168,7 @@ bob:Bob-pw
 | Firefox ESR (`Ctrl`-clicked URLs in the terminal open in it, `Alt+Tab` switches windows) | — | ✅ |
 | Size | about 1.3 GB | about 1.6 GB |
 
-`images/rdp-vscode/Dockerfile` selects the variant with the build argument `WITH_FIREFOX`; `WITH_FIREFOX=1` builds `-firefox`, and only the last layer differs.
+`images/rdp-vscode/Dockerfile` selects the variant with the build argument `WITH_FIREFOX`; `WITH_FIREFOX=1` builds `-firefox`, and only the last layer differs. See [Releases](../../releases) for the notes of each version.
 
 ## Documentation (Traditional Chinese)
 

@@ -168,7 +168,7 @@ bob:Bob-pw
 | Firefox ESR（終端機裡按住 `Ctrl` 點網址會用它開啟，可用 `Alt+Tab` 切換視窗） | — | ✅ |
 | 映像檔大小 | 約 1.3 GB | 約 1.6 GB |
 
-`images/rdp-vscode/Dockerfile` 用建置參數 `WITH_FIREFOX` 區分兩個版本：`WITH_FIREFOX=1` 建出 `-firefox` 版，只有最後一層不同。
+`images/rdp-vscode/Dockerfile` 用建置參數 `WITH_FIREFOX` 區分兩個版本：`WITH_FIREFOX=1` 建出 `-firefox` 版，只有最後一層不同。各版本的說明見 [Releases](../../releases)。
 
 ## 文件
 
