@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # End-to-end acceptance on the tk8s cluster: bash test/e2e/run.sh [stateless|stateful|all]
-# Builds the image, loads it into the worker nodes, deploys an overlay with
-# kustomize, logs in over RDP with the e2e client and checks AC1-AC10.
+# Builds the image, loads it into the worker nodes, deploys (stateless: install.sh
+# from this checkout; stateful: kustomize), logs in over RDP with the e2e client
+# and checks AC1-AC10.
 # E2E_KEEP=1 keeps the rdp-vscode namespace afterwards.
 # shellcheck disable=SC1091,SC2015,SC2016  # pass() never fails; single-quoted scripts run elsewhere
 set -u
@@ -67,8 +68,14 @@ for n in $NODES; do
 done
 rm -f "$WORK/img.tar"
 
-deploy() {  # deploy <overlay>: kustomize only accepts relative paths, so the
-  # wrapper lives in the git-ignored test/e2e/out/
+deploy() {  # deploy <overlay>: stateless goes through the quick start
+  # (install.sh from this checkout), stateful through kustomize. kustomize only
+  # accepts relative paths, so its wrapper lives in the git-ignored test/e2e/out/
+  if [ "$1" = stateless ]; then
+    RDP_VSCODE_RAW="file://$PWD" RDP_VSCODE_IMAGE="$IMG" bash install.sh >"$WORK/install.log" 2>&1 \
+      || { tail -5 "$WORK/install.log" >&2; return 1; }
+    return 0
+  fi
   local k=$OUT/kustomize
   mkdir -p "$k"
   cat > "$k/kustomization.yaml" <<EOF
