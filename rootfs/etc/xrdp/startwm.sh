@@ -19,12 +19,17 @@ dnum=${DISPLAY#*:}
 dnum=${dnum%%.*}
 export XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
 
-# Keyed by display and UID: a stale directory left by another account on the
-# same display number (sticky /tmp/sess) can never block this session
+# Keyed by display and UID, so another account's leftover on the same display
+# number does not collide. A directory that this account cannot remove (another
+# account created it in the sticky /tmp/sess) is refused, never reused.
 S="/tmp/sess/$dnum.$(id -u)"
-rm -rf "$S"
+rm -rf "$S" 2>/dev/null
 umask 077
-mkdir -m 700 "$S" "$S/data" "$S/run"
+if ! mkdir -m 700 "$S"; then
+  echo "[startwm] $S exists and is not ours; refusing to start" >&2
+  exit 1
+fi
+mkdir -m 700 "$S/data" "$S/run"
 mkdir -p "$HOME/.config/VSCodium/User"
 ln -s "$HOME/.config/VSCodium/User" "$S/data/User"
 export XDG_RUNTIME_DIR="$S/run"

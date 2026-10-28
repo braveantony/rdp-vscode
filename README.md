@@ -43,7 +43,7 @@ The stateful PVC has no `storageClassName`, so it uses the cluster's default Sto
 
 ## Accounts
 
-`deploy/*/users.txt` holds one `user:password` per line and becomes the Secret `rdp-vscode-users`. Accounts get UIDs 1000, 1001, … in file order and private homes (`0700`). If you reorder the file on a stateful deployment, existing homes are handed to the new UIDs at startup. All accounts share the same SSH login on `tkadm`.
+`deploy/*/users.txt` holds one `user:password` per line (Windows line endings are fine) and becomes the Secret `rdp-vscode-users`. Accounts get UIDs 1000, 1001, … in file order and private homes (`0700`). If you reorder the file on a stateful deployment, existing homes are handed to the new UIDs at startup; the home of an account you remove is locked to root, so whoever gets its old UID cannot read it. All accounts share the same SSH login on `tkadm`.
 
 Several people, or the same account twice, can be logged in at once (`MAX_SESSIONS`). Each RDP connection gets its own desktop and its own VSCodium; settings in `~/.config/VSCodium/User` are shared between sessions of one account. A disconnected session cannot be resumed and is removed 120 seconds later. Closing VSCodium ends the session.
 

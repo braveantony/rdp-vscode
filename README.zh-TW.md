@@ -43,7 +43,7 @@ stateful 的 PVC 沒有指定 `storageClassName`，會使用叢集預設的 Stor
 
 ## 帳號
 
-`deploy/*/users.txt` 一行一個 `帳號:密碼`，會產生 Secret `rdp-vscode-users`。帳號依檔案順序分配 UID 1000、1001……，各自有權限 `0700` 的 home。在 stateful 部署中調換順序時，啟動時會把既有的 home 交給新的 UID。所有帳號在 `tkadm` 上都用同一個 SSH 帳號登入。
+`deploy/*/users.txt` 一行一個 `帳號:密碼`，會產生 Secret `rdp-vscode-users`。帳號依檔案順序分配 UID 1000、1001……，各自有權限 `0700` 的 home。在 stateful 部署中調換順序時，啟動時會把既有的 home 交給新的 UID；被移除帳號的 home 會改成 root 擁有，拿到它舊 UID 的帳號讀不到。檔案在 Windows 上編輯（CRLF 換行）也沒關係。所有帳號在 `tkadm` 上都用同一個 SSH 帳號登入。
 
 可以多人同時登入，同一個帳號也可以同時登入兩次，上限是 `MAX_SESSIONS`。每條 RDP 連線都有自己的桌面和自己的 VSCodium；同一個帳號的 `~/.config/VSCodium/User` 設定是共用的。斷線後無法接回原本的桌面，它會在 120 秒後被清除。關掉 VSCodium 就會登出。
 

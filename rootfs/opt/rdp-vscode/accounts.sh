@@ -9,7 +9,8 @@ users_file=${1:-/etc/rdp-vscode/users}
 accounts=$(mktemp)
 trap 'rm -f "$accounts"' EXIT
 if [ -s "$users_file" ]; then
-  grep -vE '^[[:space:]]*(#|$)' "$users_file" > "$accounts" || true
+  # Strip CR so a file edited on Windows does not add \r to every password
+  tr -d '\r' < "$users_file" | grep -vE '^[[:space:]]*(#|$)' > "$accounts" || true
 else
   if [ -z "${RDP_PASSWORD:-}" ]; then
     echo "[entrypoint] set RDP_PASSWORD or mount a users file at $users_file" >&2
@@ -67,5 +68,15 @@ while IFS=: read -r user pass; do
   chmod 700 "$home"
   uid=$((uid + 1))
 done < "$accounts"
+
+# Homes of accounts no longer in the file (kept on a PVC) would otherwise
+# belong to whichever account now has their old UID: lock them to root
+for home in /home/*; do
+  [ -d "$home" ] && [ ! -L "$home" ] || continue
+  case " $users " in
+    *" ${home#/home/} "*) ;;
+    *) chown root:root "$home" && chmod 700 "$home" ;;
+  esac
+done
 
 echo "${users# }"

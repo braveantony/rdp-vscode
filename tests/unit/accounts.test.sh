@@ -73,4 +73,24 @@ in_image -v "$VOL:/home" --entrypoint bash "$IMG" -c \
    [ "$(stat -c %u /home/bob)" = 1000 ] || exit 4' \
   && pass uid-reorder || bad "uid-reorder (rc=$?)"
 
+say removed-account-home
+podman volume rm -f "$VOL" >/dev/null 2>&1; podman volume create "$VOL" >/dev/null
+in_image -v "$VOL:/home" --entrypoint bash "$IMG" -c \
+  'printf "alice:a\nbob:b\n" >/tmp/u; /opt/rdp-vscode/accounts.sh /tmp/u >/dev/null && su alice -c "touch /home/alice/secret"' \
+  || bad "removed-account-home: first container failed"
+in_image -v "$VOL:/home" --entrypoint bash "$IMG" -c \
+  'printf "bob:b\n" >/tmp/u; /opt/rdp-vscode/accounts.sh /tmp/u >/dev/null || exit 9
+   [ "$(id -u bob)" = 1000 ] || exit 2
+   su bob -c "ls /home/alice" >/dev/null 2>&1 && exit 3
+   [ "$(stat -c %u:%a /home/alice)" = 0:700 ] || exit 4
+   [ -e /home/alice/secret ] || exit 5' \
+  && pass "removed account's home is locked to root" || bad "removed-account-home (rc=$?)"
+
+say crlf-users-file
+run 'printf "alice:a1\r\nbob:b2\r\n" >/tmp/u; out=$(/opt/rdp-vscode/accounts.sh /tmp/u) || exit 9
+     [ "$out" = "alice bob" ] || exit 2
+     pw_ok alice a1 || exit 3
+     pw_ok bob b2 || exit 4' \
+  && pass "CRLF users file" || bad "crlf-users-file (rc=$?)"
+
 finish
