@@ -64,12 +64,16 @@ done
 
 say server-dry-run
 # The rdp-vscode namespace may not exist yet, and a dry run never creates it,
-# so validate the objects in the existing "default" namespace instead.
+# so validate the objects in the existing "default" namespace instead. The
+# nodePort is dropped (checked above) so a running deployment does not clash.
 for o in stateless stateful example-ssh-configmap; do
   python3 -c '
 import sys, yaml
 docs = [d for d in yaml.safe_load_all(open(sys.argv[1])) if d and d["kind"] != "Namespace"]
-for d in docs: d["metadata"]["namespace"] = "default"
+for d in docs:
+    d["metadata"]["namespace"] = "default"
+    for port in d.get("spec", {}).get("ports", []) if d["kind"] == "Service" else []:
+        port.pop("nodePort", None)
 yaml.safe_dump_all(docs, sys.stdout)
 ' "$TMP/$o.yaml" > "$TMP/$o.default.yaml"
   out=$(kubectl apply --dry-run=server -f "$TMP/$o.default.yaml" 2>&1) && pass "dry-run $o" || bad "dry-run $o: $(tail -2 <<<"$out")"
