@@ -25,7 +25,7 @@
 | 7 | ControlMaster 跟 Open Remote-SSH 相容嗎？ | B4 是保留還是拿掉 |
 | 8 | 直接複製 extension 目錄時，VSCodium 會不會載入？ | B5 同步機制 |
 
-**產出：** `docs/spike-notes.md`，以及固定的版本號（VSCodium、Open Remote-SSH、繁中語言包）。
+**產出：** `docs/spike-notes.md`，以及固定的版本號（VSCodium、Open Remote-SSH、繁中語言包）。8 題的結論見 [spike-notes](../spike-notes.md)，對設計的影響見 [01 的「實作後的修正」](01-decisions.md#6-實作後的修正)。
 **停損點：** 如果第 3 題的結論是做不到，就停下來重新討論，因為這會推翻選用 VSCodium 的決定。
 
 ### Task 1：Repo 初始化與 ssh-config 產生器

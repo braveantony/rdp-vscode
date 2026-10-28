@@ -66,14 +66,14 @@ kubectl apply -k deploy/stateless   # 或 deploy/stateful
 | Secret `rdp-vscode-users`（key `users`） | `/etc/rdp-vscode/users` | 一行一個 `帳號:密碼`，由 secretGenerator 從 `users.txt` 產生，預設是 `bigred:bigred` |
 | ConfigMap `rdp-vscode-ssh`（key `config`） | `/etc/rdp-vscode/ssh/config` | optional；存在而且不是空的，就取代環境變數產生的 SSH 設定 |
 | emptyDir 或 PVC | `/home` | 由 overlay 決定 |
-| emptyDir（Memory） | `/dev/shm` | Electron 用的共享記憶體 |
+| emptyDir（Memory，1Gi） | `/dev/shm` | Electron 用的共享記憶體；用預設的 64MB 時，載入中文字型會崩潰 |
 
 ## Image
 
 | Tag | 內容 |
 |---|---|
-| `ghcr.io/braveantony/rdp-vscode:1.0` | 預設版本，只有 Simple Browser，約 1.2GB |
-| `ghcr.io/braveantony/rdp-vscode:1.0-firefox` | 多了 Firefox ESR，約多 250MB |
+| `ghcr.io/braveantony/rdp-vscode:1.0` | 預設版本，用內建的 Integrated Browser，約 1.3GB |
+| `ghcr.io/braveantony/rdp-vscode:1.0-firefox` | 多了 Firefox ESR，約 1.6GB（多約 310MB） |
 
 manifest 預設使用 `imagePullPolicy: IfNotPresent`。e2e 測試時，會用 kustomize 的 `images:` 換成本機 build 的 `localhost/rdp-vscode:dev`，再用 rdp-firefox 的方式載入 tk8s 的 worker 節點。
 

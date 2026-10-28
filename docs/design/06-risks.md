@@ -7,7 +7,7 @@
 **預設帳密 bigred/bigred 只適合隔離的實驗環境。** 只要能連到任何一個節點的 port 30390，就能沿著這條路一路取得整個叢集的控制權：
 
 1. 用預設帳密登入 RDP
-2. 登入後就在 pod 內：透過 VSCodium、Simple Browser 或本地 terminal，都能存取叢集內所有 ClusterIP Service（**不需要另外取得 shell**，所以關掉本地 terminal 並不會讓它變安全）
+2. 登入後就在 pod 內：透過 VSCodium、Integrated Browser 或本地 terminal，都能存取叢集內所有 ClusterIP Service（**不需要另外取得 shell**，所以關掉本地 terminal 並不會讓它變安全）
 3. 用 bigred/bigred SSH 到 tkadm（VSCodium 會自動連線）
 4. 用 tkadm 上的 kubectl 控制整個叢集
 
@@ -24,23 +24,24 @@
 | 共用 tkadm 帳號 | 所有 RDP 帳號都以 tkadm 的 bigred 登入，會互相改到檔案，也共用 kubeconfig 的權限（B1） |
 | tkadm 重啟後要重新下載 server | `~/.vscodium-server` 沒有持久化，下次連線會重新下載約 60MB |
 | Extension 生態系 | 只能用 Open VSX 的 extension，Pylance、C# Dev Kit、Copilot 等不能用 |
-| Image 大小 | 約 1.2GB；`-firefox` 版本約多 250MB |
+| Image 大小 | 約 1.3GB；`-firefox` 版本約 1.6GB |
 | 記憶體 | 每多一個人約加 1Gi；超過 limit 時整個 pod 被 OOMKilled，所有人一起斷線 |
 | local-path 綁定節點 | stateful 模式下，節點掛掉時 pod 就起不來 |
 | 中文輸入 | 不支援在 pod 裡打中文，要在本機打好再用剪貼簿貼上 |
 | 沒有 session 分享 | 第一版不做（D9） |
+| 每次連線都要輸入 tkadm 密碼 | 包括 `Reload Window`；ControlMaster 對 Open Remote-SSH 沒有作用（B4 已拿掉） |
+| xrdp 以 root 執行 | Debian trixie 的 xrdp 0.10.1 不支援降權，跟 rdp-firefox 不同 |
+| 點連結不會用內建瀏覽器開 | 要自己開 Integrated Browser；只有 `-firefox` 版本點連結會開 Firefox |
 
-## 待驗證的假設（Task 0）
+## Task 0 驗證過的假設
 
-以下假設如果被推翻，設計就要調整：
-
-| 假設 | 如果被推翻 |
+| 假設 | 結果 |
 |---|---|
-| Open Remote-SSH 能在 Alpine 的 tkadm 上運作 | **停下來重新討論**，因為這會推翻選用 VSCodium 的決定 |
-| ControlMaster 跟 Open Remote-SSH 相容 | 拿掉這三行設定，改成每次連線都輸入密碼 |
-| `codium & wait $!` 在視窗關閉時才返回，斷線時 trap 會執行清理 | 改用 `--wait` 之類的參數；斷線清理改由 entrypoint 定期清除殘留目錄 |
-| 直接複製 extension 目錄就能被載入 | 改用 `--install-extension`，並處理 `extensions.json` |
-| Electron 在容器裡的 sandbox 能正常運作 | 加上 `--no-sandbox` |
+| Open Remote-SSH 能在 Alpine 的 tkadm 上運作 | 可以，但 tkadm 的 sshd 必須改成 `AllowTcpForwarding local` |
+| ControlMaster 跟 Open Remote-SSH 相容 | 沒有作用，已拿掉，每次連線都輸入密碼 |
+| `codium & wait $!` 在視窗關閉時才返回，斷線時 trap 會執行清理 | `codium` 會立刻返回；改成直接執行 `/usr/share/codium/codium` 後，關閉和斷線清理都正常 |
+| 直接複製 extension 目錄就能被載入 | 不行，改用 `--install-extension` |
+| Electron 在容器裡的 sandbox 能正常運作 | 可以，不需要 `--no-sandbox` |
 
 ## 重要發現
 
