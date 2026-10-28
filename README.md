@@ -48,8 +48,6 @@
 
 ## 快速開始
 
-### Kubernetes
-
 在已安裝 kubectl、curl、bash，而且連得到目標叢集的電腦上執行（可以先用 `kubectl config current-context` 確認目前選用的是哪個叢集）：
 
 ```bash
@@ -63,21 +61,6 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 - 這樣部署的 `/home` 是 emptyDir（Pod 刪掉就跟著消失的暫存空間），Pod 重建後（例如重新部署）設定會回到預設值。如果需要多個帳號、修改密碼或保留 home，請改用下方的[進階設定](#進階多個帳號與保留-homekustomize)
 - 如果節點位在主機的內部網段（例如作者的實驗叢集 tk8s），區網連不到 NodePort，請在主機上設定埠轉發，見 [docs/build-image.md](docs/build-image.md) 的 Step 6
 - 移除：`kubectl delete namespace rdp-vscode`
-
-### 單機（podman）
-
-在一台 Linux 主機上用 podman（類似 Docker 的容器工具）執行。先把 `<SSH 主機>`、`<SSH 帳號>` 連同尖括號換成實際的值（例如 `192.168.1.10`、`alice`），再貼上：
-
-```bash
-podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
-  -e RDP_PASSWORD=bigred -e SSH_HOST=<SSH 主機> -e SSH_PORT=22 -e SSH_USER=<SSH 帳號> \
-  -e SSH_REMOTE_FOLDER=/home/<SSH 帳號> \
-  ghcr.io/braveantony/rdp-vscode:1.0
-```
-
-用遠端桌面連到 `<主機 IP>:13390`（執行 podman 的那台機器；在同一台機器上可以用 `localhost:13390`），帳號 `bigred`、密碼 `bigred`。`--shm-size 1g` 用來加大共用記憶體，因為用預設的 64 MB 時，VSCodium 載入中文字型會崩潰。
-
-單機沒有叢集，連不到預設的 tkadm，所以要用 `SSH_HOST` 等變數指定一台 SSH 主機（它的 sshd 一樣要允許埠轉發）。不需要自動連線時，改成 `-e SSH_HOST_ALIAS=`（空字串），登入後只開啟 container 裡的 VSCodium，不會連到任何 SSH 主機。
 
 ## 怎麼用
 
@@ -180,13 +163,13 @@ bob:Bob-pw
 
 ## 環境變數
 
-在 Kubernetes 上改 `manifests/base/deployment.yaml` 的 `env`；單機時用 `podman run -e`。
+改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k`。
 
 | 變數 | 預設值 | 說明 |
 |---|---|---|
 | `USERS_FILE` | `/etc/rdp-vscode/users` | 帳號檔案，一行一個 `帳號:密碼`；Kubernetes 上一定會由 Secret `rdp-vscode-users-*` 掛載 |
-| `RDP_USER` | `bigred` | 沒有帳號檔案時（單機 podman）的登入帳號（UID 1000） |
-| `RDP_PASSWORD` | — | 沒有帳號檔案時（單機 podman）的登入密碼，此時必填 |
+| `RDP_USER` | `bigred` | 沒有帳號檔案時的登入帳號（UID 1000）；Kubernetes 上一定有帳號檔案，用不到 |
+| `RDP_PASSWORD` | — | 沒有帳號檔案時的登入密碼，此時必填；Kubernetes 上用不到 |
 | `MAX_SESSIONS` | `3` | 可以同時存在的桌面數上限（所有帳號合計，斷線後 2 分鐘內還沒清除的桌面也算在內）；每多一個桌面，約需多 1 GiB 記憶體 |
 | `SSH_HOST_ALIAS` | `tkadm` | 登入時 VSCodium 自動連線的 SSH `Host` 名稱；設成空字串就不自動連線 |
 | `SSH_HOST` | `tkadm.taroko` | SSH 目標的主機名稱或 IP。預設用短名稱（`<service>.<namespace>`），任何 cluster domain 都能用 |

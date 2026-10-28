@@ -48,8 +48,6 @@ Details in [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
 
 ## Quick start
 
-### Kubernetes
-
 On a machine with kubectl, curl and bash that can reach the cluster (check the current cluster with `kubectl config current-context`):
 
 ```bash
@@ -63,21 +61,6 @@ You can also read node IPs from the INTERNAL-IP column of `kubectl get nodes -o 
 - This deployment keeps `/home` in an emptyDir (scratch space deleted with the Pod), so settings reset when the Pod is recreated (for example on redeploy). For several accounts, other passwords or a persistent home, use [Advanced](#advanced-several-accounts-and-a-persistent-home-kustomize) below
 - If the nodes sit on a host-internal network your LAN cannot reach (the author's lab cluster tk8s, for example), forward a port on the host: see Step 6 of [docs/build-image.md](docs/build-image.md)
 - Uninstall: `kubectl delete namespace rdp-vscode`
-
-### Single host (podman)
-
-On a Linux host with podman. Replace `<ssh host>` and `<ssh user>`, angle brackets included, with real values (for example `192.168.1.10` and `alice`) before pasting:
-
-```bash
-podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
-  -e RDP_PASSWORD=bigred -e SSH_HOST=<ssh host> -e SSH_PORT=22 -e SSH_USER=<ssh user> \
-  -e SSH_REMOTE_FOLDER=/home/<ssh user> \
-  ghcr.io/braveantony/rdp-vscode:1.0
-```
-
-Connect Remote Desktop to `<host IP>:13390` (the machine running podman; `localhost:13390` on the same machine) and log in as `bigred` / `bigred`. `--shm-size 1g` enlarges shared memory, because with the 64 MB default VSCodium crashes while loading the CJK fonts.
-
-Without a cluster there is no tkadm, so point `SSH_HOST` and friends at an SSH host (its sshd must allow port forwarding too). To skip the automatic connection, pass `-e SSH_HOST_ALIAS=` (empty): you then get only the VSCodium in the container, connected to no SSH host.
 
 ## How to use
 
@@ -180,13 +163,13 @@ bob:Bob-pw
 
 ## Environment variables
 
-On Kubernetes edit `env` in `manifests/base/deployment.yaml`; on a single host use `podman run -e`.
+Edit `env` in `manifests/base/deployment.yaml` and run `kubectl apply -k` again.
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `USERS_FILE` | `/etc/rdp-vscode/users` | Account file, one `user:password` per line; on Kubernetes it is always mounted from Secret `rdp-vscode-users-*` |
-| `RDP_USER` | `bigred` | Login account when there is no account file (single-host podman), UID 1000 |
-| `RDP_PASSWORD` | — | Its password (single-host podman), required in that case |
+| `RDP_USER` | `bigred` | Login account when there is no account file (UID 1000); on Kubernetes the file always exists, so it is not used |
+| `RDP_PASSWORD` | — | Its password, required in that case; not used on Kubernetes |
 | `MAX_SESSIONS` | `3` | Maximum concurrent desktops, all accounts together (a disconnected desktop counts until it is removed 2 minutes later); each one needs about 1 GiB more memory |
 | `SSH_HOST_ALIAS` | `tkadm` | SSH `Host` name VSCodium connects to on login; empty disables the auto connect |
 | `SSH_HOST` | `tkadm.taroko` | Host name or IP of the SSH target. The short name (`<service>.<namespace>`) works with any cluster domain |
