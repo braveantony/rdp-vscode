@@ -103,9 +103,9 @@ kubectl -n default expose deploy web --port 80
 
 ## 版本比較
 
-| | 1.1 | 1.1-firefox |
+| | 1.2 | 1.2-firefox |
 |---|---|---|
-| 映像檔 | `ghcr.io/braveantony/rdp-vscode:1.1` | `ghcr.io/braveantony/rdp-vscode:1.1-firefox` |
+| 映像檔 | `ghcr.io/braveantony/rdp-vscode:1.2` | `ghcr.io/braveantony/rdp-vscode:1.2-firefox` |
 | VSCodium 1.143.17183、Open Remote-SSH 0.5.1、繁中語言包 1.131.0 | ✅ | ✅ |
 | 自動連線 tkadm、遠端自動安裝 YAML 擴充功能 | ✅ | ✅ |
 | 用 Integrated Browser 開叢集內的網站 | ✅ | ✅ |

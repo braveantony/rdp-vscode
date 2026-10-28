@@ -201,7 +201,7 @@
 <polyline points="1580,1575 1580,1586" fill="none" stroke="#78909f" stroke-width="2"/>
 <polyline points="1580,1595 1580,1605" fill="none" stroke="#78909f" stroke-width="2"/>
 <text x="520" y="818" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">container：desktop（單一 container）</text>
-<text x="520" y="855" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="24" fill="#596e85">ghcr.io/braveantony/rdp-vscode:1.1</text>
+<text x="520" y="855" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="24" fill="#596e85">ghcr.io/braveantony/rdp-vscode:1.2</text>
 <rect x="1650" y="800" width="750" height="640" fill="#f8fbff" stroke="#9fb9d3"/>
 <text x="1680" y="845" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">namespace：taroko</text>
 <rect x="40" y="220" width="320" height="110" fill="#ffffff" stroke="#ced9e5"/>

@@ -103,9 +103,9 @@ The [user guide](docs/user-guide.md) (Traditional Chinese) has the full instruct
 
 ## Images
 
-| | 1.1 | 1.1-firefox |
+| | 1.2 | 1.2-firefox |
 |---|---|---|
-| Image | `ghcr.io/braveantony/rdp-vscode:1.1` | `ghcr.io/braveantony/rdp-vscode:1.1-firefox` |
+| Image | `ghcr.io/braveantony/rdp-vscode:1.2` | `ghcr.io/braveantony/rdp-vscode:1.2-firefox` |
 | VSCodium 1.143.17183, Open Remote-SSH 0.5.1, Traditional Chinese pack 1.131.0 | ✅ | ✅ |
 | Auto-connect to tkadm, YAML extension installed on tkadm | ✅ | ✅ |
 | Open cluster websites in the Integrated Browser | ✅ | ✅ |

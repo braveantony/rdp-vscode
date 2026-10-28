@@ -108,7 +108,7 @@ rect(470,710,1130,920,'#ffffff','#6e98bf')
 text(500,752,'rdp-vscode Pod',32)
 dashed_container(490,775,1090,830)
 text(520,818,'container：desktop（單一 container）',27)
-text(520,855,'ghcr.io/braveantony/rdp-vscode:1.1',24,'#596e85')
+text(520,855,'ghcr.io/braveantony/rdp-vscode:1.2',24,'#596e85')
 rect(1650,800,750,640,'#f8fbff','#9fb9d3')
 text(1680,845,'namespace：taroko',30)
 

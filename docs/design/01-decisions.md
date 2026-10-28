@@ -21,7 +21,7 @@
 
 ### D14 名稱與授權
 - GitHub repo：`braveantony/rdp-vscode`
-- Image：`ghcr.io/braveantony/rdp-vscode:1.1`（Firefox 版本是 `:1.1-firefox`）
+- Image：`ghcr.io/braveantony/rdp-vscode:1.2`（Firefox 版本是 `:1.2-firefox`）
 - 授權：**Apache-2.0**。它跟 VSCodium（MIT）、xrdp（Apache-2.0）相容，而且附帶專利授權。沒有 LICENSE 檔的 repo，法律上等於「保留所有權利」，別人不能合法使用
 
 ### D15 Build 方式：podman 手動 build、手動 push
