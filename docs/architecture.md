@@ -1,6 +1,6 @@
 # rdp-vscode 系統運作架構
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.1`
 
 ![rdp-vscode 系統運作架構](architecture/rdp-vscode-architecture.png)
 

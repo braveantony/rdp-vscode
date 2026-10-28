@@ -27,7 +27,7 @@ PNG 使用 WenQuanYi Zen Hei（文泉驛正黑）字型，檢視時不需要另�
 - 粗藍線是從用戶端經 RDP 進入 VSCodium 桌面的主路徑。VSCodium 方塊畫在 Xorg session 裡，表示 VSCodium 在該桌面內全螢幕執行。
 - 綠線是 VSCodium 到 tkadm 的 SSH 連線；連上後經 sshd 的本機埠轉發連到 ③ vscodium-server，所以 tkadm 的 sshd 必須是 `AllowTcpForwarding local`。
 - 橙線：VSCodium 的 Integrated Browser 直接開叢集內的 Web 服務；tkadm 上的 kubectl 呼叫 Kubernetes API。
-- Pod 內只有一個 `desktop` container（虛線框），映像檔為 `ghcr.io/braveantony/rdp-vscode:1.0`。方塊右上角的標籤標明種類：`process`／`processes` 表示一個或多個執行中的程式（① 是 xrdp 和 xrdp-sesman 兩個）；`session` 表示一組 process 組成的桌面（②）；`volume` 是掛載的儲存空間。這些都不是額外的 container。
+- Pod 內只有一個 `desktop` container（虛線框），映像檔為 `ghcr.io/braveantony/rdp-vscode:1.1`。方塊右上角的標籤標明種類：`process`／`processes` 表示一個或多個執行中的程式（① 是 xrdp 和 xrdp-sesman 兩個）；`session` 表示一組 process 組成的桌面（②）；`volume` 是掛載的儲存空間。這些都不是額外的 container。
   - ① 由 tini 與 `/opt/rdp-vscode/entrypoint.sh` 在 container 啟動時開啟。
   - ② 在使用者登入時，由 xrdp-sesman 透過 `startwm.sh` 開啟。
 - ③ vscodium-server 在 tkadm 上執行，由 Open Remote-SSH 在每次連線時啟動（tkadm 上還沒有這個版本時，會先下載），不屬於 rdp-vscode Pod。

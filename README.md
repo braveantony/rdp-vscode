@@ -90,7 +90,7 @@ kubectl -n default expose deploy web --port 80
 
 網址可以用短名稱 `http://<service>.<namespace>`，也可以用完整網域名稱（見[使用手冊](docs/user-guide.md)）。服務的埠號不是 80 時，在網址後加上 `:<埠號>`。
 
-> 在終端機裡按住 `Ctrl` 點網址時，不會用 Integrated Browser 開啟；1.0 版的映像檔裡沒有其他瀏覽器，所以不會有反應。`-firefox` 版則會用 Firefox 開啟。
+> 在終端機裡按住 `Ctrl` 點網址時，不會用 Integrated Browser 開啟；預設版的映像檔裡沒有其他瀏覽器，所以不會有反應。`-firefox` 版則會用 Firefox 開啟。
 
 ### 4. 使用時要知道的事
 
@@ -103,9 +103,9 @@ kubectl -n default expose deploy web --port 80
 
 ## 版本比較
 
-| | 1.0 | 1.0-firefox |
+| | 1.1 | 1.1-firefox |
 |---|---|---|
-| 映像檔 | `ghcr.io/braveantony/rdp-vscode:1.0` | `ghcr.io/braveantony/rdp-vscode:1.0-firefox` |
+| 映像檔 | `ghcr.io/braveantony/rdp-vscode:1.1` | `ghcr.io/braveantony/rdp-vscode:1.1-firefox` |
 | VSCodium 1.143.17183、Open Remote-SSH 0.5.1、繁中語言包 1.131.0 | ✅ | ✅ |
 | 自動連線 tkadm、遠端自動安裝 YAML 擴充功能 | ✅ | ✅ |
 | 用 Integrated Browser 開叢集內的網站 | ✅ | ✅ |

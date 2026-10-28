@@ -1,6 +1,6 @@
 # VSCodium 遠端桌面使用手冊
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`（`:1.0-firefox` 另見第 5 節）。安裝方式見 [README](../README.md#快速開始)。
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.1`（`:1.1-firefox` 另見第 5 節）。安裝方式見 [README](../README.md#快速開始)。
 
 用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動以 SSH 連到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
@@ -45,7 +45,7 @@
 
 網址可以只寫 `http://<service 名稱>.<namespace>`；完整網域名稱（FQDN）請問管理者。
 
-> 在終端機裡按住 `Ctrl` 點網址時，VSCodium 會問要不要開啟外部網站，但 1.0 版的映像檔裡沒有其他瀏覽器，所以按了也沒有反應。請照上面的步驟用 Integrated Browser 開。`-firefox` 版見第 5 節。
+> 在終端機裡按住 `Ctrl` 點網址時，VSCodium 會問要不要開啟外部網站，但 預設版的映像檔裡沒有其他瀏覽器，所以按了也沒有反應。請照上面的步驟用 Integrated Browser 開。`-firefox` 版見第 5 節。
 
 測完記得刪除：
 
@@ -64,7 +64,7 @@ kubectl -n default delete deploy/web svc/web
 - **輸入中文**：遠端桌面裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。
 - **YAML 補全**：`tkadm` 第一次連線時會自動安裝 YAML 擴充功能（extension）。編輯 `.yaml` 檔時，按 `Ctrl+Space` 會出現 Kubernetes 欄位的建議。
 
-## 5. `-firefox` 版（`:1.0-firefox`）
+## 5. `-firefox` 版（`:1.1-firefox`）
 
 管理者部署的是 `-firefox` 版時：
 

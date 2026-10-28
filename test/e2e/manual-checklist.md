@@ -45,7 +45,7 @@ RDP 連到 `<節點 IP>:30390`，在 xrdp 登入畫面輸入 `bigred` / `bigred`
 
 ## AC9：`-firefox` 版本
 
-用 `localhost/rdp-vscode:dev-firefox`（或 `ghcr.io/braveantony/rdp-vscode:1.0-firefox`）部署：
+用 `localhost/rdp-vscode:dev-firefox`（或 `ghcr.io/braveantony/rdp-vscode:1.1-firefox`）部署：
 
 - [ ] 在 VSCodium terminal 執行 `echo http://web.default.svc.tk8s.k8s`，用 `Ctrl+` 點擊網址，確認對話框後會開啟 Firefox，並顯示 nginx 歡迎頁
 - [ ] `Alt+Tab` 可以在 VSCodium 和 Firefox 之間切換

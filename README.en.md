@@ -90,7 +90,7 @@ Press `Ctrl+Shift+P`, run "Browser: Open Integrated Browser" (or click the globe
 
 Use the short name `http://<service>.<namespace>` or the full domain name (see the [user guide](docs/user-guide.md), Traditional Chinese). Add `:<port>` when the service does not listen on 80.
 
-> `Ctrl`-clicking a URL in the terminal does not open the Integrated Browser, and the 1.0 image has no other browser, so nothing happens. The `-firefox` image opens such links in Firefox.
+> `Ctrl`-clicking a URL in the terminal does not open the Integrated Browser, and the default image has no other browser, so nothing happens. The `-firefox` image opens such links in Firefox.
 
 ### 4. Good to know
 
@@ -103,9 +103,9 @@ The [user guide](docs/user-guide.md) (Traditional Chinese) has the full instruct
 
 ## Images
 
-| | 1.0 | 1.0-firefox |
+| | 1.1 | 1.1-firefox |
 |---|---|---|
-| Image | `ghcr.io/braveantony/rdp-vscode:1.0` | `ghcr.io/braveantony/rdp-vscode:1.0-firefox` |
+| Image | `ghcr.io/braveantony/rdp-vscode:1.1` | `ghcr.io/braveantony/rdp-vscode:1.1-firefox` |
 | VSCodium 1.143.17183, Open Remote-SSH 0.5.1, Traditional Chinese pack 1.131.0 | ✅ | ✅ |
 | Auto-connect to tkadm, YAML extension installed on tkadm | ✅ | ✅ |
 | Open cluster websites in the Integrated Browser | ✅ | ✅ |
