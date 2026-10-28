@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rdp-vscode quick start for Kubernetes: one account, bigred / bigred, /home in
-# an emptyDir (files are lost when the Pod restarts).
+# an emptyDir (settings are lost when the Pod is recreated).
 #
 #   curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install.sh | bash
 #
