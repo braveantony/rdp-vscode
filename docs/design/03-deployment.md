@@ -57,6 +57,7 @@ kubectl apply -k manifests/stateless   # 或 manifests/stateful
 | `SSH_USER` | `bigred` | User |
 | `SSH_REMOTE_FOLDER` | `/home/$SSH_USER` | 自動連線後開啟的遠端資料夾 |
 | `VSCODIUM_LOCALE` | `zh-tw` | 介面語言，可以設成 `en` |
+| `VSCODIUM_FONT` | `jetbrains-mono` | 系統 `monospace` 字型（fontconfig），也就是編輯器和終端機的預設字型；可以設成 `cascadia-code` 或 `noto` |
 | `MAX_SESSIONS` | `3` | 同時連線上限 |
 
 ## 掛載點

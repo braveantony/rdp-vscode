@@ -30,6 +30,15 @@ say locale-fonts
 [ -n "$(run 'fc-list :lang=zh-tw')" ] && pass "zh-tw fonts" || bad "no zh-tw fonts"
 run 'locale -a | grep -qx zh_TW.utf8' && pass "zh_TW.utf8 locale" || bad "zh_TW.utf8 locale missing"
 
+say monospace-font
+# entrypoint.sh writes font-config.sh's output to /etc/fonts/local.conf
+mono() { podman run --rm -e "VSCODIUM_FONT=$1" --entrypoint /bin/sh "$IMG" -c \
+  '/opt/rdp-vscode/font-config.sh > /etc/fonts/local.conf 2>/dev/null && fc-match -f "%{family[0]}" monospace'; }
+for kv in "jetbrains-mono=JetBrains Mono" "cascadia-code=Cascadia Code" "noto=Noto Sans Mono CJK TC"; do
+  got=$(mono "${kv%%=*}")
+  [ "$got" = "${kv#*=}" ] && pass "monospace $kv" || bad "monospace ${kv%%=*}: got '$got'"
+done
+
 say xrdp-config
 run '! grep -q "^\[Xvnc\]" /etc/xrdp/xrdp.ini' && pass "no [Xvnc]" || bad "[Xvnc] section present"
 for kv in rdpdr=false rdpsnd=false; do
@@ -48,7 +57,9 @@ say ssh-include
 run 'grep -qxF "Include /etc/ssh/ssh_config.d/*.conf" /etc/ssh/ssh_config' && pass "ssh_config Include" || bad "ssh_config has no Include"
 
 say scripts
-run 'test -x /opt/rdp-vscode/ssh-config.sh' && pass "ssh-config.sh" || bad "/opt/rdp-vscode/ssh-config.sh missing"
+for f in ssh-config.sh font-config.sh; do
+  run "test -x /opt/rdp-vscode/$f" && pass "$f" || bad "/opt/rdp-vscode/$f missing"
+done
 
 say firefox
 if [ "$FIREFOX" = --firefox ]; then

@@ -139,6 +139,7 @@ kubectl -n default expose deploy web --port 80
 | `SSH_USER` | `bigred` | SSH 帳號 |
 | `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | 連線後在 SSH 目標上開啟的資料夾；`manifests/base/deployment.yaml` 已明確設成 `/home/bigred`，改 `SSH_USER` 時要一起改 |
 | `VSCODIUM_LOCALE` | `zh-tw` | 介面語言：`zh-tw` 或 `en` |
+| `VSCODIUM_FONT` | `jetbrains-mono` | 編輯器和終端機的預設字型：`jetbrains-mono`、`cascadia-code` 或 `noto`（Noto Sans Mono CJK TC）；中文一律用 Noto Sans Mono CJK TC 顯示。帳號在 VSCodium 裡自己設定過字型時，以自己的設定為準 |
 
 SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 ConfigMap `rdp-vscode-ssh`（key 為 `config`）且內容不是空的，就會整份改用它；這時 ConfigMap 裡要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`。
 

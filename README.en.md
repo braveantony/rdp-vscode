@@ -139,6 +139,7 @@ First clone this repo as described in the [install guide](docs/install.md#kustom
 | `SSH_USER` | `bigred` | SSH user |
 | `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | Folder opened on the SSH target; `manifests/base/deployment.yaml` sets it to `/home/bigred` explicitly, so change it as well when you change `SSH_USER` |
 | `VSCODIUM_LOCALE` | `zh-tw` | UI language: `zh-tw` or `en` |
+| `VSCODIUM_FONT` | `jetbrains-mono` | Default editor and terminal font: `jetbrains-mono`, `cascadia-code` or `noto` (Noto Sans Mono CJK TC); Chinese always uses Noto Sans Mono CJK TC. A font set in an account's own VSCodium settings wins |
 
 The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. If a ConfigMap `rdp-vscode-ssh` (key `config`) is mounted and not empty, it replaces the whole file; it must then contain a `Host` entry whose name matches `SSH_HOST_ALIAS`.
 

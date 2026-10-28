@@ -12,6 +12,7 @@ unset RDP_PASSWORD
 echo "[entrypoint] accounts: $users"
 
 /opt/rdp-vscode/ssh-config.sh > /etc/ssh/ssh_config.d/rdp-vscode.conf
+/opt/rdp-vscode/font-config.sh > /etc/fonts/local.conf
 
 # sesman starts sessions with a clean environment; startwm.sh reads this file
 install -d -m 755 /run/rdp-vscode
