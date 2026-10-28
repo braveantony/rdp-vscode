@@ -19,8 +19,6 @@
 <text x="256" y="80" font-size="13" text-anchor="start">
 <tspan x="256" dy="0">共用設定提醒</tspan>
 </text>
-<rect x="440" y="66" width="26" height="16" rx="3" fill="#ffffff" stroke="#495057" stroke-dasharray="6 4"/>
-<text x="474" y="80" font-size="13"><tspan x="474" dy="0">虛線框 = 待 Task 0 驗證（括號內為題號）</tspan></text>
 <rect x="70" y="120" width="790" height="80" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="465.0" y="153.1" font-size="16" text-anchor="middle">
 <tspan x="465.0" dy="0">1　RDP 連線</tspan>
@@ -33,18 +31,19 @@
 <tspan x="465.0" dy="25">以登入帳號執行 startwm.sh</tspan>
 </text>
 <path d="M 465 320 V 350" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
-<rect x="70" y="350" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="70" y="350" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="465.0" y="390.6" font-size="16" text-anchor="middle">
-<tspan x="465.0" dy="0">3　建立 session 目錄 /tmp/sess/&lt;display&gt;.&lt;uid&gt;/（data、run）（T0-6）</tspan>
+<tspan x="465.0" dy="0">3　建立 session 目錄 /tmp/sess/&lt;display&gt;.&lt;uid&gt;/（data、run）</tspan>
 <tspan x="465.0" dy="25">data/User → ~/.config/VSCodium/User</tspan>
 <tspan x="465.0" dy="25">symlink：設定共用、可持久化</tspan>
 </text>
 <path d="M 465 470 V 500" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
-<rect x="70" y="500" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
-<text x="465.0" y="540.6" font-size="16" text-anchor="middle">
-<tspan x="465.0" dy="0">4　sync-extensions.sh：同步預裝 extension（T0-8）</tspan>
-<tspan x="465.0" dy="25">/opt/rdp-vscode/extensions → ~/.vscode-oss/extensions</tspan>
+<rect x="70" y="500" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
+<text x="465.0" y="525.6" font-size="16" text-anchor="middle">
+<tspan x="465.0" dy="0">4　sync-extensions.sh：用 --install-extension 安裝預裝 extension</tspan>
+<tspan x="465.0" dy="25">/opt/rdp-vscode/vsix/*.vsix → ~/.vscode-oss/extensions</tspan>
 <tspan x="465.0" dy="25">版本不同才換；使用者自己裝的不動</tspan>
+<tspan x="465.0" dy="25">startwm.sh 再產生 languagepacks.json（讓繁中介面立即生效）</tspan>
 </text>
 <path d="M 465 620 V 650" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
 <rect x="70" y="650" width="790" height="65" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
@@ -52,16 +51,16 @@
 <tspan x="465.0" dy="0">5　啟動 openbox（kiosk：最大化、無邊框）</tspan>
 </text>
 <path d="M 465 715 V 745" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
-<rect x="70" y="745" width="790" height="105" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="70" y="745" width="790" height="105" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="465.0" y="778.1" font-size="16" text-anchor="middle">
-<tspan x="465.0" dy="0">6 啟動 VSCodium（背景執行並 wait $!）（T0-2）</tspan>
-<tspan x="465.0" dy="25">--user-data-dir &lt;session&gt;/data --locale zh-tw</tspan>
-<tspan x="465.0" dy="25">--remote ssh-remote+tkadm /home/bigred</tspan>
+<tspan x="465.0" dy="0">6 啟動 VSCodium（/usr/share/codium/codium，背景執行並 wait）</tspan>
+<tspan x="465.0" dy="25">--user-data-dir=&lt;session&gt;/data --locale=zh-tw</tspan>
+<tspan x="465.0" dy="25">--remote=ssh-remote+tkadm /home/bigred</tspan>
 </text>
 <path d="M 465 850 V 880" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
-<rect x="70" y="880" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="70" y="880" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="465.0" y="920.6" font-size="16" text-anchor="middle">
-<tspan x="465.0" dy="0">7　跳出 tkadm 密碼框 → 輸入 bigred（T0-3）</tspan>
+<tspan x="465.0" dy="0">7　跳出 tkadm 密碼框 → 輸入 bigred</tspan>
 <tspan x="465.0" dy="25">tkadm 下載／啟動 vscodium-server</tspan>
 <tspan x="465.0" dy="25">左下角顯示 SSH: tkadm</tspan>
 </text>
@@ -69,11 +68,11 @@
 <rect x="70" y="1030" width="790" height="80" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="465.0" y="1063.1" font-size="16" text-anchor="middle">
 <tspan x="465.0" dy="0">8　使用者工作中</tspan>
-<tspan x="465.0" dy="25">terminal 在 tkadm、YAML 補全、Simple Browser</tspan>
+<tspan x="465.0" dy="25">terminal 在 tkadm、YAML 補全、Integrated Browser</tspan>
 </text>
-<rect x="900" y="350" width="305" height="265" rx="12" fill="#f1f3f5" stroke="#495057" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="900" y="350" width="305" height="265" rx="12" fill="#f1f3f5" stroke="#495057" stroke-width="2"/>
 <text x="1052.5" y="427.75" font-size="15" text-anchor="middle">
-<tspan x="1052.5" dy="0">同一帳號同時登入兩次：（T0-6）</tspan>
+<tspan x="1052.5" dy="0">同一帳號同時登入兩次：</tspan>
 <tspan x="1052.5" dy="24">Xorg 與 session 目錄</tspan>
 <tspan x="1052.5" dy="24">各自獨立；</tspan>
 <tspan x="1052.5" dy="24">VSCodium 設定、</tspan>

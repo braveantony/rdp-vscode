@@ -27,8 +27,6 @@
 <text x="544" y="80" font-size="13" text-anchor="start">
 <tspan x="544" dy="0">叢集網路／K8s 物件</tspan>
 </text>
-<rect x="770" y="66" width="26" height="16" rx="3" fill="#ffffff" stroke="#495057" stroke-dasharray="6 4"/>
-<text x="804" y="80" font-size="13"><tspan x="804" dy="0">虛線框 = 待 Task 0 驗證（括號內為題號）</tspan></text>
 <rect x="32" y="125" width="430" height="95" rx="12" fill="#f1f3f5" stroke="#495057" stroke-width="2"/>
 <text x="247.0" y="165.6" font-size="16" text-anchor="middle">
 <tspan x="247.0" dy="0">使用者電腦</tspan>
@@ -59,7 +57,7 @@
 <text x="547.5" y="620.6" font-size="16" text-anchor="middle">
 <tspan x="547.5" dy="0">VSCodium</tspan>
 <tspan x="547.5" dy="25">Open Remote-SSH</tspan>
-<tspan x="547.5" dy="25">繁中語言包、Simple Browser</tspan>
+<tspan x="547.5" dy="25">繁中語言包、Integrated Browser</tspan>
 </text>
 <rect x="55" y="500" width="265" height="55" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="187.5" y="533" font-size="16" text-anchor="middle"><tspan x="187.5" dy="0">openbox（kiosk）</tspan></text>
@@ -78,14 +76,14 @@
 <text x="1065" y="412" font-size="18" text-anchor="start" font-weight="700">
 <tspan x="1065" dy="0">Pod tkadm（namespace taroko，Alpine）</tspan>
 </text>
-<rect x="1065" y="440" width="475" height="90" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="1065" y="440" width="475" height="90" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2"/>
 <text x="1302.5" y="478.1" font-size="16" text-anchor="middle">
 <tspan x="1302.5" dy="0">~/.vscodium-server：</tspan>
-<tspan x="1302.5" dy="25">reh-alpine-x64，自動下載（T0-3）</tspan>
+<tspan x="1302.5" dy="25">reh-alpine-x64，自動下載</tspan>
 </text>
-<rect x="1065" y="548" width="475" height="54" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="1065" y="548" width="475" height="54" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2"/>
 <text x="1302.5" y="580.6" font-size="16" text-anchor="middle">
-<tspan x="1302.5" dy="0">redhat.vscode-yaml：遠端自動安裝（T0-4）</tspan>
+<tspan x="1302.5" dy="0">redhat.vscode-yaml：遠端自動安裝</tspan>
 </text>
 <rect x="1165" y="620" width="275" height="48" rx="12" fill="#e6f6ea" stroke="#2b8a3e" stroke-width="2"/>
 <text x="1302.5" y="649.6" font-size="16" text-anchor="middle">
@@ -96,7 +94,7 @@
 <tspan x="770" dy="0">SSH tkadm.taroko:22100（使用者輸入密碼 bigred）</tspan>
 </text>
 <text x="770" y="293" font-size="13" text-anchor="start">
-<tspan x="770" dy="0">ControlMaster 共用 30 分鐘：僅 env 產生的設定（T0-7）</tspan>
+<tspan x="770" dy="0">需要 sshd AllowTcpForwarding local</tspan>
 </text>
 <rect x="1100" y="760" width="405" height="65" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
 <text x="1302.5" y="798.1" font-size="16" text-anchor="middle">
