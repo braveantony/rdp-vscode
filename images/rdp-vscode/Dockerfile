@@ -1,5 +1,10 @@
 FROM debian:trixie-slim
 
+# ghcr.io links the package to the repo through the source label
+LABEL org.opencontainers.image.source="https://github.com/braveantony/rdp-vscode" \
+      org.opencontainers.image.description="Full-screen VSCodium over RDP, running in Kubernetes" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
 ARG VSCODIUM_VERSION=1.143.17183
 ARG OPEN_REMOTE_SSH_VERSION=0.5.1
 ARG ZH_HANT_VERSION=1.131.0

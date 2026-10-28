@@ -164,7 +164,7 @@ podman push ghcr.io/braveantony/rdp-vscode:1.0
 podman push ghcr.io/braveantony/rdp-vscode:1.0-firefox
 ```
 
-第一次推送後，到 GitHub 的 **Packages → rdp-vscode → Package settings → Change visibility**，設為 Public，別人才拉得到。
+Dockerfile 裡的 `org.opencontainers.image.source` label 會讓 ghcr.io 自動把 package 連到 repo。第一次推送後，到 GitHub 的 **Packages → rdp-vscode → Package settings → Change visibility**，設為 Public，別人才拉得到。
 
 ## 完整驗收（e2e，選用）
 
