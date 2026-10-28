@@ -61,6 +61,7 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 - 這樣部署的 `/home` 是 emptyDir（Pod 刪掉就跟著消失的暫存空間），Pod 重建後（例如重新部署）設定會回到預設值。如果需要多個帳號、修改密碼或保留 home，請改用下方的[進階設定](#進階多個帳號與保留-homekustomize)
 - 如果節點位在主機的內部網段（例如作者的實驗叢集 tk8s），區網連不到 NodePort，請在主機上設定埠轉發，見 [docs/build-image.md](docs/build-image.md) 的 Step 6
 - 移除：`kubectl delete namespace rdp-vscode`
+- 其他安裝方式（Kustomize、沒有 Kubernetes 時的單機 podman）見 [docs/install.md](docs/install.md)
 
 ## 怎麼用
 
@@ -155,6 +156,7 @@ bob:Bob-pw
 
 ## 文件
 
+- [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize、單機 podman、從區網連線、移除）
 - [architecture.md](docs/architecture.md)：系統運作架構（連線路徑、Pod 內各 process 的職責、安全邊界）
 - [user-guide.md](docs/user-guide.md)：使用手冊（連線登入、連到 tkadm、開網站、多人使用、常見問題）
 - [build-image.md](docs/build-image.md)：建置手冊（從原始碼建置兩個 tag、測試，並部署到 Kubernetes（tk8s）的完整步驟）

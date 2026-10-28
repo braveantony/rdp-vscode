@@ -61,6 +61,7 @@ You can also read node IPs from the INTERNAL-IP column of `kubectl get nodes -o 
 - This deployment keeps `/home` in an emptyDir (scratch space deleted with the Pod), so settings reset when the Pod is recreated (for example on redeploy). For several accounts, other passwords or a persistent home, use [Advanced](#advanced-several-accounts-and-a-persistent-home-kustomize) below
 - If the nodes sit on a host-internal network your LAN cannot reach (the author's lab cluster tk8s, for example), forward a port on the host: see Step 6 of [docs/build-image.md](docs/build-image.md)
 - Uninstall: `kubectl delete namespace rdp-vscode`
+- Other ways to install (Kustomize, or a single host with podman when there is no Kubernetes): [docs/install.md](docs/install.md) (Traditional Chinese)
 
 ## How to use
 
@@ -155,6 +156,7 @@ bob:Bob-pw
 
 ## Documentation (Traditional Chinese)
 
+- [install.md](docs/install.md): installation (quick start, Kustomize, single-host podman, LAN access, uninstall)
 - [architecture.md](docs/architecture.md): how it works (connection path, what each process in the Pod does, security boundaries)
 - [user-guide.md](docs/user-guide.md): user guide (logging in, connecting to tkadm, opening websites, concurrent use, troubleshooting)
 - [build-image.md](docs/build-image.md): build guide (build both tags from source, test them, and deploy to Kubernetes on tk8s)
