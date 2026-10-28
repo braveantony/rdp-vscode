@@ -31,7 +31,7 @@ Details in [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
 
 ### Kubernetes cluster
 
-- kubectl, curl, bash (and git for the advanced setup). kubectl includes Kustomize, used by `kubectl apply -k`
+- kubectl, curl, bash (and git to install with Kustomize). kubectl includes Kustomize, used by `kubectl apply -k`
 - A kubeconfig (usually `~/.kube/config`) allowed to create and update Namespaces, Deployments, Services and Secrets (plus PersistentVolumeClaims for stateful), read Deployments and Services, list and delete old `rdp-vscode-users-*` Secrets in namespace `rdp-vscode`, and list Nodes (`install.sh` needs all of these)
 - Nodes that can pull from `ghcr.io` (the image is about 1.3 GB)
 - Resources: the Pod requests 0.5 CPU / 1 GiB and is limited to 4 CPU / 4 GiB (sized for 3 concurrent users)
@@ -48,20 +48,15 @@ Details in [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
 
 ## Quick start
 
-On a machine with kubectl, curl and bash that can reach the cluster (check the current cluster with `kubectl config current-context`):
+On a machine with kubectl, curl and bash that can reach the cluster:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install.sh | bash
 ```
 
-The script deploys to namespace `rdp-vscode` with your current kubeconfig and prints the address of every node. Connect Remote Desktop to `<node IP>:30390` and log in as `bigred` / `bigred`.
+The script deploys to namespace `rdp-vscode` and prints the address of every node. Connect Remote Desktop to `<node IP>:30390` and log in as `bigred` / `bigred`.
 
-You can also read node IPs from the INTERNAL-IP column of `kubectl get nodes -o wide`; any node works. On a cloud cluster use an IP your client can reach.
-
-- This deployment keeps `/home` in an emptyDir (scratch space deleted with the Pod), so settings reset when the Pod is recreated (for example on redeploy). For several accounts, other passwords or a persistent home, use [Advanced](#advanced-several-accounts-and-a-persistent-home-kustomize) below
-- If the nodes sit on a host-internal network your LAN cannot reach (the author's lab cluster tk8s, for example), forward a port on the host: see Step 6 of [docs/build-image.md](docs/build-image.md)
-- Uninstall: `kubectl delete namespace rdp-vscode`
-- Other ways to install (Kustomize, or a single host with podman when there is no Kubernetes): [docs/install.md](docs/install.md) (Traditional Chinese)
+This quick install has one account and keeps no settings. Several accounts, your own passwords or a persistent home (Kustomize), a single host with podman when there is no Kubernetes, LAN access when the nodes sit on an internal network, and uninstalling are all in the [install guide](docs/install.md) (Traditional Chinese).
 
 ## How to use
 
@@ -107,40 +102,6 @@ Use the short name `http://<service>.<namespace>` or the full domain name (see t
 
 More in the [user guide](docs/user-guide.md) (Traditional Chinese).
 
-## Advanced: several accounts and a persistent home (Kustomize)
-
-Accounts are listed in `users.txt`; Kustomize's `secretGenerator` turns it into a Secret mounted at `/etc/rdp-vscode/users`. There are two overlays (changes layered on the shared base settings, such as which storage `/home` uses):
-
-| Overlay | `/home` | When the Pod is recreated |
-|---|---|---|
-| `manifests/stateless` | emptyDir | VSCodium settings and locally installed extensions are lost (files on tkadm are not affected) |
-| `manifests/stateful` | PVC `rdp-vscode-home` (5 GiB, ReadWriteOnce) | Everything under `/home` is kept |
-
-```bash
-git clone https://github.com/braveantony/rdp-vscode.git
-cd rdp-vscode
-vi manifests/stateful/users.txt   # edit the account list with any editor
-kubectl apply -k manifests/stateful
-kubectl -n rdp-vscode rollout status deploy/rdp-vscode   # wait for the Pod (the first pull is about 1.3 GB)
-```
-
-`users.txt` has one `user:password` per line; lines starting with `#` are comments:
-
-```text
-alice:Alice-pw
-bob:Bob-pw
-```
-
-- Names start with a lowercase letter or `_`, use lowercase letters, digits, `_` and `-`, up to 32 characters, and may not be `root`, `xrdp` or an existing system account. Passwords may not be empty and may contain `:`. Windows line endings are fine. On invalid input the Pod fails to start; see why with `kubectl -n rdp-vscode logs deploy/rdp-vscode`.
-- Accounts get UIDs 1000, 1001, … in file order. On a stateful deployment, reordering the file hands existing homes to the new UIDs at startup; the home of a removed account is locked to root, so whoever later gets its UID cannot read it.
-- After editing `users.txt`, run `kubectl apply -k` again. The Secret name carries a content hash (`rdp-vscode-users-<hash>`), so any change to `users.txt` (passwords and comments included) recreates the Pod. Every desktop lives in that one Pod, so all sessions end.
-- **StorageClass for stateful**: the PVC has no `storageClassName` and uses the cluster's default StorageClass; without a default, the PVC stays `Pending`. The class must be network storage or use `volumeBindingMode: WaitForFirstConsumer`; see [docs/ops/2026-10-28-tk8s-local-path-sc.md](docs/ops/2026-10-28-tk8s-local-path-sc.md) for why. A `local-path` volume lives on one node; if that node is down, the Pod cannot start.
-- To replace the SSH configuration entirely (several Hosts, for example), see `manifests/example/ssh-configmap`: a ConfigMap replaces the config built from `SSH_*`. It must contain a `Host` named like `SSH_HOST_ALIAS`, or the login cannot connect. The example builds on `manifests/stateless`.
-- To use another image (a private registry or the `-firefox` variant), add an `images:` block with `newName` / `newTag` to the overlay's `kustomization.yaml`.
-- To change [environment variables](#environment-variables), edit `env` in `manifests/base/deployment.yaml` and run `kubectl apply -k` again.
-- `users.txt` holds plain-text passwords; do not commit it to a public repo. Tools such as SOPS or Sealed Secrets can manage it.
-- If you used the quick start before, just run `kubectl apply -k`. Do not run `install.sh` again afterwards; it would reset to `bigred` / `bigred` and an emptyDir.
-
 ## Images
 
 | | 1.0 | 1.0-firefox |
@@ -156,7 +117,7 @@ bob:Bob-pw
 
 ## Documentation (Traditional Chinese)
 
-- [install.md](docs/install.md): installation (quick start, Kustomize, single-host podman, LAN access, uninstall)
+- [install.md](docs/install.md): installation (quick install, Kustomize with several accounts and a persistent home, single-host podman, LAN access, uninstall)
 - [architecture.md](docs/architecture.md): how it works (connection path, what each process in the Pod does, security boundaries)
 - [user-guide.md](docs/user-guide.md): user guide (logging in, connecting to tkadm, opening websites, concurrent use, troubleshooting)
 - [build-image.md](docs/build-image.md): build guide (build both tags from source, test them, and deploy to Kubernetes on tk8s)
@@ -190,7 +151,7 @@ The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. A mounted,
 | `images/rdp-vscode/Dockerfile` | Image definition (base `debian:trixie-slim`; `WITH_FIREFOX=1` adds Firefox ESR) |
 | `images/rdp-vscode/rootfs/` | Config files and scripts copied to `/` in the image (entrypoint, accounts, SSH config, desktop start and cleanup) |
 | `images/rdp-vscode/rootfs-firefox/` | Files used only by the `-firefox` variant |
-| `install.sh` | Quick-start `curl \| bash` installer (`bigred` / `bigred`, `/home` in an emptyDir) |
+| `install.sh` | Quick-install `curl \| bash` installer (`bigred` / `bigred`, `/home` in an emptyDir) |
 | `manifests/base/` | Kustomize base: Namespace, Deployment, NodePort Service (30390) |
 | `manifests/stateless/`, `manifests/stateful/` | Overlays: Secret from `users.txt`; `/home` in an emptyDir or a PVC |
 | `manifests/example/ssh-configmap/` | Example of replacing the SSH config with a ConfigMap |
@@ -199,7 +160,7 @@ The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. A mounted,
 
 ## Security warning
 
-The default account `bigred` / `bigred` is for isolated lab clusters only. Anyone who can reach NodePort 30390 with it gets into the cluster network, can SSH to tkadm, and through `kubectl` there controls the whole cluster. Before you deploy anywhere else, switch to [several accounts](#advanced-several-accounts-and-a-persistent-home-kustomize) with your own passwords.
+The default account `bigred` / `bigred` is for isolated lab clusters only. Anyone who can reach NodePort 30390 with it gets into the cluster network, can SSH to tkadm, and through `kubectl` there controls the whole cluster. Before you deploy anywhere else, switch to [several accounts](docs/install.md#kustomize多個帳號與保留-home) with your own passwords.
 
 ## License
 

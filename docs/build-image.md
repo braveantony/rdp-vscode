@@ -108,7 +108,7 @@ done
 rm -f /tmp/rdp-vscode.tar
 ```
 
-要用 `-firefox` 版時，把上面的 `:1.0` 換成 `:1.0-firefox`，並在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊換成 `newTag: 1.0-firefox`（見 README 的「進階」）。
+要用 `-firefox` 版時，把上面的 `:1.0` 換成 `:1.0-firefox`，並在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊換成 `newTag: 1.0-firefox`（見[安裝手冊](install.md#其他設定)）。
 
 ## Step 5：tk8s 的前置設定
 
@@ -139,7 +139,7 @@ kubectl -n rdp-vscode rollout status deploy/rdp-vscode
 kubectl -n rdp-vscode get pod -o wide
 ```
 
-tk8s 的節點在主機內部的網段，區網裡的 Windows 連不到 NodePort。在主機上用一個 socat（把一個埠的連線轉送到另一個位址的小工具）container，把主機的 3390 埠轉到節點的 30390。`172.22.0.2` 是 tk8s-worker-1 的 IP；NodePort 在每個節點都有開，換成 `kubectl get nodes -o wide` 的 INTERNAL-IP 欄裡任一個節點都可以：
+tk8s 的節點在主機內部的網段，區網裡的 Windows 連不到 NodePort，所以在主機上做埠轉發（`172.22.0.2` 是 tk8s-worker-1；原理和開機後自動啟動的設定見[安裝手冊的「從區網連線」](install.md#從區網連線節點在內部網段時)）：
 
 ```bash
 podman run -d --name rdp-vscode-forward --restart=always --network host \
@@ -147,13 +147,6 @@ podman run -d --name rdp-vscode-forward --restart=always --network host \
 ```
 
 Windows「遠端桌面連線」填 `<主機 IP>:3390`（例如 `192.168.11.64:3390`），接下來的操作見[使用手冊](user-guide.md)。
-
-rootless podman 的 container 要在你登出或主機重開機後仍會自動啟動，需要執行一次：
-
-```bash
-sudo loginctl enable-linger $USER
-systemctl --user enable podman-restart.service
-```
 
 開網站時，可以用短名稱 `http://<service>.<namespace>`，也可以用完整網域名稱 `http://<service>.<namespace>.svc.<cluster domain>`。叢集的 cluster domain 可以這樣查（tk8s 是 `tk8s.k8s`）：
 

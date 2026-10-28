@@ -31,7 +31,7 @@
 
 ### Kubernetes 叢集
 
-- kubectl、curl、bash（進階設定另外需要 git）。kubectl 已內建 Kustomize（組合 YAML 設定的工具，`kubectl apply -k` 就是用它）
+- kubectl、curl、bash（用 Kustomize 安裝時另外需要 git）。kubectl 已內建 Kustomize（組合 YAML 設定的工具，`kubectl apply -k` 就是用它）
 - kubeconfig（通常在 `~/.kube/config`），而且有權限建立和更新 Namespace、Deployment、Service、Secret（stateful 模式另外需要 PersistentVolumeClaim）、讀取 Deployment 和 Service、列出和刪除 namespace `rdp-vscode` 裡舊的 `rdp-vscode-users-*` Secret，並能讀取 Node 清單（`install.sh` 會用到這些權限）
 - 節點能連到 `ghcr.io` 下載映像檔（約 1.3 GB）
 - 資源：Pod 需求 0.5 CPU／1 GiB，上限 4 CPU／4 GiB（以 3 人同時使用估算）
@@ -48,20 +48,15 @@
 
 ## 快速開始
 
-在已安裝 kubectl、curl、bash，而且連得到目標叢集的電腦上執行（可以先用 `kubectl config current-context` 確認目前選用的是哪個叢集）：
+在已安裝 kubectl、curl、bash，而且連得到目標叢集的電腦上執行：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install.sh | bash
 ```
 
-腳本用目前的 kubeconfig 部署到 namespace `rdp-vscode`，完成後印出每個節點的連線位址。用遠端桌面連到 `<節點 IP>:30390`，帳號 `bigred`、密碼 `bigred`。
+腳本會部署到 namespace `rdp-vscode`，完成後印出每個節點的連線位址。用遠端桌面連到 `<節點 IP>:30390`，帳號 `bigred`、密碼 `bigred`。
 
-節點 IP 也可以用 `kubectl get nodes -o wide` 的 INTERNAL-IP 欄查看，連任何一個節點都可以；雲端叢集則要改用用戶端連得到的 IP。
-
-- 這樣部署的 `/home` 是 emptyDir（Pod 刪掉就跟著消失的暫存空間），Pod 重建後（例如重新部署）設定會回到預設值。如果需要多個帳號、修改密碼或保留 home，請改用下方的[進階設定](#進階多個帳號與保留-homekustomize)
-- 如果節點位在主機的內部網段（例如作者的實驗叢集 tk8s），區網連不到 NodePort，請在主機上設定埠轉發，見 [docs/build-image.md](docs/build-image.md) 的 Step 6
-- 移除：`kubectl delete namespace rdp-vscode`
-- 其他安裝方式（Kustomize、沒有 Kubernetes 時的單機 podman）見 [docs/install.md](docs/install.md)
+這是單一帳號、不保留設定的快速安裝。需要多個帳號、自己的密碼或保留 home（Kustomize），沒有 Kubernetes 時的單機 podman，以及節點在內部網段時怎麼從區網連線、怎麼移除，都在[安裝手冊](docs/install.md)。
 
 ## 怎麼用
 
@@ -107,40 +102,6 @@ kubectl -n default expose deploy web --port 80
 
 完整的操作說明和常見問題見 [docs/user-guide.md](docs/user-guide.md)。
 
-## 進階：多個帳號與保留 home（Kustomize）
-
-帳號清單寫在 `users.txt`，由 Kustomize 的 `secretGenerator` 產生 Secret（Kubernetes 存放密碼等敏感資料的物件），掛載到 container 的 `/etc/rdp-vscode/users`。有兩種 overlay（在共用的基本設定上再加的修改，例如 `/home` 要用哪種儲存空間）：
-
-| Overlay | `/home` | Pod 重建時 |
-|---|---|---|
-| `manifests/stateless` | emptyDir | VSCodium 的設定和本機端安裝的擴充功能都會消失（tkadm 上的檔案不受影響） |
-| `manifests/stateful` | PVC `rdp-vscode-home`（5 GiB，ReadWriteOnce） | `/home` 底下的內容都會保留 |
-
-```bash
-git clone https://github.com/braveantony/rdp-vscode.git
-cd rdp-vscode
-vi manifests/stateful/users.txt   # 用你熟悉的文字編輯器修改帳號清單，這裡以 vi 為例
-kubectl apply -k manifests/stateful
-kubectl -n rdp-vscode rollout status deploy/rdp-vscode   # 等待 Pod 啟動完成（第一次要下載約 1.3 GB）
-```
-
-`users.txt` 一行一個 `帳號:密碼`，`#` 開頭是註解：
-
-```text
-alice:Alice-pw
-bob:Bob-pw
-```
-
-- 帳號規則：小寫英文字母或 `_` 開頭，可以用小寫英數字、`_`、`-`，最長 32 字元，不可以是 `root`、`xrdp` 或系統既有的帳號；密碼不可空白，可以包含冒號。檔案在 Windows 上編輯（CRLF 換行）也沒關係。不符規則時 Pod 會啟動失敗，原因可以用 `kubectl -n rdp-vscode logs deploy/rdp-vscode` 查看。
-- 帳號依檔案順序分配 UID（Linux 的使用者編號）1000、1001……。在 stateful 模式下調換順序，Pod 啟動時會把既有的 home 改歸新的 UID 所有；被移除帳號的 home 會改由 root 擁有，之後分到同一個 UID 的帳號也讀不到。
-- 修改 `users.txt` 後再執行一次 `kubectl apply -k` 即可。因為 Secret 名稱帶有內容雜湊（`rdp-vscode-users-<雜湊>`），`users.txt` 的內容（包括密碼和註解）一有變動，就會自動重建 Pod。所有桌面都在同一個 Pod 裡，所以重建時使用中的連線都會中斷。
-- **stateful 的 StorageClass**（決定 PVC 用哪種儲存的叢集設定）：PVC 沒有指定 `storageClassName`，使用叢集預設的 StorageClass；叢集沒有預設的 StorageClass 時，PVC 會一直 `Pending`。這個 StorageClass 必須是網路儲存，或設定成 `volumeBindingMode: WaitForFirstConsumer`，原因見 [docs/ops/2026-10-28-tk8s-local-path-sc.md](docs/ops/2026-10-28-tk8s-local-path-sc.md)。`local-path` 的 volume 只存在一台節點上，那台節點故障時 Pod 就起不來。
-- 要自訂完整的 SSH 設定（例如多個 Host），請參考 `manifests/example/ssh-configmap`。這個範例用 ConfigMap 整份取代由 `SSH_*` 產生的 SSH 設定；ConfigMap 裡一定要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`，登入時才連得上。這個範例以 `manifests/stateless` 為基礎。
-- 要換映像檔（例如私有 registry 或 `-firefox` 版），在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊，設定 `newName`／`newTag`。
-- 要改[環境變數](#環境變數)，修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k`。
-- `users.txt` 含明文密碼，請不要提交到公開的 repo；可以改用 SOPS、Sealed Secrets 等工具管理。
-- 已經用快速開始安裝過也沒關係，直接執行 `kubectl apply -k` 就會改用新的設定；之後不要再執行 `install.sh`，否則會還原成 `bigred` / `bigred` 和 emptyDir。
-
 ## 版本比較
 
 | | 1.0 | 1.0-firefox |
@@ -156,7 +117,7 @@ bob:Bob-pw
 
 ## 文件
 
-- [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize、單機 podman、從區網連線、移除）
+- [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize 多帳號與保留 home、單機 podman、從區網連線、移除）
 - [architecture.md](docs/architecture.md)：系統運作架構（連線路徑、Pod 內各 process 的職責、安全邊界）
 - [user-guide.md](docs/user-guide.md)：使用手冊（連線登入、連到 tkadm、開網站、多人使用、常見問題）
 - [build-image.md](docs/build-image.md)：建置手冊（從原始碼建置兩個 tag、測試，並部署到 Kubernetes（tk8s）的完整步驟）
@@ -190,7 +151,7 @@ SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 Co
 | `images/rdp-vscode/Dockerfile` | 映像檔定義（基底 `debian:trixie-slim`；`WITH_FIREFOX=1` 時加裝 Firefox ESR） |
 | `images/rdp-vscode/rootfs/` | 複製進映像檔 `/` 的設定檔與腳本（entrypoint、帳號、SSH 設定、桌面的啟動與清理） |
 | `images/rdp-vscode/rootfs-firefox/` | 只有 `-firefox` 版會套用的檔案 |
-| `install.sh` | 快速開始的 `curl \| bash` 安裝腳本（帳號密碼 `bigred` / `bigred`、`/home` 用 emptyDir） |
+| `install.sh` | 快速安裝的 `curl \| bash` 安裝腳本（帳號密碼 `bigred` / `bigred`、`/home` 用 emptyDir） |
 | `manifests/base/` | Kustomize base（共用的基本設定）：Namespace、Deployment、NodePort Service（30390） |
 | `manifests/stateless/`、`manifests/stateful/` | 兩種 overlay：由 `users.txt` 產生 Secret，`/home` 分別用 emptyDir 和 PVC |
 | `manifests/example/ssh-configmap/` | 用 ConfigMap 取代 SSH 設定的範例 |
@@ -199,7 +160,7 @@ SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 Co
 
 ## 安全警告
 
-預設帳密 `bigred` / `bigred` 只適合隔離的實驗叢集。能連到 NodePort 30390 的人，用這組帳密就能進到叢集內部網路，再以 SSH 連到 tkadm，用那裡的 `kubectl` 控制整個叢集。部署到其他環境前，請改用[多個帳號](#進階多個帳號與保留-homekustomize)並設定自己的密碼。
+預設帳密 `bigred` / `bigred` 只適合隔離的實驗叢集。能連到 NodePort 30390 的人，用這組帳密就能進到叢集內部網路，再以 SSH 連到 tkadm，用那裡的 `kubectl` 控制整個叢集。部署到其他環境前，請改用[多個帳號](docs/install.md#kustomize多個帳號與保留-home)並設定自己的密碼。
 
 ## 授權
 
