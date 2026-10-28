@@ -1,6 +1,6 @@
 # rdp-vscode
 
-[繁體中文](README.zh-TW.md)
+[繁體中文](README.md)
 
 Log in with Windows Remote Desktop (RDP) and you get a full-screen VSCodium (the open-source build of VS Code) running inside your Kubernetes cluster. It connects over SSH to the cluster's admin Pod, tkadm, on its own, so you edit files and run `kubectl` there. Several people can use it at once, and every login gets its own desktop (up to 3 at a time, adjustable).
 

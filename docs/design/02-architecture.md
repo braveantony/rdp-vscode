@@ -56,7 +56,7 @@ rdp-vscode pod
 ```
 rdp-vscode/
 ├── LICENSE                         # Apache-2.0
-├── README.md / README.zh-TW.md
+├── README.md / README.en.md        # 繁中（預設）／英文
 ├── VERSION
 ├── install.sh                      # 快速開始的 curl | bash 安裝腳本
 ├── images/rdp-vscode/

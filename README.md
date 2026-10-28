@@ -1,6 +1,6 @@
 # rdp-vscode
 
-[English](README.md)
+[English](README.en.md)
 
 用 Windows 遠端桌面（RDP）登入後，畫面就是在 Kubernetes 叢集裡執行的全螢幕 VSCodium（VS Code 的開源版），並且自動以 SSH（加密的遠端登入）連到叢集的管理 Pod（Kubernetes 裡執行程式的單位）tkadm，直接在上面編輯檔案、執行 `kubectl`（Kubernetes 的命令列工具）。支援多人同時使用，每次登入都有自己的桌面（同時最多 3 個，可以調整）。
 

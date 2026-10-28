@@ -1,6 +1,6 @@
 # VSCodium 遠端桌面使用手冊
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`（`:1.0-firefox` 另見第 5 節）。安裝方式見 [README](../README.zh-TW.md#快速開始)。
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`（`:1.0-firefox` 另見第 5 節）。安裝方式見 [README](../README.md#快速開始)。
 
 用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動以 SSH 連到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
