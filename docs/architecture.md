@@ -35,13 +35,13 @@ xrdp 或 xrdp-sesman 結束時，container 就會停止，由 Kubernetes 重啟�
 3. `sync-extensions.sh` 用 `codium --install-extension` 把映像檔裡的 Open Remote-SSH 和繁中語言包裝到 `~/.vscode-oss/extensions`。版本相同就跳過，版本不同就換掉，使用者自己裝的擴充功能不受影響。
 4. 產生 `languagepacks.json`，讓 `--locale=zh-tw` 在第一次啟動就生效（VSCodium 原本要第二次啟動才會套用語言）。
 5. 啟動 openbox，再啟動 VSCodium：`--remote=ssh-remote+tkadm /home/bigred`，一開啟就連到 tkadm。
-6. VSCodium 結束（使用者關閉）或收到 SIGTERM（斷線 120 秒後 sesman 送出）時，清除 VSCodium、D-Bus 和整個 `/tmp/sess/<display>.<uid>/`，桌面隨即結束。
+6. VSCodium 結束（使用者關閉）或收到 SIGTERM（斷線 120 秒後 sesman 送出）時，清除 VSCodium、D-Bus 和整個 `/tmp/sess/<display>.<uid>/`（包括 VSCodium 未存檔內容的備份，所以斷線後未存檔的修改會遺失），桌面隨即結束。
 
 ## 其他連線
 
 - **綠線（SSH）**
   - VSCodium 的 Open Remote-SSH 以 SSH 連到 namespace `taroko` 的**叢集管理 Pod tkadm**（`tkadm.taroko:22100`），使用者在密碼框輸入 tkadm 的密碼。tkadm 需另外部署，本 repo 不提供。
-  - 第一次連線時，Open Remote-SSH 在 tkadm 上下載並啟動 **③ vscodium-server**（Alpine 版，放在 `~/.vscodium-server`），並自動安裝 YAML 擴充功能（extension）。之後 VSCodium 透過 SSH 的本機埠轉發連到 ③，所以 tkadm 的 sshd 必須是 `AllowTcpForwarding local`（或 `yes`）。
+  - tkadm 上還沒有這個版本的 server 時，Open Remote-SSH 會讓 tkadm 自己從 GitHub 下載並啟動 **③ vscodium-server**（Alpine 版，放在 `~/.vscodium-server`），並自動從 Open VSX 安裝 YAML 擴充功能（extension），所以 tkadm 要能連到 `github.com` 和 `open-vsx.org`。之後 VSCodium 透過 SSH 的本機埠轉發連到 ③，所以 tkadm 的 sshd 必須是 `AllowTcpForwarding local`（或 `yes`）。
   - 檔案總管、編輯器和終端機都在 tkadm 上執行；終端機裡的 `kubectl` 用的是 tkadm 的 kubeconfig。
   - SSH 設定由 entrypoint 依 `SSH_*` 環境變數寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`；掛載了內容不是空的 ConfigMap `rdp-vscode-ssh` 時，改用它的內容。
 - **橙線（HTTP）**：VSCodium 的 Integrated Browser 就在 Pod 裡，所以能用 `http://<service>.<namespace>` 直接開叢集內的 Web 服務，不必另外對外開放。

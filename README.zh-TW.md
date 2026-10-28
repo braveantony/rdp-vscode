@@ -2,26 +2,26 @@
 
 [English](README.md)
 
-用 Windows 遠端桌面（RDP）登入後，畫面就是在 Kubernetes 叢集裡執行的全螢幕 VSCodium，並且自動以 SSH 連到叢集的管理 Pod（tkadm），直接在上面編輯檔案、執行 `kubectl`。支援多人同時使用，每次登入都有自己的桌面。
+用 Windows 遠端桌面（RDP）登入後，畫面就是在 Kubernetes 叢集裡執行的全螢幕 VSCodium（VS Code 的開源版），並且自動以 SSH（加密的遠端登入）連到叢集的管理 Pod（Kubernetes 裡執行程式的單位）tkadm，直接在上面編輯檔案、執行 `kubectl`（Kubernetes 的命令列工具）。支援多人同時使用，每次登入都有自己的桌面（同時最多 3 個，可以調整）。
 
-> **安全警告**：預設帳密 `bigred` / `bigred` 只適合隔離的實驗叢集。能連到 NodePort 30390 的人，用這組帳密就能進到叢集內部網路，再 SSH 到 tkadm，用那裡的 `kubectl` 控制整個叢集。部署到其他環境前，請改用[多個帳號](#進階多個帳號與保留-homekustomize)並設定自己的密碼。
+> **安全警告**：預設帳密 `bigred` / `bigred` 只適合隔離的實驗叢集。能連到 NodePort（Kubernetes 在每個節點上開放的固定埠號）30390 的人，用這組帳密就能進到叢集內部網路，再以 SSH 連到 tkadm，用那裡的 `kubectl` 控制整個叢集。部署到其他環境前，請改用[多個帳號](#進階多個帳號與保留-homekustomize)並設定自己的密碼。
 
 ## 簡述
 
 - **在叢集裡寫程式、管理叢集**：登入後的 VSCodium 就在叢集裡
-  - **編輯與 CLI**：自動以 SSH 連到 tkadm（Open Remote-SSH），檔案總管、終端機都在 tkadm 上，kubeconfig 不必離開叢集
-  - **Web**：用內建的 Integrated Browser 開 `http://<service>.<namespace>`（例如 `http://web.default`），直達叢集內的 Web 服務
-  - 只要開放一個 NodePort（30390），不必另外對外公開服務，也不用 port-forward 或 Ingress
+  - **編輯與 CLI**：自動以 SSH 連到 tkadm（Open Remote-SSH），檔案總管、終端機都在 tkadm 上，kubeconfig（kubectl 連叢集用的設定檔）不必離開叢集
+  - **Web**：用內建的 Integrated Browser 開 `http://<service>.<namespace>`（namespace 是 Kubernetes 用來分組資源的名稱，例如 `http://web.default`），直達叢集內的 Web 服務
+  - 只要開放一個 NodePort（30390），不必另外設定其他對外方式
 - **零安裝、即連即用**：Windows 內建的遠端桌面就能連，不用在自己的電腦裝 VS Code 或任何擴充功能（extension）
-- **多人並行、彼此隔離**：多個帳號、甚至同一個帳號都能多人同時登入，每次登入都有自己的桌面和 VSCodium，home 權限是 `0700`
+- **多人並行**：多個帳號、甚至同一個帳號都能同時登入，每次登入都有自己的桌面和 VSCodium；不同帳號在這個 Pod 裡的家目錄互相看不到（但連到 tkadm 後都是同一個使用者）
 - **繁中介面、YAML 補全**：預裝繁體中文語言包；第一次連到 tkadm 時自動安裝 YAML 擴充功能，編輯 Kubernetes YAML 有欄位提示
-- **可保留設定**（stateful 模式）：`/home` 放在 PVC，Pod 重啟後設定和檔案都還在
+- **可保留設定**（stateful 模式，也就是會保留資料的部署方式）：`/home` 放在 PVC（向叢集申請的永久儲存空間），Pod 重建後 VSCodium 的設定和本機端的擴充功能都還在
 
 ## 架構
 
 ![rdp-vscode 系統運作架構](docs/architecture/rdp-vscode-architecture.png)
 
-用戶端以 RDP 連到節點的 NodePort `30390`（Kubernetes 在每個節點上開放的固定埠號），經 Service `rdp-vscode` 轉到 Pod 的 3389 埠。Pod 只有一個 container（容器），裡面有這些 process（執行中的程式）與 session（桌面工作階段）：
+用戶端以 RDP 連到節點的 NodePort `30390`，經 Service `rdp-vscode` 轉到 Pod 的 3389 埠。Pod 只有一個 container（容器），裡面有這些 process（執行中的程式）與 session（桌面工作階段）：
 
 - ① xrdp／xrdp-sesman：接收 RDP 連線、顯示登入畫面、驗證帳號，並替每次登入開一個新桌面
 - ② Xorg session：每次登入各一個桌面，執行全螢幕的 VSCodium；關掉 VSCodium 就登出
@@ -33,12 +33,15 @@
 
 ### Kubernetes 叢集
 
-- kubectl、curl、bash。kubectl 已內建 Kustomize（組合 YAML 設定的工具，`kubectl apply -k` 就是用它）
-- kubeconfig（kubectl 連線叢集用的設定檔，通常在 `~/.kube/config`），而且有權限建立 Namespace、Deployment、Service、Secret
+- kubectl、curl、bash（進階設定另外需要 git）。kubectl 已內建 Kustomize（組合 YAML 設定的工具，`kubectl apply -k` 就是用它）
+- kubeconfig（通常在 `~/.kube/config`），而且有權限建立 Namespace、Deployment、Service、Secret、PersistentVolumeClaim，並能讀取 Node 清單
 - 節點能連到 `ghcr.io` 下載映像檔（約 1.3 GB）
 - 資源：Pod 需求 0.5 CPU／1 GiB，上限 4 CPU／4 GiB（以 3 人同時使用估算）
 - NodePort `30390` 沒有被占用，而且用戶端連得到節點的 TCP 30390 埠（防火牆要放行）
-- **SSH 目標**：預設連到 namespace `taroko` 的叢集管理 Pod tkadm（`tkadm.taroko:22100`，裡面已經有 kubectl 和 kubeconfig）。tkadm 要另外部署，本 repo 不提供。它的 sshd 必須允許本機埠轉發（`AllowTcpForwarding local` 或 `yes`），Open Remote-SSH 才連得上；Alpine 的 openssh 預設是 `no`，修改方式見 [docs/ops/2026-10-27-tkadm-sshd-forwarding.md](docs/ops/2026-10-27-tkadm-sshd-forwarding.md)。要改連其他主機，請用[環境變數](#環境變數) `SSH_HOST` 等設定。
+- **SSH 目標**：預設連到 namespace `taroko` 的叢集管理 Pod tkadm（`tkadm.taroko:22100`，裡面已經有 kubectl 和 kubeconfig）。tkadm 要另外部署，本 repo 不提供。它需要：
+  - sshd（SSH 伺服器程式）允許埠轉發（讓 SSH 連線幫忙轉送網路連線），見 [docs/ops/2026-10-27-tkadm-sshd-forwarding.md](docs/ops/2026-10-27-tkadm-sshd-forwarding.md)
+  - 能連到 `github.com` 和 `open-vsx.org`：第一次連線時，tkadm 會自己下載 vscodium-server 和 YAML 擴充功能
+  - 要改連其他主機，請改[環境變數](#環境變數) `SSH_HOST` 等設定
 
 ### 遠端桌面用戶端
 
@@ -59,11 +62,13 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 
 節點 IP 也可以用 `kubectl get nodes -o wide` 的 INTERNAL-IP 欄查看，連任何一個節點都可以；雲端叢集則要改用用戶端連得到的 IP。
 
-- 這樣部署的 `/home` 是 emptyDir（Pod 刪掉就跟著消失的暫存空間），Pod 重啟後設定會回到預設值。如果需要多個帳號、修改密碼或保留 home，請改用下方的[進階設定](#進階多個帳號與保留-homekustomize)
-- 如果節點位在主機的內部網段（例如 tk8s），區網連不到 NodePort，請在主機上設定埠轉發，見 [docs/build-image.md](docs/build-image.md) 的 Step 6
+- 這樣部署的 `/home` 是 emptyDir（Pod 刪掉就跟著消失的暫存空間），Pod 重建後（例如重新部署）設定會回到預設值。如果需要多個帳號、修改密碼或保留 home，請改用下方的[進階設定](#進階多個帳號與保留-homekustomize)
+- 如果節點位在主機的內部網段（例如作者的實驗叢集 tk8s），區網連不到 NodePort，請在主機上設定埠轉發，見 [docs/build-image.md](docs/build-image.md) 的 Step 6
 - 移除：`kubectl delete namespace rdp-vscode`
 
 ### 單機（podman）
+
+在一台 Linux 主機上用 podman（類似 Docker 的容器工具）執行：
 
 ```bash
 podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
@@ -86,13 +91,13 @@ podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
 
 ### 2. 連到 tkadm
 
-登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`。輸入 tkadm 的密碼（預設 `bigred`）後按 Enter，左下角變成 `SSH: tkadm`，檔案總管列出 tkadm 上的 `/home/bigred`，就連上了。
+登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`。輸入 tkadm 上 `bigred` 帳號的 SSH 密碼（tk8s 上是 `bigred`）後按 Enter，左下角變成 `SSH: tkadm`，檔案總管列出 tkadm 上的 `/home/bigred`，就連上了。
 
 ![tkadm 的密碼框](docs/images/02-ssh-password.png)
 
 ![連上 tkadm](docs/images/03-connected.png)
 
-tkadm 重啟後的第一次連線要先下載約 90 MB 的 vscodium-server，需要多等一下。之後每次重新連線（包括「重新載入視窗」）都會再問一次密碼。
+tkadm 上還沒有這個版本的 vscodium-server 時（第一次連線、tkadm 重建後，或升級映像檔後），tkadm 會先下載約 90 MB，需要多等一下。之後每次重新連線（包括「重新載入視窗」）都會再問一次密碼。
 
 ### 3. 在 tkadm 部署網站，用叢集內的網址開啟
 
@@ -107,14 +112,14 @@ kubectl expose deploy web --port 80
 
 ![用 Integrated Browser 開叢集內的網站](docs/images/04-browser.png)
 
-網址可以用短名稱 `http://<service>.<namespace>`，也可以用完整的 `http://<service>.<namespace>.svc.<cluster domain>`。cluster domain 不一定是 `cluster.local`（tk8s 是 `tk8s.k8s`），可以用 `kubectl -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' | grep kubernetes` 查到。服務的埠號不是 80 時，在網址後加上 `:<埠號>`。
+網址可以用短名稱 `http://<service>.<namespace>`，也可以用完整網域名稱（見[使用手冊](docs/user-guide.md)）。服務的埠號不是 80 時，在網址後加上 `:<埠號>`。
 
 > 在終端機裡按住 `Ctrl` 點網址時，不會用 Integrated Browser 開啟；1.0 版的映像檔裡沒有其他瀏覽器，所以不會有反應。`-firefox` 版則會用 Firefox 開啟。
 
 ### 4. 使用時要知道的事
 
 - **關掉 VSCodium 就登出**：按 `Ctrl+Q` 或右上角的關閉按鈕，遠端桌面隨即中斷
-- **斷線後無法接回**：重新連線一定是新的桌面，原本的桌面在斷線 2 分鐘後清除；檔案在 tkadm 上，不受影響
+- **斷線後無法接回**：重新連線一定是新的桌面，原本的桌面在斷線 2 分鐘後關閉，**未存檔的修改會遺失**；已存檔的檔案在 tkadm 上，不受影響
 - **輸入中文**：Pod 裡沒有中文輸入法，在自己的電腦打好再複製，到 VSCodium 按 `Ctrl+V` 貼上
 - **大家共用 tkadm 上的 bigred**：不同的 RDP 帳號連到 tkadm 後都是同一個使用者，彼此看得到、也改得到對方的檔案
 
@@ -122,11 +127,11 @@ kubectl expose deploy web --port 80
 
 ## 進階：多個帳號與保留 home（Kustomize）
 
-帳號清單寫在 `users.txt`，由 Kustomize 的 `secretGenerator` 產生 Secret（Kubernetes 存放密碼等敏感資料的物件），掛載到 container 的 `/etc/rdp-vscode/users`。有兩種 overlay（疊加在 base 上的修改）：
+帳號清單寫在 `users.txt`，由 Kustomize 的 `secretGenerator` 產生 Secret（Kubernetes 存放密碼等敏感資料的物件），掛載到 container 的 `/etc/rdp-vscode/users`。有兩種 overlay（在共用的基本設定上再加的修改，例如 `/home` 要用哪種儲存空間）：
 
-| Overlay | `/home` | Pod 重啟時 |
+| Overlay | `/home` | Pod 重建時 |
 |---|---|---|
-| `manifests/stateless` | emptyDir | 檔案、設定和自己裝的擴充功能都會消失 |
+| `manifests/stateless` | emptyDir | VSCodium 的設定和本機端安裝的擴充功能都會消失（tkadm 上的檔案不受影響） |
 | `manifests/stateful` | PVC `rdp-vscode-home`（5 GiB，ReadWriteOnce） | `/home` 底下的內容都會保留 |
 
 ```bash
@@ -145,11 +150,12 @@ bob:Bob-pw
 ```
 
 - 帳號規則：小寫英文字母或 `_` 開頭，可以用小寫英數字、`_`、`-`，最長 32 字元，不可以是 `root`、`xrdp` 或系統既有的帳號；密碼不可空白，可以包含冒號。檔案在 Windows 上編輯（CRLF 換行）也沒關係。不符規則時 Pod 會啟動失敗，原因可以用 `kubectl -n rdp-vscode logs deploy/rdp-vscode` 查看。
-- 帳號依檔案順序分配 UID 1000、1001……。在 stateful 模式下調換順序，Pod 啟動時會把既有的 home 改歸新的 UID 所有；被移除帳號的 home 會改由 root 擁有，之後分到同一個 UID 的帳號也讀不到。
-- 修改 `users.txt` 後再執行一次 `kubectl apply -k` 即可。因為 Secret 名稱帶有內容雜湊（`rdp-vscode-users-<雜湊>`），名單一有變動就會自動重建 Pod。所有桌面都在同一個 Pod 裡，所以重建時使用中的連線都會中斷。
-- **stateful 的 StorageClass**：PVC 沒有指定 `storageClassName`，使用叢集預設的 StorageClass。這個 StorageClass 必須是網路儲存，或設定成第一次使用時才綁定（`volumeBindingMode: WaitForFirstConsumer`，`local-path` 本來就應該這樣設定）；設成 `Immediate` 時，`local-path` 不知道要在哪台節點建立 volume，PVC 會一直 `Pending`。`local-path` 的 volume 只存在一台節點上，那台節點故障時 Pod 就起不來。
-- 要自訂完整的 SSH 設定（例如多個 Host），請參考 `manifests/example/ssh-configmap`。這個範例用 ConfigMap 整份取代由 `SSH_*` 產生的 SSH 設定。
+- 帳號依檔案順序分配 UID（Linux 的使用者編號）1000、1001……。在 stateful 模式下調換順序，Pod 啟動時會把既有的 home 改歸新的 UID 所有；被移除帳號的 home 會改由 root 擁有，之後分到同一個 UID 的帳號也讀不到。
+- 修改 `users.txt` 後再執行一次 `kubectl apply -k` 即可。因為 Secret 名稱帶有內容雜湊（`rdp-vscode-users-<雜湊>`），`users.txt` 的內容（包括密碼和註解）一有變動，就會自動重建 Pod。所有桌面都在同一個 Pod 裡，所以重建時使用中的連線都會中斷。
+- **stateful 的 StorageClass**（決定 PVC 用哪種儲存的叢集設定）：PVC 沒有指定 `storageClassName`，使用叢集預設的 StorageClass；叢集沒有預設的 StorageClass 時，PVC 會一直 `Pending`。這個 StorageClass 必須是網路儲存，或設定成 `volumeBindingMode: WaitForFirstConsumer`，原因見 [docs/ops/2026-10-28-tk8s-local-path-sc.md](docs/ops/2026-10-28-tk8s-local-path-sc.md)。`local-path` 的 volume 只存在一台節點上，那台節點故障時 Pod 就起不來。
+- 要自訂完整的 SSH 設定（例如多個 Host），請參考 `manifests/example/ssh-configmap`。這個範例用 ConfigMap 整份取代由 `SSH_*` 產生的 SSH 設定；ConfigMap 裡一定要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`，登入時才連得上。這個範例以 `manifests/stateless` 為基礎。
 - 要換映像檔（例如私有 registry 或 `-firefox` 版），在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊，設定 `newName`／`newTag`。
+- 要改[環境變數](#環境變數)，修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k`。
 - `users.txt` 含明文密碼，請不要提交到公開的 repo；可以改用 SOPS、Sealed Secrets 等工具管理。
 - 已經用快速開始安裝過也沒關係，直接執行 `kubectl apply -k` 就會改用新的設定；之後不要再執行 `install.sh`，否則會還原成 `bigred` / `bigred` 和 emptyDir。
 
@@ -176,20 +182,22 @@ bob:Bob-pw
 
 ## 環境變數
 
+在 Kubernetes 上改 `manifests/base/deployment.yaml` 的 `env`；單機時用 `podman run -e`。
+
 | 變數 | 預設值 | 說明 |
 |---|---|---|
-| `USERS_FILE` | `/etc/rdp-vscode/users` | 帳號檔案，一行一個 `帳號:密碼`；Kubernetes 上由 Secret `rdp-vscode-users-*` 掛載。檔案存在且不是空的時候，會忽略下面兩個變數 |
-| `RDP_USER` | `bigred` | 沒有帳號檔案時的登入帳號（UID 1000） |
-| `RDP_PASSWORD` | — | 沒有帳號檔案時的登入密碼（此時必填） |
-| `MAX_SESSIONS` | `3` | 可以同時存在的桌面數上限（所有帳號合計）；每多一個桌面，約需多 1 GiB 記憶體 |
+| `USERS_FILE` | `/etc/rdp-vscode/users` | 帳號檔案，一行一個 `帳號:密碼`；Kubernetes 上一定會由 Secret `rdp-vscode-users-*` 掛載 |
+| `RDP_USER` | `bigred` | 沒有帳號檔案時（單機 podman）的登入帳號（UID 1000） |
+| `RDP_PASSWORD` | — | 沒有帳號檔案時（單機 podman）的登入密碼，此時必填 |
+| `MAX_SESSIONS` | `3` | 可以同時存在的桌面數上限（所有帳號合計，斷線後 2 分鐘內還沒清除的桌面也算在內）；每多一個桌面，約需多 1 GiB 記憶體 |
 | `SSH_HOST_ALIAS` | `tkadm` | 登入時 VSCodium 自動連線的 SSH `Host` 名稱；設成空字串就不自動連線 |
 | `SSH_HOST` | `tkadm.taroko` | SSH 目標的主機名稱或 IP。預設用短名稱（`<service>.<namespace>`），任何 cluster domain 都能用 |
 | `SSH_PORT` | `22100` | SSH 埠 |
 | `SSH_USER` | `bigred` | SSH 帳號 |
-| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | 連線後在 SSH 目標上開啟的資料夾 |
+| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | 連線後在 SSH 目標上開啟的資料夾。`manifests/base/deployment.yaml` 已明確設成 `/home/bigred`，改 `SSH_USER` 時要一起改 |
 | `VSCODIUM_LOCALE` | `zh-tw` | 介面語言：`zh-tw` 或 `en` |
 
-SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 ConfigMap `rdp-vscode-ssh`（key 為 `config`）且內容不是空的，就會整份改用它。
+SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 ConfigMap `rdp-vscode-ssh`（key 為 `config`）且內容不是空的，就會整份改用它；這時 ConfigMap 裡要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`。
 
 ## 檔案
 

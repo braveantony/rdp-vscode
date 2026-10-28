@@ -23,7 +23,7 @@
 2. 輸入 `tkadm` 的密碼（預設是 `bigred`），按 Enter。
 3. 左下角變成 `SSH: tkadm`，左邊的檔案總管列出 `tkadm` 上 `/home/bigred` 的檔案，就表示連上了。
 
-- `tkadm` 重啟後的第一次連線，要先下載約 90MB 的 server，會多等一段時間。
+- `tkadm` 上還沒有這個版本的 vscodium-server 時（第一次連線、`tkadm` 重建後，或升級映像檔後），`tkadm` 會先下載約 90MB，需要多等一段時間。
 - 之後每次重新連線（包括「重新載入視窗」），都會再問一次密碼。
 - 不小心按了取消時，按 `Ctrl+Shift+P`，執行「Developer: Reload Window」（重新載入視窗），密碼框會再出現一次。
 
@@ -41,7 +41,7 @@
 3. 按 `Ctrl+Shift+P`，輸入 `Open Integrated Browser`，選「Browser: Open Integrated Browser」；或按標題列右邊的地球圖示。
 4. 在網址列輸入 `http://web.default.svc.tk8s.k8s`（或短名稱 `http://web.default`），就會看到 nginx 的歡迎頁。
 
-網址的格式是 `http://<service 名稱>.<namespace>.svc.<cluster domain>`。tk8s 的 cluster domain 是 `tk8s.k8s`，其他叢集通常是 `cluster.local`。VSCodium 本身就在叢集裡，所以不需要 port-forward、NodePort 或 Ingress。
+網址的格式是 `http://<service 名稱>.<namespace>.svc.<cluster domain>`，也可以只寫短名稱 `http://<service 名稱>.<namespace>`。tk8s 的 cluster domain 是 `tk8s.k8s`，其他叢集通常是 `cluster.local`，可以在 `tkadm` 的終端機用 `kubectl -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' | grep kubernetes` 查到。VSCodium 本身就在叢集裡，所以不需要 port-forward、NodePort 或 Ingress。
 
 > 在終端機裡按 `Ctrl` 點網址，VSCodium 會問要不要開啟外部網站，但預設的映像檔裡沒有瀏覽器，所以不會有反應。請照上面的步驟用 Integrated Browser 開。Firefox 版本見第 5 節。
 
@@ -56,7 +56,7 @@ kubectl delete deploy/web svc/web
 - **關掉 VSCodium 就是登出。** 按 `Ctrl+Q` 或右上角的關閉，遠端桌面會隨即中斷。
 - **斷線後無法接回原本的桌面。** 重新連線一定會拿到新的 VSCodium，原本的桌面在斷線 120 秒後被清除。尚未存檔的內容會遺失，請隨時存檔。檔案本身在 `tkadm` 上，不受影響。
 - **多人同時使用：** 每條連線都有自己的桌面和 VSCodium，同一個帳號也可以同時登入兩次。同時最多 3 個桌面（所有帳號合計），超過時會看到 `Max session limit reached`。
-- **設定會共用：** 同一個帳號在不同連線改的設定（例如字型大小）是同一份。管理者如果用 stateless 模式部署，Pod 重啟後設定會回到預設值；stateful 模式則會保留。
+- **設定會共用：** 同一個帳號在不同連線改的設定（例如字型大小）是同一份。管理者如果用 stateless 模式部署，Pod 重建後設定會回到預設值；stateful 模式則會保留。
 - **大家共用 tkadm 上的 bigred：** 不同的 RDP 帳號連到 `tkadm` 後都是同一個使用者，會互相看到、改到對方的檔案。
 - **輸入中文：** Pod 裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。
 - **YAML 補全：** `tkadm` 第一次連線時會自動安裝 YAML 擴充功能（extension）。編輯 `.yaml` 檔時，按 `Ctrl+Space` 會出現 Kubernetes 欄位的建議。

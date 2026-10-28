@@ -2,26 +2,26 @@
 
 [繁體中文](README.zh-TW.md)
 
-Log in with Windows Remote Desktop (RDP) and you get a full-screen VSCodium running inside your Kubernetes cluster. It connects over SSH to the cluster's admin Pod (tkadm) on its own, so you edit files and run `kubectl` there. Several people can use it at once, and every login gets its own desktop.
+Log in with Windows Remote Desktop (RDP) and you get a full-screen VSCodium (the open-source build of VS Code) running inside your Kubernetes cluster. It connects over SSH to the cluster's admin Pod, tkadm, on its own, so you edit files and run `kubectl` there. Several people can use it at once, and every login gets its own desktop (up to 3 at a time, adjustable).
 
-> **Security warning.** The default account `bigred` / `bigred` is for isolated lab clusters only. Anyone who can reach NodePort 30390 with it gets into the cluster network, can SSH to tkadm, and through `kubectl` there controls the whole cluster. Before you deploy anywhere else, switch to [several accounts](#advanced-several-accounts-and-a-persistent-home-kustomize) with your own passwords.
+> **Security warning.** The default account `bigred` / `bigred` is for isolated lab clusters only. Anyone who can reach NodePort 30390 (a fixed port Kubernetes opens on every node) with it gets into the cluster network, can SSH to tkadm, and through `kubectl` there controls the whole cluster. Before you deploy anywhere else, switch to [several accounts](#advanced-several-accounts-and-a-persistent-home-kustomize) with your own passwords.
 
 ## Overview
 
 - **Code and run the cluster from inside it**: the VSCodium you log in to runs in the cluster
-  - **Editor and CLI**: connects to tkadm over SSH (Open Remote-SSH); the explorer and the terminal are on tkadm, and the kubeconfig never leaves the cluster
+  - **Editor and CLI**: connects to tkadm over SSH (Open Remote-SSH); the explorer and the terminal are on tkadm, and the kubeconfig (kubectl's cluster credentials) never leaves the cluster
   - **Web**: open `http://<service>.<namespace>` (for example `http://web.default`) in the built-in Integrated Browser to reach web services inside the cluster
-  - Only one NodePort (30390) is exposed; no port-forward, Ingress or extra exposure of your services
-- **Nothing to install**: the Remote Desktop client built into Windows is enough; no local VS Code or plugins
-- **Concurrent and isolated**: several accounts, or the same account several times, can be logged in at once; every login has its own desktop and VSCodium, and homes are `0700`
+  - Only one NodePort (30390) is exposed; nothing else needs to be opened to the outside
+- **Nothing to install**: the Remote Desktop client built into Windows is enough; no local VS Code or extensions
+- **Concurrent use**: several accounts, or the same account several times, can be logged in at once; every login has its own desktop and VSCodium. Different accounts cannot see each other's home in this Pod (but they are the same user on tkadm)
 - **Chinese UI and YAML completion**: the Traditional Chinese language pack is preinstalled; the YAML extension is installed on tkadm on first connect, so Kubernetes YAML gets field completion
-- **Persistent settings** (stateful mode): `/home` lives on a PVC and survives Pod restarts
+- **Persistent settings** (stateful mode): `/home` lives on a PVC (persistent storage requested from the cluster), so VSCodium settings and locally installed extensions survive the Pod being recreated
 
 ## Architecture
 
 ![rdp-vscode architecture](docs/architecture/rdp-vscode-architecture.png)
 
-The client connects over RDP to NodePort `30390` on any node (a fixed port Kubernetes opens on every node); Service `rdp-vscode` forwards it to port 3389 of the Pod. The Pod has a single container with these processes and sessions:
+The client connects over RDP to NodePort `30390` on any node; Service `rdp-vscode` forwards it to port 3389 of the Pod. The Pod has a single container with these processes and sessions:
 
 - ① xrdp / xrdp-sesman: accept RDP connections, show the login screen, check the account, and open a new desktop for every login
 - ② Xorg session: one desktop per login, running VSCodium full screen; closing VSCodium logs you out
@@ -33,12 +33,15 @@ Details in [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
 
 ### Kubernetes cluster
 
-- kubectl (with its built-in Kustomize, used by `kubectl apply -k`), curl, bash
-- A kubeconfig (usually `~/.kube/config`) allowed to create Namespaces, Deployments, Services and Secrets
+- kubectl, curl, bash (and git for the advanced setup). kubectl includes Kustomize, used by `kubectl apply -k`
+- A kubeconfig (usually `~/.kube/config`) allowed to create Namespaces, Deployments, Services, Secrets and PersistentVolumeClaims, and to list Nodes
 - Nodes that can pull from `ghcr.io` (the image is about 1.3 GB)
 - Resources: the Pod requests 0.5 CPU / 1 GiB and is limited to 4 CPU / 4 GiB (sized for 3 concurrent users)
 - NodePort `30390` free, and clients able to reach TCP 30390 on the nodes
-- **SSH target**: by default the cluster admin Pod tkadm in namespace `taroko` (`tkadm.taroko:22100`, with kubectl and a kubeconfig). tkadm is deployed separately; this repo does not provide it. Its sshd must allow local port forwarding (`AllowTcpForwarding local` or `yes`) for Open Remote-SSH to work; Alpine's openssh defaults to `no` (how we changed it: [docs/ops/2026-10-27-tkadm-sshd-forwarding.md](docs/ops/2026-10-27-tkadm-sshd-forwarding.md)). Use the `SSH_*` [environment variables](#environment-variables) for another host
+- **SSH target**: by default the cluster admin Pod tkadm in namespace `taroko` (`tkadm.taroko:22100`, with kubectl and a kubeconfig). tkadm is deployed separately; this repo does not provide it. It needs:
+  - an sshd that allows port forwarding, see [docs/ops/2026-10-27-tkadm-sshd-forwarding.md](docs/ops/2026-10-27-tkadm-sshd-forwarding.md)
+  - access to `github.com` and `open-vsx.org`: on first connect tkadm downloads vscodium-server and the YAML extension itself
+  - for another host, change the `SSH_*` [environment variables](#environment-variables)
 
 ### Remote Desktop client
 
@@ -59,11 +62,13 @@ The script deploys to namespace `rdp-vscode` with your current kubeconfig and pr
 
 You can also read node IPs from the INTERNAL-IP column of `kubectl get nodes -o wide`; any node works. On a cloud cluster use an IP your client can reach.
 
-- This deployment keeps `/home` in an emptyDir, so settings reset when the Pod restarts. For several accounts, other passwords or a persistent home, use [Advanced](#advanced-several-accounts-and-a-persistent-home-kustomize) below
-- If the nodes sit on a host-internal network your LAN cannot reach (tk8s, for example), forward a port on the host: see Step 6 of [docs/build-image.md](docs/build-image.md)
+- This deployment keeps `/home` in an emptyDir (scratch space deleted with the Pod), so settings reset when the Pod is recreated (for example on redeploy). For several accounts, other passwords or a persistent home, use [Advanced](#advanced-several-accounts-and-a-persistent-home-kustomize) below
+- If the nodes sit on a host-internal network your LAN cannot reach (the author's lab cluster tk8s, for example), forward a port on the host: see Step 6 of [docs/build-image.md](docs/build-image.md)
 - Uninstall: `kubectl delete namespace rdp-vscode`
 
 ### Single host (podman)
+
+On a Linux host with podman:
 
 ```bash
 podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
@@ -72,27 +77,27 @@ podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
   ghcr.io/braveantony/rdp-vscode:1.0
 ```
 
-Connect Remote Desktop to `<host IP>:13390` (the machine running podman; `localhost:13390` on the same machine) and log in as `bigred` / `bigred`. `--shm-size 1g` enlarges shared memory: with the 64 MB default, VSCodium crashes while loading the CJK fonts.
+Connect Remote Desktop to `<host IP>:13390` (the machine running podman; `localhost:13390` on the same machine) and log in as `bigred` / `bigred`. `--shm-size 1g` enlarges shared memory, because with the 64 MB default VSCodium crashes while loading the CJK fonts.
 
-Without a cluster there is no tkadm, so point `SSH_HOST` and friends at an SSH host (its sshd must allow port forwarding too). To skip the automatic connection, pass `-e SSH_HOST_ALIAS=` (empty) and you get a local VSCodium.
+Without a cluster there is no tkadm, so point `SSH_HOST` and friends at an SSH host (its sshd must allow port forwarding too). To skip the automatic connection, pass `-e SSH_HOST_ALIAS=` (empty): you then get only the VSCodium in the container, connected to no SSH host.
 
 ## How to use
 
 ### 1. Log in
 
-Press `Win+R`, type `mstsc` and connect to the address above. Accept the certificate warning (each Pod generates its own certificate at startup, so it shows again after the Pod is recreated). On the xrdp login screen keep Session `Xorg`, enter the account and password, and press OK.
+Press `Win+R`, type `mstsc` and connect to the address above. Accept the certificate warning (each Pod generates its own certificate at startup, so the warning shows again after the Pod is recreated). On the xrdp login screen keep Session `Xorg`, enter the account and password, and press OK.
 
 ![xrdp login screen](docs/images/01-login.png)
 
 ### 2. Connect to tkadm
 
-VSCodium opens full screen and asks `Enter password for bigred@tkadm.taroko`. Enter tkadm's password (default `bigred`). When the bottom-left corner shows `SSH: tkadm` and the explorer lists `/home/bigred` on tkadm, you are connected.
+VSCodium opens full screen and asks `Enter password for bigred@tkadm.taroko`. Enter the SSH password of `bigred` on tkadm (`bigred` on tk8s). When the bottom-left corner shows `SSH: tkadm` and the explorer lists `/home/bigred` on tkadm, you are connected.
 
 ![tkadm password prompt](docs/images/02-ssh-password.png)
 
 ![Connected to tkadm](docs/images/03-connected.png)
 
-The first connection after tkadm restarts downloads a server of about 90 MB first. Every reconnect, including Reload Window, asks for the password again.
+When tkadm does not have this version of vscodium-server yet (first connection, after tkadm is recreated, or after an image upgrade), tkadm first downloads about 90 MB. Every reconnect, including Reload Window, asks for the password again.
 
 ### 3. Deploy a website on tkadm and open it by its cluster name
 
@@ -107,14 +112,14 @@ Press `Ctrl+Shift+P`, run "Browser: Open Integrated Browser" (or click the globe
 
 ![Opening a cluster website in the Integrated Browser](docs/images/04-browser.png)
 
-Use the short name `http://<service>.<namespace>` or the full `http://<service>.<namespace>.svc.<cluster domain>`. The cluster domain is not always `cluster.local` (on tk8s it is `tk8s.k8s`); find it with `kubectl -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' | grep kubernetes`. Add `:<port>` when the service does not listen on 80.
+Use the short name `http://<service>.<namespace>` or the full domain name (see the [user guide](docs/user-guide.md)). Add `:<port>` when the service does not listen on 80.
 
-> `Ctrl`-clicking a URL in the terminal does not open the Integrated Browser, and the default image has no other browser, so nothing happens. The `-firefox` image opens such links in Firefox.
+> `Ctrl`-clicking a URL in the terminal does not open the Integrated Browser, and the 1.0 image has no other browser, so nothing happens. The `-firefox` image opens such links in Firefox.
 
 ### 4. Good to know
 
 - **Closing VSCodium logs you out**: `Ctrl+Q` or the close button ends the Remote Desktop connection
-- **A disconnected desktop cannot be resumed**: reconnecting always gives a new desktop; the old one is removed 2 minutes after the disconnect. Files on tkadm are not affected
+- **A disconnected desktop cannot be resumed**: reconnecting always gives a new desktop; the old one is closed 2 minutes after the disconnect and **unsaved changes are lost**. Saved files on tkadm are not affected
 - **Typing Chinese**: there is no input method in the Pod; type on your own computer, copy, and paste with `Ctrl+V`
 - **Everyone is bigred on tkadm**: all RDP accounts log in to tkadm as the same user and see and change each other's files
 
@@ -122,11 +127,11 @@ More in the [user guide](docs/user-guide.md) (Traditional Chinese).
 
 ## Advanced: several accounts and a persistent home (Kustomize)
 
-Accounts are listed in `users.txt`; Kustomize's `secretGenerator` turns it into a Secret mounted at `/etc/rdp-vscode/users`. There are two overlays:
+Accounts are listed in `users.txt`; Kustomize's `secretGenerator` turns it into a Secret mounted at `/etc/rdp-vscode/users`. There are two overlays (changes layered on the shared base settings, such as which storage `/home` uses):
 
-| Overlay | `/home` | When the Pod restarts |
+| Overlay | `/home` | When the Pod is recreated |
 |---|---|---|
-| `manifests/stateless` | emptyDir | Files, settings and user-installed extensions are lost |
+| `manifests/stateless` | emptyDir | VSCodium settings and locally installed extensions are lost (files on tkadm are not affected) |
 | `manifests/stateful` | PVC `rdp-vscode-home` (5 GiB, ReadWriteOnce) | Everything under `/home` is kept |
 
 ```bash
@@ -145,13 +150,14 @@ bob:Bob-pw
 ```
 
 - Names start with a lowercase letter or `_`, use lowercase letters, digits, `_` and `-`, up to 32 characters, and may not be `root`, `xrdp` or an existing system account. Passwords may not be empty and may contain `:`. Windows line endings are fine. On invalid input the Pod fails to start; see why with `kubectl -n rdp-vscode logs deploy/rdp-vscode`.
-- Accounts get UIDs 1000, 1001, … in file order. On a stateful deployment, reordering the file hands existing homes to the new UIDs at startup; the home of a removed account is locked to root, so whoever gets its old UID cannot read it.
-- After editing `users.txt`, run `kubectl apply -k` again: the Secret name carries a content hash (`rdp-vscode-users-<hash>`), so a changed list recreates the Pod. Every desktop lives in that one Pod, so all sessions end.
-- **StorageClass for stateful**: the PVC has no `storageClassName` and uses the cluster default. That class must bind on first use (`volumeBindingMode: WaitForFirstConsumer`, as `local-path` should be) or be network storage. With `Immediate`, `local-path` cannot tell which node to create the volume on and the PVC stays `Pending`. A `local-path` volume lives on one node; if that node is down, the Pod cannot start.
-- To replace the SSH configuration entirely (several Hosts, for example), see `manifests/example/ssh-configmap`: a ConfigMap replaces the config built from `SSH_*`.
+- Accounts get UIDs 1000, 1001, … in file order. On a stateful deployment, reordering the file hands existing homes to the new UIDs at startup; the home of a removed account is locked to root, so whoever later gets its UID cannot read it.
+- After editing `users.txt`, run `kubectl apply -k` again. The Secret name carries a content hash (`rdp-vscode-users-<hash>`), so any change to `users.txt` (passwords and comments included) recreates the Pod. Every desktop lives in that one Pod, so all sessions end.
+- **StorageClass for stateful**: the PVC has no `storageClassName` and uses the cluster's default StorageClass; without a default, the PVC stays `Pending`. The class must be network storage or use `volumeBindingMode: WaitForFirstConsumer`; see [docs/ops/2026-10-28-tk8s-local-path-sc.md](docs/ops/2026-10-28-tk8s-local-path-sc.md) for why. A `local-path` volume lives on one node; if that node is down, the Pod cannot start.
+- To replace the SSH configuration entirely (several Hosts, for example), see `manifests/example/ssh-configmap`: a ConfigMap replaces the config built from `SSH_*`. It must contain a `Host` named like `SSH_HOST_ALIAS`, or the login cannot connect. The example builds on `manifests/stateless`.
 - To use another image (a private registry or the `-firefox` variant), add an `images:` block with `newName` / `newTag` to the overlay's `kustomization.yaml`.
+- To change [environment variables](#environment-variables), edit `env` in `manifests/base/deployment.yaml` and run `kubectl apply -k` again.
 - `users.txt` holds plain-text passwords; do not commit it to a public repo. Tools such as SOPS or Sealed Secrets can manage it.
-- If you used the quick start before, just apply the overlay. Do not run `install.sh` again afterwards; it would reset to bigred/bigred and an emptyDir.
+- If you used the quick start before, just run `kubectl apply -k`. Do not run `install.sh` again afterwards; it would reset to `bigred` / `bigred` and an emptyDir.
 
 ## Images
 
@@ -161,7 +167,7 @@ bob:Bob-pw
 | VSCodium 1.143.17183, Open Remote-SSH 0.5.1, Traditional Chinese pack 1.131.0 | ✅ | ✅ |
 | Auto-connect to tkadm, YAML extension installed on tkadm | ✅ | ✅ |
 | Open cluster websites in the Integrated Browser | ✅ | ✅ |
-| Firefox ESR: `Ctrl`-clicked URLs open in it, `Alt+Tab` switches windows | — | ✅ |
+| Firefox ESR (`Ctrl`-clicked URLs in the terminal open in it, `Alt+Tab` switches windows) | — | ✅ |
 | Size | about 1.3 GB | about 1.6 GB |
 
 `images/rdp-vscode/Dockerfile` selects the variant with the build argument `WITH_FIREFOX`; `WITH_FIREFOX=1` builds `-firefox`, and only the last layer differs.
@@ -170,26 +176,28 @@ bob:Bob-pw
 
 - [architecture.md](docs/architecture.md): how it works (connection path, what each process in the Pod does, security boundaries)
 - [user-guide.md](docs/user-guide.md): user guide (logging in, connecting to tkadm, opening websites, concurrent use, troubleshooting)
-- [build-image.md](docs/build-image.md): build both tags from source, test them, and deploy to Kubernetes (tk8s)
+- [build-image.md](docs/build-image.md): build guide (build both tags from source, test them, and deploy to Kubernetes on tk8s)
 - [design/](docs/design/README.md): design decisions, acceptance criteria, risks and review history
 - [ops/](docs/ops/): changes made to tk8s for this project (tkadm sshd, local-path StorageClass)
 
 ## Environment variables
 
+On Kubernetes edit `env` in `manifests/base/deployment.yaml`; on a single host use `podman run -e`.
+
 | Variable | Default | Meaning |
 |---|---|---|
-| `USERS_FILE` | `/etc/rdp-vscode/users` | Account file, one `user:password` per line; mounted from Secret `rdp-vscode-users-*` on Kubernetes. When it exists and is not empty, the next two variables are ignored |
-| `RDP_USER` | `bigred` | Login account when there is no account file (UID 1000) |
-| `RDP_PASSWORD` | — | Its password (required in that case) |
-| `MAX_SESSIONS` | `3` | Maximum concurrent desktops, all accounts together; each one needs about 1 GiB more memory |
+| `USERS_FILE` | `/etc/rdp-vscode/users` | Account file, one `user:password` per line; on Kubernetes it is always mounted from Secret `rdp-vscode-users-*` |
+| `RDP_USER` | `bigred` | Login account when there is no account file (single-host podman), UID 1000 |
+| `RDP_PASSWORD` | — | Its password (single-host podman), required in that case |
+| `MAX_SESSIONS` | `3` | Maximum concurrent desktops, all accounts together (a disconnected desktop counts until it is removed 2 minutes later); each one needs about 1 GiB more memory |
 | `SSH_HOST_ALIAS` | `tkadm` | SSH `Host` name VSCodium connects to on login; empty disables the auto connect |
 | `SSH_HOST` | `tkadm.taroko` | Host name or IP of the SSH target. The short name (`<service>.<namespace>`) works with any cluster domain |
 | `SSH_PORT` | `22100` | SSH port |
 | `SSH_USER` | `bigred` | SSH user |
-| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | Folder opened on the SSH target |
+| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | Folder opened on the SSH target. `manifests/base/deployment.yaml` sets it to `/home/bigred` explicitly; change both together |
 | `VSCODIUM_LOCALE` | `zh-tw` | UI language: `zh-tw` or `en` |
 
-The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. A mounted, non-empty ConfigMap `rdp-vscode-ssh` (key `config`) replaces it entirely.
+The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. A mounted, non-empty ConfigMap `rdp-vscode-ssh` (key `config`) replaces it entirely; it must then contain a `Host` named like `SSH_HOST_ALIAS`.
 
 ## Files
 
@@ -197,9 +205,9 @@ The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. A mounted,
 |---|---|
 | `VERSION` | Current version |
 | `images/rdp-vscode/Dockerfile` | Image definition (base `debian:trixie-slim`; `WITH_FIREFOX=1` adds Firefox ESR) |
-| `images/rdp-vscode/rootfs/` | Config files and scripts copied to `/` in the image (entrypoint, accounts, SSH config, session start and cleanup) |
+| `images/rdp-vscode/rootfs/` | Config files and scripts copied to `/` in the image (entrypoint, accounts, SSH config, desktop start and cleanup) |
 | `images/rdp-vscode/rootfs-firefox/` | Files used only by the `-firefox` variant |
-| `install.sh` | Quick-start `curl \| bash` installer (bigred/bigred, `/home` in an emptyDir) |
+| `install.sh` | Quick-start `curl \| bash` installer (`bigred` / `bigred`, `/home` in an emptyDir) |
 | `manifests/base/` | Kustomize base: Namespace, Deployment, NodePort Service (30390) |
 | `manifests/stateless/`, `manifests/stateful/` | Overlays: Secret from `users.txt`; `/home` in an emptyDir or a PVC |
 | `manifests/example/ssh-configmap/` | Example of replacing the SSH config with a ConfigMap |
