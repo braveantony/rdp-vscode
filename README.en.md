@@ -4,14 +4,12 @@
 
 Log in with Windows Remote Desktop (RDP) and you get a full-screen VSCodium (the open-source build of VS Code) running inside your Kubernetes cluster. It connects over SSH to the cluster's admin Pod, tkadm, on its own, so you edit files and run `kubectl` there. Several people can use it at once, and every login gets its own desktop (up to 3 at a time, adjustable).
 
-> **Security warning.** The default account `bigred` / `bigred` is for isolated lab clusters only. Anyone who can reach NodePort 30390 (a fixed port Kubernetes opens on every node) with it gets into the cluster network, can SSH to tkadm, and through `kubectl` there controls the whole cluster. Before you deploy anywhere else, switch to [several accounts](#advanced-several-accounts-and-a-persistent-home-kustomize) with your own passwords.
-
 ## Overview
 
 - **Code and run the cluster from inside it**: the VSCodium you use after logging in runs in the cluster
   - **Editor and CLI**: connects to tkadm over SSH (Open Remote-SSH); the explorer and the terminal are on tkadm, and the kubeconfig (kubectl's cluster credentials) never leaves the cluster
   - **Web**: open `http://<service>.<namespace>` (for example `http://web.default`) in the built-in Integrated Browser to reach web services inside the cluster
-  - Only one NodePort (30390) is exposed; nothing else needs to be opened to the outside
+  - Only one NodePort (a fixed port Kubernetes opens on every node; here 30390) is exposed; nothing else needs to be opened to the outside
 - **Nothing to install**: the Remote Desktop client built into Windows is enough; no local VS Code or extensions
 - **Concurrent use**: several accounts, or the same account several times, can be logged in at once; every login has its own desktop and VSCodium. Different accounts cannot see each other's home in this Pod (but they are the same user on tkadm)
 - **Chinese UI and YAML completion**: the Traditional Chinese language pack is preinstalled; the YAML extension is installed on tkadm on first connect, so Kubernetes YAML gets field completion
@@ -213,6 +211,10 @@ The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. A mounted,
 | `manifests/example/ssh-configmap/` | Example of replacing the SSH config with a ConfigMap |
 | `docs/` | Architecture, user guide, build guide, diagram (`docs/architecture/`), README screenshots (`docs/images/`), design docs |
 | `test/` | Unit, image and deploy tests, and the end-to-end acceptance on tk8s (`test/e2e/`) |
+
+## Security warning
+
+The default account `bigred` / `bigred` is for isolated lab clusters only. Anyone who can reach NodePort 30390 with it gets into the cluster network, can SSH to tkadm, and through `kubectl` there controls the whole cluster. Before you deploy anywhere else, switch to [several accounts](#advanced-several-accounts-and-a-persistent-home-kustomize) with your own passwords.
 
 ## License
 

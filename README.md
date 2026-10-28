@@ -4,14 +4,12 @@
 
 用 Windows 遠端桌面（RDP）登入後，畫面就是在 Kubernetes 叢集裡執行的全螢幕 VSCodium（VS Code 的開源版），並且自動以 SSH（加密的遠端登入）連到叢集的管理 Pod（Kubernetes 裡執行程式的單位）tkadm，直接在上面編輯檔案、執行 `kubectl`（Kubernetes 的命令列工具）。支援多人同時使用，每次登入都有自己的桌面（同時最多 3 個，可以調整）。
 
-> **安全警告**：預設帳密 `bigred` / `bigred` 只適合隔離的實驗叢集。能連到 NodePort（Kubernetes 在每個節點上開放的固定埠號）30390 的人，用這組帳密就能進到叢集內部網路，再以 SSH 連到 tkadm，用那裡的 `kubectl` 控制整個叢集。部署到其他環境前，請改用[多個帳號](#進階多個帳號與保留-homekustomize)並設定自己的密碼。
-
 ## 簡述
 
 - **在叢集裡寫程式、管理叢集**：登入後使用的 VSCodium 執行在叢集裡
   - **編輯與 CLI**：自動以 SSH 連到 tkadm（Open Remote-SSH），檔案總管、終端機都在 tkadm 上，kubeconfig（kubectl 連叢集用的設定檔）不必離開叢集
   - **Web**：用內建的 Integrated Browser 開 `http://<service>.<namespace>`（namespace 是 Kubernetes 用來分組資源的名稱，例如 `http://web.default`），直達叢集內的 Web 服務
-  - 只要開放一個 NodePort（30390），不必另外設定其他對外方式
+  - 只要開放一個 NodePort（Kubernetes 在每個節點上開放的固定埠號，這裡是 30390），不必另外設定其他對外方式
 - **零安裝、即連即用**：Windows 內建的遠端桌面就能連，不用在自己的電腦裝 VS Code 或任何擴充功能（extension）
 - **多人並行**：多個帳號、甚至同一個帳號都能同時登入，每次登入都有自己的桌面和 VSCodium；不同帳號在這個 Pod 裡的家目錄互相看不到（但連到 tkadm 後都是同一個使用者）
 - **繁中介面、YAML 補全**：預裝繁體中文語言包；第一次連到 tkadm 時自動安裝 YAML 擴充功能，編輯 Kubernetes YAML 有欄位提示
@@ -213,6 +211,10 @@ SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 Co
 | `manifests/example/ssh-configmap/` | 用 ConfigMap 取代 SSH 設定的範例 |
 | `docs/` | 架構說明、使用手冊、建置文件、架構圖（`docs/architecture/`）、README 截圖（`docs/images/`）、設計文件 |
 | `test/` | 單元測試、映像檔測試、部署測試，以及在 tk8s 上執行的端到端驗收（`test/e2e/`） |
+
+## 安全警告
+
+預設帳密 `bigred` / `bigred` 只適合隔離的實驗叢集。能連到 NodePort 30390 的人，用這組帳密就能進到叢集內部網路，再以 SSH 連到 tkadm，用那裡的 `kubectl` 控制整個叢集。部署到其他環境前，請改用[多個帳號](#進階多個帳號與保留-homekustomize)並設定自己的密碼。
 
 ## 授權
 
