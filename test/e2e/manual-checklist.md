@@ -21,10 +21,10 @@ RDP 連到 `<節點 IP>:30390`，在 xrdp 登入畫面輸入 `bigred` / `bigred`
 
 - [ ] 在 VSCodium 開啟 terminal（`` Ctrl+` ``），執行：
   ```bash
-  kubectl create deploy web --image=nginx && kubectl expose deploy web --port 80
+  kubectl -n default create deploy web --image=nginx && kubectl -n default expose deploy web --port 80
   ```
 - [ ] 按 `Ctrl+Shift+P`，執行 `Browser: Open Integrated Browser`（或按標題列右邊的地球圖示），輸入 `http://web.default.svc.tk8s.k8s`，看到 nginx 的歡迎頁
-- [ ] 測完執行 `kubectl delete deploy/web svc/web`
+- [ ] 測完執行 `kubectl -n default delete deploy/web svc/web`
 
 > 原本的設計是 Simple Browser，但它只能開 `localhost` 這類網址（Task 0 第 5 題），所以改用 VSCodium 內建的 Integrated Browser。
 

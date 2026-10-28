@@ -19,7 +19,7 @@
 
 ## 2. 連到 tkadm
 
-1. 登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`。
+1. 登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`，要你輸入連到 `tkadm` 的密碼。這是第二組密碼，可能和剛才登入遠端桌面的密碼不同，請向管理者確認。
 2. 輸入 `tkadm` 上 `bigred` 帳號的密碼（tk8s 上是 `bigred`，其他環境請問管理者），按 Enter。
 3. 左下角變成 `SSH: tkadm`，左邊的檔案總管列出 `tkadm` 上 `/home/bigred` 的檔案，就表示連上了。
 
@@ -27,15 +27,17 @@
 - 之後每次重新連線（包括「重新載入視窗」），都會再問一次密碼。
 - 不小心按了取消時，按 `Ctrl+Shift+P`，執行「Developer: Reload Window」（重新載入視窗），密碼框會再出現一次。
 
-## 3. 在 tkadm 部署網站並開啟
+## 3. 在 tkadm 部署網站並開啟（選用的管理範例）
+
+以下示範用指令在叢集建立一個測試網站，再從 VSCodium 開啟，需要管理者授權。只想瀏覽既有的網站，可以直接從步驟 3 開始，輸入管理者提供的網址。
 
 1. 按 `` Ctrl+` `` 開啟終端機。這個終端機在 `tkadm` 上執行。
 2. 部署一個 nginx：
 
    ```bash
-   kubectl create deploy web --image=nginx
-   kubectl expose deploy web --port 80
-   kubectl rollout status deploy/web
+   kubectl -n default create deploy web --image=nginx
+   kubectl -n default expose deploy web --port 80
+   kubectl -n default rollout status deploy/web
    ```
 
 3. 按 `Ctrl+Shift+P`，輸入 `Open Integrated Browser`，選「Browser: Open Integrated Browser」；或按標題列右邊的地球圖示。
@@ -48,7 +50,7 @@
 測完記得刪除：
 
 ```bash
-kubectl delete deploy/web svc/web
+kubectl -n default delete deploy/web svc/web
 ```
 
 ## 4. 使用時要知道的事
@@ -56,9 +58,9 @@ kubectl delete deploy/web svc/web
 - **關掉 VSCodium 就登出**：按 `Ctrl+Q` 或右上角的關閉按鈕，遠端桌面隨即中斷。
 - **斷線後無法接回原本的桌面**：重新連線一定會拿到新的 VSCodium，原本的桌面會在斷線 2 分鐘後關閉。尚未存檔的內容會遺失，請隨時存檔；已存檔的檔案在 `tkadm` 上，不受影響。
 - **多人同時使用**：每次登入都有自己的桌面和 VSCodium，同一個帳號也可以同時登入兩次。同時最多 3 個桌面（所有帳號合計），超過時會看到 `Max session limit reached`。
-- **設定會共用**：同一個帳號在不同桌面改的設定（例如字型大小）是同一份。管理者沒有設定保留資料（stateless 模式）時，Pod 重建後設定會回到預設值；有設定（stateful 模式）時會保留。
+- **設定會共用**：同一個帳號在不同桌面改的設定（例如字型大小）是同一份。管理者沒有設定保留資料時，系統重建後設定會回到預設值；有設定時會保留。
 - **大家共用 tkadm 上的 bigred**：不同的 RDP 帳號連到 `tkadm` 後都是同一個使用者，彼此看得到、也改得到對方的檔案。
-- **輸入中文**：Pod 裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。
+- **輸入中文**：遠端桌面裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。
 - **YAML 補全**：`tkadm` 第一次連線時會自動安裝 YAML 擴充功能（extension）。編輯 `.yaml` 檔時，按 `Ctrl+Space` 會出現 Kubernetes 欄位的建議。
 
 ## 5. `-firefox` 版（`:1.0-firefox`）

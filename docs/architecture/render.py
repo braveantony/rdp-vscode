@@ -81,12 +81,20 @@ def dashed_container(x,y,w,h):
    points=[(a,fixed),(b,fixed)] if horizontal else [(fixed,a),(fixed,b)]
    line(points,'#78909f',2,False)
 
-def process_tag(x,y):
- text(x,y,'process',18,'#607586')
+def process_tag(x,y,label='process'):
+ text(x,y,label,18,'#607586')
 
-def process_box(x,y,w,title,role,fill,title_size=28):
+def process_box(x,y,w,title,role,fill,title_size=28,label='process'):
  rect(x,y,w,130,fill)
- process_tag(x+w-90,y+23)
+ tag_x=x+w-90
+ if label != 'process':
+  # Preserve the original right margin using the same advances as text().
+  ft.FT_Set_Pixel_Sizes(face,0,18)
+  for value,direction in [(label,-1),('process',1)]:
+   for ch in value:
+    assert ft.FT_Load_Char(face,ord(ch),4)==0
+    tag_x+=direction*(face.contents.glyph.contents.advance.x//64)
+ process_tag(tag_x,y+23,label)
  text(x+20,y+59,title,title_size)
  text(x+20,y+103,role,22 if title.startswith('③') else 25,'#435b70')
 
@@ -111,7 +119,7 @@ box(500,430,550,110,'Service：rdp-vscode',['30390 → 3389'])
 box(1100,430,450,110,'Secret',['/etc/rdp-vscode/users'],'#fff7e9')
 box(1100,570,450,110,'ConfigMap（選用）',['/etc/rdp-vscode/ssh/config'],'#fff7e9')
 process_box(520,890,980,'① xrdp :3389／xrdp-sesman',
-            '驗證帳號、每次登入開一個新桌面','#edf5ff',30)
+            '驗證帳號、每次登入開一個新桌面','#edf5ff',30,label='processes')
 rect(520,1130,980,300,'#eef8f4')
 text(1400,1155,'session',18,'#607586')
 text(542,1180,'② Xorg session × N',30)
@@ -166,7 +174,7 @@ text(2005,1395,'kubectl apply',23,'#cf7b32')
 line([(1400,1410),(1400,1715),(2020,1715),(2020,1680)],'#cf7b32',3)
 text(1660,1750,'Integrated Browser',27,'#cf7b32')
 text(440,1840,'粗藍：VSCodium 桌面主路徑　　綠：SSH　　橙：HTTP／kubectl　　金：帳號與設定',27,'#596e85')
-text(440,1890,'虛線框 = container，內部方塊 = process／session／volume',27,'#596e85')
+text(440,1890,'虛線框 = container，內部方塊 = process(es)／session／volume',27,'#596e85')
 out=Path(__file__).resolve().parent
 svg.append('</svg>'); (out/'rdp-vscode-architecture.svg').write_text('\n'.join(svg))
 def chunk(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)

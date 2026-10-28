@@ -8,7 +8,7 @@ Log in with Windows Remote Desktop (RDP) and you get a full-screen VSCodium (the
 
 ## Overview
 
-- **Code and run the cluster from inside it**: the VSCodium you log in to runs in the cluster
+- **Code and run the cluster from inside it**: the VSCodium you use after logging in runs in the cluster
   - **Editor and CLI**: connects to tkadm over SSH (Open Remote-SSH); the explorer and the terminal are on tkadm, and the kubeconfig (kubectl's cluster credentials) never leaves the cluster
   - **Web**: open `http://<service>.<namespace>` (for example `http://web.default`) in the built-in Integrated Browser to reach web services inside the cluster
   - Only one NodePort (30390) is exposed; nothing else needs to be opened to the outside
@@ -34,7 +34,7 @@ Details in [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
 ### Kubernetes cluster
 
 - kubectl, curl, bash (and git for the advanced setup). kubectl includes Kustomize, used by `kubectl apply -k`
-- A kubeconfig (usually `~/.kube/config`) allowed to create Namespaces, Deployments, Services, Secrets and PersistentVolumeClaims, and to list Nodes
+- A kubeconfig (usually `~/.kube/config`) allowed to create and update Namespaces, Deployments, Services and Secrets (plus PersistentVolumeClaims for stateful), read Deployments and Services, list and delete old `rdp-vscode-users-*` Secrets in namespace `rdp-vscode`, and list Nodes (`install.sh` needs all of these)
 - Nodes that can pull from `ghcr.io` (the image is about 1.3 GB)
 - Resources: the Pod requests 0.5 CPU / 1 GiB and is limited to 4 CPU / 4 GiB (sized for 3 concurrent users)
 - NodePort `30390` free, and clients able to reach TCP 30390 on the nodes
@@ -68,7 +68,7 @@ You can also read node IPs from the INTERNAL-IP column of `kubectl get nodes -o 
 
 ### Single host (podman)
 
-On a Linux host with podman:
+On a Linux host with podman. Replace `<ssh host>` and `<ssh user>`, angle brackets included, with real values (for example `192.168.1.10` and `alice`) before pasting:
 
 ```bash
 podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
@@ -101,11 +101,11 @@ When tkadm does not have this version of vscodium-server yet (first connection, 
 
 ### 3. Deploy a website on tkadm and open it by its cluster name
 
-Press `` Ctrl+` `` for a terminal (it runs on tkadm) and deploy nginx:
+Press `` Ctrl+` `` for a terminal (it runs on tkadm) and deploy nginx in namespace `default` (pick another name if `default` already has something called `web`):
 
 ```bash
-kubectl create deploy web --image=nginx
-kubectl expose deploy web --port 80
+kubectl -n default create deploy web --image=nginx
+kubectl -n default expose deploy web --port 80
 ```
 
 Press `Ctrl+Shift+P`, run "Browser: Open Integrated Browser" (or click the globe icon on the right of the title bar), and enter `http://web.default`. The nginx welcome page shows up.

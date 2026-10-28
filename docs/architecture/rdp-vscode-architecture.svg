@@ -221,7 +221,7 @@
 <text x="1122" y="610" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">ConfigMap（選用）</text>
 <text x="1122" y="650" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#20334b">/etc/rdp-vscode/ssh/config</text>
 <rect x="520" y="890" width="980" height="130" fill="#edf5ff" stroke="#ced9e5"/>
-<text x="1410" y="913" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">process</text>
+<text x="1391" y="913" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="18" fill="#607586">processes</text>
 <text x="540" y="949" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="30" fill="#20334b">① xrdp :3389／xrdp-sesman</text>
 <text x="540" y="993" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="25" fill="#435b70">驗證帳號、每次登入開一個新桌面</text>
 <rect x="520" y="1130" width="980" height="300" fill="#eef8f4" stroke="#ced9e5"/>
@@ -296,5 +296,5 @@
 <polyline points="2013,1692 2020,1680" fill="none" stroke="#cf7b32" stroke-width="3"/>
 <text x="1660" y="1750" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#cf7b32">Integrated Browser</text>
 <text x="440" y="1840" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#596e85">粗藍：VSCodium 桌面主路徑　　綠：SSH　　橙：HTTP／kubectl　　金：帳號與設定</text>
-<text x="440" y="1890" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#596e85">虛線框 = container，內部方塊 = process／session／volume</text>
+<text x="440" y="1890" font-family="WenQuanYi Zen Hei, Noto Sans CJK TC, sans-serif" font-size="27" fill="#596e85">虛線框 = container，內部方塊 = process(es)／session／volume</text>
 </svg>

@@ -8,7 +8,7 @@
 
 ## 簡述
 
-- **在叢集裡寫程式、管理叢集**：登入後的 VSCodium 就在叢集裡
+- **在叢集裡寫程式、管理叢集**：登入後使用的 VSCodium 執行在叢集裡
   - **編輯與 CLI**：自動以 SSH 連到 tkadm（Open Remote-SSH），檔案總管、終端機都在 tkadm 上，kubeconfig（kubectl 連叢集用的設定檔）不必離開叢集
   - **Web**：用內建的 Integrated Browser 開 `http://<service>.<namespace>`（namespace 是 Kubernetes 用來分組資源的名稱，例如 `http://web.default`），直達叢集內的 Web 服務
   - 只要開放一個 NodePort（30390），不必另外設定其他對外方式
@@ -34,7 +34,7 @@
 ### Kubernetes 叢集
 
 - kubectl、curl、bash（進階設定另外需要 git）。kubectl 已內建 Kustomize（組合 YAML 設定的工具，`kubectl apply -k` 就是用它）
-- kubeconfig（通常在 `~/.kube/config`），而且有權限建立 Namespace、Deployment、Service、Secret、PersistentVolumeClaim，並能讀取 Node 清單
+- kubeconfig（通常在 `~/.kube/config`），而且有權限建立和更新 Namespace、Deployment、Service、Secret（stateful 模式另外需要 PersistentVolumeClaim）、讀取 Deployment 和 Service、列出和刪除 namespace `rdp-vscode` 裡舊的 `rdp-vscode-users-*` Secret，並能讀取 Node 清單（`install.sh` 會用到這些權限）
 - 節點能連到 `ghcr.io` 下載映像檔（約 1.3 GB）
 - 資源：Pod 需求 0.5 CPU／1 GiB，上限 4 CPU／4 GiB（以 3 人同時使用估算）
 - NodePort `30390` 沒有被占用，而且用戶端連得到節點的 TCP 30390 埠（防火牆要放行）
@@ -68,7 +68,7 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 
 ### 單機（podman）
 
-在一台 Linux 主機上用 podman（類似 Docker 的容器工具）執行：
+在一台 Linux 主機上用 podman（類似 Docker 的容器工具）執行。先把 `<SSH 主機>`、`<SSH 帳號>` 連同尖括號換成實際的值（例如 `192.168.1.10`、`alice`），再貼上：
 
 ```bash
 podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
@@ -101,11 +101,11 @@ tkadm 上還沒有這個版本的 vscodium-server 時（第一次連線、tkadm 
 
 ### 3. 在 tkadm 部署網站，用叢集內的網址開啟
 
-按 `` Ctrl+` `` 開啟終端機（在 tkadm 上執行），部署一個 nginx：
+按 `` Ctrl+` `` 開啟終端機（在 tkadm 上執行），在 namespace `default` 部署一個 nginx（如果 `default` 裡已經有叫 `web` 的資源，換一個名稱）：
 
 ```bash
-kubectl create deploy web --image=nginx
-kubectl expose deploy web --port 80
+kubectl -n default create deploy web --image=nginx
+kubectl -n default expose deploy web --port 80
 ```
 
 按 `Ctrl+Shift+P`，執行「Browser: Open Integrated Browser」（或按標題列右邊的地球圖示），在網址列輸入 `http://web.default`，就會看到 nginx 的歡迎頁。

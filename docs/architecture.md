@@ -16,7 +16,7 @@
 
 Pod 只有**一個 container `desktop`**，也就是圖中的虛線框。框內的方塊代表這個 container 裡的 **process**（執行中的程式）或 **session**（由一組 process 組成的桌面工作階段，即 ②），分成兩批啟動：
 
-- **container 啟動時**：由 `tini`（container 裡第一個啟動的小程式，負責啟動和回收其他程式）執行 `/opt/rdp-vscode/entrypoint.sh`。它依序建立登入帳號、產生 SSH 設定、產生這個 Pod 專用的 TLS 憑證和 RSA 金鑰（container 每次啟動都會重新產生），最後啟動 ①。
+- **container 啟動時**：由 `tini`（container 裡第一個啟動的小程式，負責啟動和回收其他程式）執行 `/opt/rdp-vscode/entrypoint.sh`。它依序建立登入帳號、產生 SSH 設定、產生這個 Pod 專用的 TLS 憑證和 RSA 金鑰（還沒有憑證和金鑰時才產生；新建的 Pod 一定會用新產生的），最後啟動 ①。
 - **使用者登入時**：由 xrdp-sesman 執行 `/etc/xrdp/startwm.sh`，啟動 ②。
 
 xrdp 或 xrdp-sesman 結束時，container 就會停止，由 Kubernetes 重啟。VSCodium 結束只會讓那一個桌面登出，不影響 container。
@@ -42,7 +42,7 @@ xrdp 或 xrdp-sesman 結束時，container 就會停止，由 Kubernetes 重啟�
 - **綠線（SSH）**
   - VSCodium 的 Open Remote-SSH 以 SSH 連到 namespace `taroko` 的**叢集管理 Pod tkadm**（`tkadm.taroko:22100`），使用者在密碼框輸入 tkadm 的密碼。tkadm 需另外部署，本 repo 不提供。
   - tkadm 上還沒有這個版本的 server 時，Open Remote-SSH 會讓 tkadm 自己從 GitHub 下載並啟動 **③ vscodium-server**（Alpine 版，因為 tkadm 用的是 Alpine Linux；放在 `~/.vscodium-server`），並自動從 Open VSX 安裝 YAML 擴充功能（extension），所以 tkadm 要能連到 `github.com` 和 `open-vsx.org`。之後 VSCodium 透過 SSH 的本機埠轉發連到 ③，所以 tkadm 的 sshd 必須是 `AllowTcpForwarding local`（或 `yes`）。
-  - 檔案總管、編輯器和終端機都在 tkadm 上執行；終端機裡的 `kubectl` 用的是 tkadm 的 kubeconfig（kubectl 連叢集用的設定檔）。
+  - 檔案總管顯示的是 tkadm 上的檔案，編輯的檔案和終端機執行的指令也都在 tkadm 上；終端機裡的 `kubectl` 用的是 tkadm 的 kubeconfig（kubectl 連叢集用的設定檔）。
 - **橙線（HTTP／kubectl）**
   - VSCodium 的 Integrated Browser 就在 Pod 裡，所以能用 `http://<service>.<namespace>` 直接開叢集內的 Web 服務，不必另外對外開放。
   - tkadm 上的 kubectl 呼叫 Kubernetes API 管理叢集。
@@ -50,7 +50,7 @@ xrdp 或 xrdp-sesman 結束時，container 就會停止，由 Kubernetes 重啟�
   - Secret（Kubernetes 存放密碼等敏感資料的物件）`rdp-vscode-users-<雜湊>` 以唯讀方式掛載到 `/etc/rdp-vscode/users`，每行一個 `帳號:密碼`。
   - container 啟動時，`entrypoint.sh` 依這個檔案建立登入帳號（UID 從 1000 起），① 的 xrdp-sesman 用這些帳號驗證登入。每個帳號的 home 權限是 `0700`。
   - SSH 設定由 entrypoint 依 `SSH_*` 環境變數寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`；掛載了內容不是空的 ConfigMap `rdp-vscode-ssh` 時，改用它的內容。
-- **儲存**：`/home` 依 overlay 是 emptyDir（Pod 刪掉就跟著消失）或 PVC `rdp-vscode-home`；`/dev/shm`（共用記憶體）掛成 1 GiB 的記憶體空間，因為用預設的 64 MB 時，VSCodium 載入中文字型會崩潰。
+- **儲存**：`/home` 依 overlay 是 emptyDir（Pod 刪掉就跟著消失）或 PVC `rdp-vscode-home`；`/dev/shm`（共用記憶體）掛載為記憶體型的 emptyDir，大小上限是 1 GiB，因為用預設的 64 MB 時，VSCodium 載入中文字型會崩潰。
 
 ## 安全邊界
 
@@ -58,6 +58,6 @@ xrdp 或 xrdp-sesman 結束時，container 就會停止，由 Kubernetes 重啟�
 - 登入後就在叢集內部網路裡：Pod 裡的程式（VSCodium、Integrated Browser）連得到叢集內的 Service 和 Pod（叢集沒有設定 NetworkPolicy 這類網路存取規則限制時）。再加上 tkadm 的 kubectl，**預設帳密等於整個叢集的控制權**，只適合隔離的實驗環境。
 - xrdp 與 xrdp-sesman 以 root 執行（Debian trixie 的 xrdp 0.10.1 不支援降權；sesman 本來就需要 root 才能驗證帳號、切換成登入者）；Xorg、openbox、VSCodium 以登入者的身分執行，container 設了 `allowPrivilegeEscalation: false`。
 - 不同帳號的 home 彼此看不到（`0700`）；從帳號清單移除的帳號，home 會改成 root 擁有。但所有帳號連到 tkadm 後都是同一個 bigred，會共用那裡的檔案與 kubectl 權限。
-- TLS 憑證與 RSA 金鑰在每個 Pod 啟動時產生，不寫進映像檔；密碼來自 Secret，也不寫進映像檔。
+- TLS 憑證與 RSA 金鑰在 container 啟動時、還不存在時才產生，所以每個新建的 Pod 都有自己的一組，不寫進映像檔；密碼來自 Secret，也不寫進映像檔。
 - 連 tkadm 時不檢查 SSH host key（主機用來證明自己身分的金鑰；tkadm 重建後 host key 會改變），所以叢集內如果有人冒充 `tkadm.taroko`，就可能拿到使用者輸入的密碼。
 - tkadm 的 kubeconfig 留在叢集內，不必流出到用戶端。

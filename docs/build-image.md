@@ -215,7 +215,7 @@ ARG ZH_HANT_VERSION=1.131.0
    curl -fsSL https://open-vsx.org/api/MS-CEINTL/vscode-language-pack-zh-hant | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["version"], d["engines"])'
    ```
 
-3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號，例如 `:1.1`：把 Step 2～7 指令裡的 `1.0` 換成新版本，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。
+3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號：把 Step 2～4、7 指令裡的 `:1.0` 和 `:1.0-firefox` 分別換成例如 `:1.1` 和 `:1.1-firefox`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。注意：Step 3 測的是指定的發佈 tag；完整驗收則是從目前的原始碼另外建置 `localhost/rdp-vscode:dev` 來測。
 
 使用者的 home 裡如果有舊版的預裝擴充功能，下次登入時會自動換成映像檔裡的版本；自己裝的擴充功能不會被動到。
 
