@@ -96,7 +96,7 @@ StorageClass 是決定 PVC 用哪種儲存的叢集設定。PVC 沒有指定 `st
     newTag: 1.0-firefox
   ```
 
-- **改環境變數**：修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k`。變數說明見 [README 的「環境變數」](../README.md#環境變數)。
+- **改環境變數**：修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k manifests/stateless`（或 `manifests/stateful`）。變數說明見 [README 的「環境變數」](../README.md#環境變數)。
 - **自訂完整的 SSH 設定**（例如多個 Host）：參考 `manifests/example/ssh-configmap`。這個範例用 ConfigMap 整份取代由 `SSH_*` 產生的 SSH 設定；ConfigMap 裡一定要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`，登入時才連得上。它以 `manifests/stateless` 為基礎，所以帳號清單是 `manifests/stateless/users.txt`。
 
 ## 單機（podman）
