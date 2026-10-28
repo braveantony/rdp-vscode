@@ -23,7 +23,8 @@ install -d -m 755 /run/rdp-vscode
 chmod 644 /run/rdp-vscode/session.env
 
 # Per-pod TLS certificate and RDP RSA keys (the Dockerfile removes the ones
-# generated at build time); readable by the unprivileged xrdp listener
+# generated at build time); group xrdp may read them (the listener itself runs
+# as root: Debian's xrdp 0.10.1 has no runtime_user)
 cd /etc/xrdp
 if [ ! -s key.pem ]; then
   openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -subj "/CN=$(hostname)" \

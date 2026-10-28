@@ -1,17 +1,17 @@
 # rdp-vscode 映像檔建置手冊
 
-本文件從原始碼做出 `ghcr.io/braveantony/rdp-vscode:1.0` 和 `:1.0-firefox` 兩個 tag，跑過測試，載入 tk8s 的節點並部署，最後推到 ghcr.io。**由上到下依序複製每個指令區塊貼到終端機執行。** 每個區塊開頭都會 `cd ~/rdp-vscode`，中途換終端機也能接著貼。
+本文件從原始碼做出 `ghcr.io/braveantony/rdp-vscode:1.0` 和 `:1.0-firefox` 兩個 tag，跑過測試，載入 tk8s 的節點並部署，最後推到 ghcr.io。**由上到下依序複製每個指令區塊貼到終端機執行。** 需要在 repo 目錄執行的區塊，開頭都會 `cd ~/rdp-vscode`，中途換終端機也能接著貼。
 
 ## 這個映像檔做什麼
 
 | 功能 | 做法 |
 |---|---|
-| RDP 伺服器 | xrdp 0.10.1 + xorgxrdp：sesman 替每條 RDP 連線啟動一個獨立的 Xorg，解析度跟著用戶端視窗 |
+| RDP 伺服器 | xrdp 0.10.1 + xorgxrdp：sesman 替每次登入啟動一個獨立的 Xorg，解析度跟著用戶端視窗 |
 | 編輯器 | VSCodium 1.143.17183（固定版本），由 openbox 撐滿整個畫面、沒有邊框；關掉 VSCodium 就登出 |
 | 自動連線 | 預裝 Open Remote-SSH 0.5.1，登入後自動以 SSH 連到 `tkadm`；遠端第一次連線時自動安裝 `redhat.vscode-yaml` |
 | 中文介面 | 預裝繁體中文語言包 1.131.0，`VSCODIUM_LOCALE` 切換 `zh-tw` 或 `en` |
-| 多人同時使用 | sesman `Policy=Separate`：每條連線有自己的桌面和 VSCodium 資料目錄（`/tmp/sess/<display>.<uid>`），同一個帳號的設定透過 symlink 共用 |
-| 安全 | 帳密在啟動時由 Secret 設定，不寫進映像檔；每個 container 自己產生 TLS 憑證和 RSA 金鑰 |
+| 多人同時使用 | sesman `Policy=Separate`：每次登入都有自己的桌面和 VSCodium 資料目錄（`/tmp/sess/<display>.<uid>`），同一個帳號的設定透過 symlink 共用 |
+| 安全 | 帳密在啟動時由 Secret 設定，不寫進映像檔；每個 Pod 自己產生 TLS 憑證和 RSA 金鑰 |
 
 ## 前置需求
 
@@ -19,7 +19,7 @@
 |---|---|
 | 建置工具 | podman |
 | 網路 | 建置時要能連到 `deb.debian.org`、`github.com`（VSCodium）、`open-vsx.org`（擴充功能） |
-| 磁碟 | 至少 5GB 可用空間（兩個 tag 約 1.3GB 和 1.6GB，大部分 layer 共用） |
+| 磁碟 | 至少 5 GB 可用空間（兩個 tag 約 1.3 GB 和 1.6 GB，大部分 layer 共用） |
 | CPU 架構 | x86_64 |
 | 測試 | `bash`、`nc`、`python3`（含 PyYAML）、`kubectl`；載入 tk8s 節點需要 `sudo` |
 
@@ -47,11 +47,11 @@ rdp-vscode/
 ├── images/rdp-vscode/
 │   ├── Dockerfile                 # 版本號在開頭的 ARG
 │   ├── rootfs/                    # 整個目錄 COPY 到映像檔的 /
-│   │   ├── etc/xrdp/startwm.sh    # 每條連線的啟動和清理
+│   │   ├── etc/xrdp/startwm.sh    # 每個桌面的啟動和清理
 │   │   ├── etc/skel/.config/      # 新 home 的 openbox 和 VSCodium 預設設定
 │   │   └── opt/rdp-vscode/        # entrypoint、帳號、SSH 設定、擴充功能同步
 │   └── rootfs-firefox/            # 只有 WITH_FIREFOX=1 才會用到
-├── manifests/                     # kustomize：base、stateless、stateful、example
+├── manifests/                     # Kustomize：base、stateless、stateful、example
 ├── docs/                          # 本文件、架構、使用手冊、設計文件
 └── test/                          # unit、image、deploy、e2e 測試
 ```
@@ -103,12 +103,12 @@ cd ~/rdp-vscode
 podman save -o /tmp/rdp-vscode.tar ghcr.io/braveantony/rdp-vscode:1.0
 for n in tk8s-control-plane-1 tk8s-worker-1 tk8s-worker-2; do
   sudo podman --root /var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage \
-    --runroot /run/ffw-load-$n --storage-driver overlay load -i /tmp/rdp-vscode.tar
+    --runroot /run/rdp-vscode-load-$n --storage-driver overlay load -i /tmp/rdp-vscode.tar
 done
 rm -f /tmp/rdp-vscode.tar
 ```
 
-要用 Firefox 版時，把上面的 `:1.0` 換成 `:1.0-firefox`，並在 `manifests/base/deployment.yaml` 改 `image:`。
+要用 `-firefox` 版時，把上面的 `:1.0` 換成 `:1.0-firefox`，並在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊換成 `newTag: 1.0-firefox`（見 README 的「進階」）。
 
 ## Step 5：tk8s 的前置設定
 
@@ -139,7 +139,7 @@ kubectl -n rdp-vscode rollout status deploy/rdp-vscode
 kubectl -n rdp-vscode get pod -o wide
 ```
 
-tk8s 的節點在主機內部的網段，區網裡的 Windows 連不到 NodePort。在主機上用一個 socat container，把主機的 3390 埠轉到節點的 30390：
+tk8s 的節點在主機內部的網段，區網裡的 Windows 連不到 NodePort。在主機上用一個 socat（把一個埠的連線轉送到另一個位址的小工具）container，把主機的 3390 埠轉到節點的 30390。`172.22.0.2` 是 tk8s-worker-1 的 IP；NodePort 在每個節點都有開，換成 `kubectl get nodes -o wide` 的 INTERNAL-IP 欄裡任一個節點都可以：
 
 ```bash
 podman run -d --name rdp-vscode-forward --restart=always --network host \
@@ -148,21 +148,18 @@ podman run -d --name rdp-vscode-forward --restart=always --network host \
 
 Windows「遠端桌面連線」填 `<主機 IP>:3390`（例如 `192.168.11.64:3390`），接下來的操作見[使用手冊](user-guide.md)。
 
-主機重開機後，要讓轉發 container 自動恢復，需要執行一次：
+rootless podman 的 container 要在你登出或主機重開機後仍會自動啟動，需要執行一次：
 
 ```bash
 sudo loginctl enable-linger $USER
 systemctl --user enable podman-restart.service
 ```
 
-完整的驗收（stateless 用 checkout 裡的 `install.sh` 部署、stateful 用 kustomize 部署，各自登入、逐項檢查，最後刪掉 namespace）：
+開網站時，可以用短名稱 `http://<service>.<namespace>`，也可以用完整網域名稱 `http://<service>.<namespace>.svc.<cluster domain>`。叢集的 cluster domain 可以這樣查（tk8s 是 `tk8s.k8s`）：
 
 ```bash
-cd ~/rdp-vscode
-bash test/e2e/run.sh all
+kubectl -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' | grep kubernetes
 ```
-
-`run.sh` 會自己建置 `localhost/rdp-vscode:dev` 並載入節點，約需 25 分鐘。它結束時會刪除 `rdp-vscode` namespace，所以不要在正式使用中的叢集上執行；要保留部署，設 `E2E_KEEP=1`。只能用眼睛確認的項目列在 [test/e2e/manual-checklist.md](../test/e2e/manual-checklist.md)。
 
 ## Step 7：推到 ghcr.io
 
@@ -175,6 +172,23 @@ podman push ghcr.io/braveantony/rdp-vscode:1.0-firefox
 ```
 
 第一次推送後，到 GitHub 的 **Packages → rdp-vscode → Package settings → Change visibility**，設為 Public，別人才拉得到。
+
+## 完整驗收（e2e，選用）
+
+stateless 用 checkout 裡的 `install.sh` 部署、stateful 用 Kustomize 部署，各自登入並逐項檢查：
+
+```bash
+cd ~/rdp-vscode
+bash test/e2e/run.sh all
+```
+
+約需 25 分鐘。執行前要知道：
+
+- `run.sh` 會自己建置 `localhost/rdp-vscode:dev` 並載入節點，用它**重新部署** namespace `rdp-vscode`，所以會蓋掉 Step 6 的部署。
+- 結束時會**刪除整個 namespace `rdp-vscode`**，也會刪除 namespace `default` 裡的 `web`（測試用的 nginx）。要保留部署，設 `E2E_KEEP=1`。
+- 執行完要再做一次 Step 6 的部署。不要在正式使用中的叢集上執行。
+
+只能用眼睛確認的項目列在 [test/e2e/manual-checklist.md](../test/e2e/manual-checklist.md)。
 
 ## 升級 VSCodium
 
@@ -201,7 +215,7 @@ ARG ZH_HANT_VERSION=1.131.0
    curl -fsSL https://open-vsx.org/api/MS-CEINTL/vscode-language-pack-zh-hant | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["version"], d["engines"])'
    ```
 
-3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和 `test/e2e/run.sh all`。新 tag 用新的版本號，例如 `:1.1`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。
+3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號，例如 `:1.1`：把 Step 2～7 指令裡的 `1.0` 換成新版本，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。
 
 使用者的 home 裡如果有舊版的預裝擴充功能，下次登入時會自動換成映像檔裡的版本；自己裝的擴充功能不會被動到。
 
@@ -209,12 +223,12 @@ ARG ZH_HANT_VERSION=1.131.0
 
 | 現象 | 原因與處理 |
 |---|---|
-| 登入後 VSCodium 一閃就消失，session 隨即結束 | `/dev/shm` 太小。Chromium 會把中文字型放進共享記憶體，預設 64MB 不夠，log 會出現 `font_data_service ... No space left on device`。K8s 部署已掛 1Gi 的記憶體 `emptyDir`；用 podman 直接執行時要加 `--shm-size=1g` |
-| `VSCODIUM_LOCALE=zh-tw` 但介面是英文 | VSCodium 第一次啟動後才產生 `languagepacks.json`，下次啟動才套用語言。每條連線都用全新的資料目錄，所以 `startwm.sh` 在啟動前先用 `languagepacks.js` 產生這個檔案 |
-| 容器的環境變數在 VSCodium 裡讀不到 | sesman 用乾淨的環境啟動 session。entrypoint 把 `VSCODIUM_LOCALE`、`SSH_HOST_ALIAS`、`SSH_REMOTE_FOLDER` 寫到 `/run/rdp-vscode/session.env`，由 `startwm.sh` 讀取 |
+| 登入後 VSCodium 一閃就消失，桌面隨即結束 | `/dev/shm` 太小。Chromium 會把中文字型放進共用記憶體，預設 64 MB 不夠，log 會出現 `font_data_service ... No space left on device`。K8s 部署已掛 1 GiB 的記憶體 `emptyDir`；用 podman 直接執行時要加 `--shm-size=1g` |
+| `VSCODIUM_LOCALE=zh-tw` 但介面是英文 | VSCodium 第一次啟動後才產生 `languagepacks.json`，下次啟動才套用語言。每個桌面都用全新的資料目錄，所以 `startwm.sh` 在啟動前先用 `languagepacks.js` 產生這個檔案 |
+| container 的環境變數在 VSCodium 裡讀不到 | sesman 用乾淨的環境啟動桌面。entrypoint 把 `VSCODIUM_LOCALE`、`SSH_HOST_ALIAS`、`SSH_REMOTE_FOLDER` 寫到 `/run/rdp-vscode/session.env`，由 `startwm.sh` 讀取 |
 | `codium` 啟動後馬上返回 | `/usr/bin/codium` 是啟動器，會把主程式丟到背景後立刻結束。`startwm.sh` 直接執行 `/usr/share/codium/codium`，關掉視窗時才返回 |
 | Open Remote-SSH 一直重新連線、每次都問密碼 | SSH 目標的 sshd 是 `AllowTcpForwarding no`。改成 `local`，見 Step 5 |
-| 在 ssh 設定加了 `ControlMaster` 沒有效果 | Open Remote-SSH 用內建的 SSH 實作，不呼叫系統的 `ssh`，所以不會讀這些設定 |
+| 在 ssh 設定加了 `ControlMaster` 沒有效果 | Open Remote-SSH 用內建的 SSH 實作，不呼叫系統的 `ssh`；它會讀 `Host`、`HostName`、`Port` 這些基本設定，但不支援 `ControlMaster` |
 | `codium --version` 在映像檔裡印出 super user 警告 | VSCodium 拒絕以 root 執行；測試時要用一般使用者（例如 `--user 65534`） |
 
-> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置兩個 tag、Step 3 的所有測試、Step 4 載入三個節點、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；`test/e2e/run.sh all` 22 項通過；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 7 的推送，以及 Windows 實機連線尚未實測。
+> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置兩個 tag、Step 3 的所有測試、Step 4 載入三個節點、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；完整驗收 `test/e2e/run.sh all` 22 項通過；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 7 的推送，以及 Windows 實機連線尚未實測。

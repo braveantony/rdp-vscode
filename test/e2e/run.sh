@@ -63,7 +63,7 @@ podman build -q -t "$CLIENT" test/e2e/client >/dev/null || { bad "client build";
 podman save -o "$WORK/img.tar" "$IMG" >/dev/null
 for n in $NODES; do
   sudo podman --root "/var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage" \
-    --runroot "/run/ffw-load-$n" --storage-driver overlay load -i "$WORK/img.tar" >/dev/null 2>&1 \
+    --runroot "/run/rdp-vscode-load-$n" --storage-driver overlay load -i "$WORK/img.tar" >/dev/null 2>&1 \
     && pass "image loaded into $n" || bad "image load into $n"
 done
 rm -f "$WORK/img.tar"
