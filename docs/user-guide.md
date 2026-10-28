@@ -2,7 +2,7 @@
 
 適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.0`（`:1.0-firefox` 另見第 5 節）。安裝方式見 [README](../README.zh-TW.md#快速開始)。
 
-用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動 SSH 到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
+用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動以 SSH 連到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
 ## 1. 連線與登入
 
@@ -59,7 +59,7 @@ kubectl delete deploy/web svc/web
 - **設定會共用：** 同一個帳號在不同連線改的設定（例如字型大小）是同一份。管理者如果用 stateless 模式部署，Pod 重啟後設定會回到預設值；stateful 模式則會保留。
 - **大家共用 tkadm 上的 bigred：** 不同的 RDP 帳號連到 `tkadm` 後都是同一個使用者，會互相看到、改到對方的檔案。
 - **輸入中文：** Pod 裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。
-- **YAML 補全：** `tkadm` 第一次連線時會自動安裝 YAML extension。編輯 `.yaml` 檔時，按 `Ctrl+Space` 會出現 Kubernetes 欄位的建議。
+- **YAML 補全：** `tkadm` 第一次連線時會自動安裝 YAML 擴充功能（extension）。編輯 `.yaml` 檔時，按 `Ctrl+Space` 會出現 Kubernetes 欄位的建議。
 
 ## 5. Firefox 版本（`:1.0-firefox`）
 

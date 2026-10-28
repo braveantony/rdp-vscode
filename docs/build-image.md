@@ -8,7 +8,7 @@
 |---|---|
 | RDP 伺服器 | xrdp 0.10.1 + xorgxrdp：sesman 替每條 RDP 連線啟動一個獨立的 Xorg，解析度跟著用戶端視窗 |
 | 編輯器 | VSCodium 1.143.17183（固定版本），由 openbox 撐滿整個畫面、沒有邊框；關掉 VSCodium 就登出 |
-| 自動連線 | 預裝 Open Remote-SSH 0.5.1，登入後自動 SSH 到 `tkadm`；遠端第一次連線時自動安裝 `redhat.vscode-yaml` |
+| 自動連線 | 預裝 Open Remote-SSH 0.5.1，登入後自動以 SSH 連到 `tkadm`；遠端第一次連線時自動安裝 `redhat.vscode-yaml` |
 | 中文介面 | 預裝繁體中文語言包 1.131.0，`VSCODIUM_LOCALE` 切換 `zh-tw` 或 `en` |
 | 多人同時使用 | sesman `Policy=Separate`：每條連線有自己的桌面和 VSCodium 資料目錄（`/tmp/sess/<display>.<uid>`），同一個帳號的設定透過 symlink 共用 |
 | 安全 | 帳密在啟動時由 Secret 設定，不寫進映像檔；每個 container 自己產生 TLS 憑證和 RSA 金鑰 |
@@ -18,7 +18,7 @@
 | 項目 | 需求 |
 |---|---|
 | 建置工具 | podman |
-| 網路 | 建置時要能連到 `deb.debian.org`、`github.com`（VSCodium）、`open-vsx.org`（extension） |
+| 網路 | 建置時要能連到 `deb.debian.org`、`github.com`（VSCodium）、`open-vsx.org`（擴充功能） |
 | 磁碟 | 至少 5GB 可用空間（兩個 tag 約 1.3GB 和 1.6GB，大部分 layer 共用） |
 | CPU 架構 | x86_64 |
 | 測試 | `bash`、`nc`、`python3`（含 PyYAML）、`kubectl`；載入 tk8s 節點需要 `sudo` |
@@ -49,7 +49,7 @@ rdp-vscode/
 │   ├── rootfs/                    # 整個目錄 COPY 到映像檔的 /
 │   │   ├── etc/xrdp/startwm.sh    # 每條連線的啟動和清理
 │   │   ├── etc/skel/.config/      # 新 home 的 openbox 和 VSCodium 預設設定
-│   │   └── opt/rdp-vscode/        # entrypoint、帳號、SSH 設定、extension 同步
+│   │   └── opt/rdp-vscode/        # entrypoint、帳號、SSH 設定、擴充功能同步
 │   └── rootfs-firefox/            # 只有 WITH_FIREFOX=1 才會用到
 ├── manifests/                     # kustomize：base、stateless、stateful、example
 ├── docs/                          # 本文件、架構、使用手冊、設計文件
@@ -203,7 +203,7 @@ ARG ZH_HANT_VERSION=1.131.0
 
 3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和 `test/e2e/run.sh all`。新 tag 用新的版本號，例如 `:1.1`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。
 
-使用者的 home 裡如果有舊版的預裝 extension，下次登入時會自動換成映像檔裡的版本；自己裝的 extension 不會被動到。
+使用者的 home 裡如果有舊版的預裝擴充功能，下次登入時會自動換成映像檔裡的版本；自己裝的擴充功能不會被動到。
 
 ## 附錄：已知行為與建置時踩過的坑
 
