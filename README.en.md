@@ -2,24 +2,25 @@
 
 [繁體中文](README.md)
 
-Log in with Windows Remote Desktop (RDP) and you get a full-screen VSCodium (the open-source build of VS Code) running inside your Kubernetes cluster. It connects over SSH to the cluster's admin Pod, tkadm, on its own, so you edit files and run `kubectl` there. Several people can use it at once, and every login gets its own desktop (up to 3 at a time, adjustable).
+Use Windows Remote Desktop to connect to your Kubernetes cluster and work in a full-screen VSCodium desktop. VSCodium is an open-source build of VS Code. It automatically connects over SSH to the cluster's admin Pod, tkadm, where you can edit files and run `kubectl`. A Pod runs programs in Kubernetes; `kubectl` is the command-line tool for managing the cluster.
+
+Several people can use it at once, and each login gets its own desktop. The default limit is 3 desktops at a time, and you can change it.
 
 ## Overview
 
-- **Code and run the cluster from inside it**: the VSCodium you use after logging in runs in the cluster
-  - **Editor and CLI**: connects to tkadm over SSH (Open Remote-SSH); the explorer and the terminal are on tkadm, and the kubeconfig (kubectl's cluster credentials) never leaves the cluster
-  - **Web**: open `http://<service>.<namespace>` (for example `http://web.default`) in the built-in Integrated Browser to reach web services inside the cluster
-  - Only one NodePort (a fixed port Kubernetes opens on every node; here 30390) is exposed; nothing else needs to be opened to the outside
-- **Nothing to install**: the Remote Desktop client built into Windows is enough; no local VS Code or extensions
-- **Concurrent use**: several accounts, or the same account several times, can be logged in at once; every login has its own desktop and VSCodium. Different accounts cannot see each other's home in this Pod (but they are the same user on tkadm)
-- **Chinese UI and YAML completion**: the Traditional Chinese language pack is preinstalled; the YAML extension is installed on tkadm on first connect, so Kubernetes YAML gets field completion
-- **Persistent settings** (stateful mode): `/home` lives on a PVC (persistent storage requested from the cluster), so VSCodium settings and locally installed extensions survive the Pod being recreated
+- VSCodium runs in the cluster and connects to tkadm automatically with Open Remote-SSH over SSH, an encrypted remote connection. The file explorer and terminal are on tkadm, so the kubeconfig stays in the cluster. A kubeconfig holds connection settings for `kubectl`.
+- Open `http://<service>.<namespace>` in the built-in Integrated Browser to reach a web service in the cluster, for example `http://web.default`. A namespace groups Kubernetes resources.
+- Only one NodePort needs to be exposed. A NodePort is a fixed port Kubernetes opens on every node; this project uses 30390.
+- The Remote Desktop client built into Windows is enough. You don't need to install VS Code or extensions on your own computer.
+- Multiple accounts, or even the same account, can log in at once. Each login gets its own desktop and VSCodium. Accounts cannot see each other's home directories in this Pod, but they use the same user on tkadm.
+- The Traditional Chinese language pack is preinstalled. The YAML extension is installed on tkadm on first connection, providing field completion for Kubernetes YAML.
+- Stateful mode keeps your settings. It puts `/home` on a PVC, persistent storage requested from the cluster. VSCodium settings and locally installed extensions survive Pod recreation.
 
 ## Architecture
 
 ![rdp-vscode architecture](docs/architecture/rdp-vscode-architecture.png)
 
-The client connects over RDP to NodePort `30390` on any node; Service `rdp-vscode` forwards it to port 3389 of the Pod. The Pod has a single container with these processes and sessions:
+The client connects over the Remote Desktop Protocol (RDP) to NodePort `30390` on a node. Service `rdp-vscode` forwards the connection to port 3389 of the Pod. The Pod has a single container with these processes and sessions:
 
 - ① xrdp / xrdp-sesman: accept RDP connections, show the login screen, check the account, and open a new desktop for every login
 - ② Xorg session: one desktop per login, running VSCodium full screen; closing VSCodium logs you out
@@ -56,25 +57,25 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 
 The script deploys to namespace `rdp-vscode` and prints the address of every node. Connect Remote Desktop to `<node IP>:30390` and log in as `bigred` / `bigred`.
 
-This quick install has one account and keeps no settings. Several accounts, your own passwords or a persistent home (Kustomize), a single host with podman when there is no Kubernetes, LAN access when the nodes sit on an internal network, and uninstalling are all in the [install guide](docs/install.md) (Traditional Chinese).
+This quick install has one account and keeps no settings. For multiple accounts, custom passwords, a persistent home with Kustomize, single-host podman without Kubernetes, LAN access to nodes on an internal network, and removal, see the [install guide](docs/install.md) (Traditional Chinese).
 
 ## How to use
 
 ### 1. Log in
 
-Press `Win+R`, type `mstsc` and connect to the address above. Accept the certificate warning (each Pod generates its own certificate at startup, so the warning shows again after the Pod is recreated). On the xrdp login screen keep Session `Xorg`, enter the account and password, and press OK.
+Press `Win+R`, type `mstsc` and connect to the address above. Accept the certificate warning. Each Pod generates its own certificate at startup, so the warning appears again after the Pod is recreated. On the xrdp login screen, keep Session set to `Xorg`, enter the account and password, and press OK.
 
 ![xrdp login screen](docs/images/01-login.png)
 
 ### 2. Connect to tkadm
 
-VSCodium opens full screen and asks `Enter password for bigred@tkadm.taroko`. Enter the SSH password of `bigred` on tkadm (`bigred` on tk8s). When the bottom-left corner shows `SSH: tkadm` and the explorer lists `/home/bigred` on tkadm, you are connected.
+VSCodium opens full screen and asks `Enter password for bigred@tkadm.taroko`. Enter the SSH password for `bigred` on tkadm (`bigred` on tk8s), then press Enter. You are connected when the bottom-left corner shows `SSH: tkadm` and the explorer lists `/home/bigred` on tkadm.
 
 ![tkadm password prompt](docs/images/02-ssh-password.png)
 
 ![Connected to tkadm](docs/images/03-connected.png)
 
-When tkadm does not have this version of vscodium-server yet (first connection, after tkadm is recreated, or after an image upgrade), tkadm first downloads about 90 MB. Every reconnect, including Reload Window, asks for the password again.
+If tkadm does not have this version of vscodium-server, it downloads about 90 MB first. This happens on the first connection, after tkadm is recreated, or after an image upgrade. You will be asked for the password on every reconnect, including Reload Window.
 
 ### 3. Deploy a website on tkadm and open it by its cluster name
 
@@ -95,10 +96,10 @@ Use the short name `http://<service>.<namespace>` or the full domain name (see t
 
 ### 4. Good to know
 
-- **Closing VSCodium logs you out**: `Ctrl+Q` or the close button ends the Remote Desktop connection
-- **A disconnected desktop cannot be resumed**: reconnecting always gives a new desktop; the old one is closed 2 minutes after the disconnect and **unsaved changes are lost**. Saved files on tkadm are not affected
-- **Typing Chinese**: there is no input method in the Pod; type on your own computer, copy, and paste with `Ctrl+V`
-- **Everyone is bigred on tkadm**: all RDP accounts log in to tkadm as the same user and see and change each other's files
+- Close VSCodium with `Ctrl+Q` or the close button to log out and end the Remote Desktop connection.
+- You cannot resume a disconnected desktop. Reconnecting always opens a new one. The old desktop closes 2 minutes after disconnecting, and **unsaved changes are lost**. Saved files on tkadm are unaffected.
+- The Pod has no Chinese input method. Type and copy text on your own computer, then paste it in VSCodium with `Ctrl+V`.
+- All RDP accounts connect to tkadm as the same user, bigred. They can see and change each other's files.
 
 More in the [user guide](docs/user-guide.md) (Traditional Chinese).
 

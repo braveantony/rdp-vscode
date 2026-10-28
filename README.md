@@ -2,24 +2,25 @@
 
 [English](README.en.md)
 
-用 Windows 遠端桌面（RDP）登入後，畫面就是在 Kubernetes 叢集裡執行的全螢幕 VSCodium（VS Code 的開源版），並且自動以 SSH（加密的遠端登入）連到叢集的管理 Pod（Kubernetes 裡執行程式的單位）tkadm，直接在上面編輯檔案、執行 `kubectl`（Kubernetes 的命令列工具）。支援多人同時使用，每次登入都有自己的桌面（同時最多 3 個，可以調整）。
+用 Windows 內建的遠端桌面連進 Kubernetes 叢集，就能使用全螢幕的 VSCodium。VSCodium 是 VS Code 的開源版本。它會自動透過 SSH 連到叢集的管理 Pod tkadm，讓你在上面編輯檔案、執行 `kubectl`。Pod 是 Kubernetes 裡執行程式的單位，`kubectl` 則是管理叢集的命令列工具。
+
+多人可以同時使用，每次登入都有自己的桌面。預設同時最多 3 個桌面，數量可以調整。
 
 ## 簡述
 
-- **在叢集裡寫程式、管理叢集**：登入後使用的 VSCodium 執行在叢集裡
-  - **編輯與 CLI**：自動以 SSH 連到 tkadm（Open Remote-SSH），檔案總管、終端機都在 tkadm 上，kubeconfig（kubectl 連叢集用的設定檔）不必離開叢集
-  - **Web**：用內建的 Integrated Browser 開 `http://<service>.<namespace>`（namespace 是 Kubernetes 用來分組資源的名稱，例如 `http://web.default`），直達叢集內的 Web 服務
-  - 只要開放一個 NodePort（Kubernetes 在每個節點上開放的固定埠號，這裡是 30390），不必另外設定其他對外方式
-- **零安裝、即連即用**：Windows 內建的遠端桌面就能連，不用在自己的電腦裝 VS Code 或任何擴充功能（extension）
-- **多人並行**：多個帳號、甚至同一個帳號都能同時登入，每次登入都有自己的桌面和 VSCodium；不同帳號在這個 Pod 裡的家目錄互相看不到（但連到 tkadm 後都是同一個使用者）
-- **繁中介面、YAML 補全**：預裝繁體中文語言包；第一次連到 tkadm 時自動安裝 YAML 擴充功能，編輯 Kubernetes YAML 有欄位提示
-- **可保留設定**（stateful 模式，也就是會保留資料的部署方式）：`/home` 放在 PVC（向叢集申請的永久儲存空間），Pod 重建後 VSCodium 的設定和本機端的擴充功能都還在
+- 登入後，VSCodium 在叢集裡執行，並透過 SSH（加密的遠端連線）自動用 Open Remote-SSH 連到 tkadm。檔案總管和終端機都在 tkadm 上，kubeconfig 不必離開叢集。kubeconfig 是 `kubectl` 連線用的設定檔。
+- 用內建的 Integrated Browser 開啟 `http://<service>.<namespace>`，就能連到叢集內的 Web 服務，例如 `http://web.default`。namespace 是 Kubernetes 用來分組資源的名稱。
+- 只要開放一個 NodePort，不必另外設定其他對外方式。NodePort 是 Kubernetes 在每個節點開放的固定埠號，這裡使用 30390。
+- Windows 內建的遠端桌面就能連線，不用在自己的電腦安裝 VS Code 或擴充功能。
+- 多個帳號，甚至同一個帳號，都能同時登入。每次登入都有自己的桌面和 VSCodium。不同帳號在這個 Pod 裡看不到彼此的家目錄，但連到 tkadm 後都是同一個使用者。
+- 已預裝繁體中文語言包。第一次連到 tkadm 時會自動安裝 YAML 擴充功能，編輯 Kubernetes YAML 時就有欄位提示。
+- 使用 stateful 模式可以保留設定。`/home` 放在 PVC，也就是向叢集申請的永久儲存空間。Pod 重建後，VSCodium 設定和本機端的擴充功能都還在。
 
 ## 架構
 
 ![rdp-vscode 系統運作架構](docs/architecture/rdp-vscode-architecture.png)
 
-用戶端以 RDP 連到節點的 NodePort `30390`，經 Service `rdp-vscode` 轉到 Pod 的 3389 埠。Pod 只有一個 container（容器），裡面有這些 process（執行中的程式）與 session（桌面工作階段）：
+用戶端以遠端桌面協定 RDP 連到節點的 NodePort `30390`，再經 Service `rdp-vscode` 轉到 Pod 的 3389 埠。Service 負責把連線導向 Pod。Pod 裡只有一個 container，也就是容器。裡面有這些 process（執行中的程式）和 session（工作階段）：
 
 - ① xrdp／xrdp-sesman：接收 RDP 連線、顯示登入畫面、驗證帳號，並替每次登入開一個新桌面
 - ② Xorg session：每次登入各一個桌面，執行全螢幕的 VSCodium；關掉 VSCodium 就登出
@@ -56,25 +57,25 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 
 腳本會部署到 namespace `rdp-vscode`，完成後印出每個節點的連線位址。用遠端桌面連到 `<節點 IP>:30390`，帳號 `bigred`、密碼 `bigred`。
 
-這是單一帳號、不保留設定的快速安裝。需要多個帳號、自己的密碼或保留 home（Kustomize），沒有 Kubernetes 時的單機 podman，以及節點在內部網段時怎麼從區網連線、怎麼移除，都在[安裝手冊](docs/install.md)。
+這個快速安裝只有一個帳號，也不會保留設定。多帳號、自訂密碼、用 Kustomize 保留 home、沒有 Kubernetes 時的單機 podman、節點在內部網段時從區網連線和移除方式，請見[安裝手冊](docs/install.md)。
 
 ## 怎麼用
 
 ### 1. 登入
 
-按 `Win+R`、輸入 `mstsc`，開啟「遠端桌面連線」，連到上面的位址。出現憑證警告時按「是」（憑證是 Pod 每次啟動時自己產生的，所以 Pod 重建後警告會再出現一次）。接著會看到 xrdp 登入畫面：Session 保持 `Xorg`，輸入帳號密碼後按 OK。
+按 `Win+R`，輸入 `mstsc` 開啟「遠端桌面連線」，再連到上面的位址。出現憑證警告時按「是」。Pod 每次啟動都會產生自己的憑證，所以重建後會再次出現警告。接著在 xrdp 登入畫面保持 Session 為 `Xorg`，輸入帳號密碼後按 OK。
 
 ![xrdp 登入畫面](docs/images/01-login.png)
 
 ### 2. 連到 tkadm
 
-登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`。輸入 tkadm 上 `bigred` 帳號的 SSH 密碼（tk8s 上是 `bigred`）後按 Enter，左下角變成 `SSH: tkadm`，檔案總管列出 tkadm 上的 `/home/bigred`，就連上了。
+登入後會看到全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`。輸入 tkadm 上 `bigred` 帳號的 SSH 密碼（tk8s 上是 `bigred`），然後按 Enter。左下角變成 `SSH: tkadm`，檔案總管列出 tkadm 上的 `/home/bigred`，就代表連上了。
 
 ![tkadm 的密碼框](docs/images/02-ssh-password.png)
 
 ![連上 tkadm](docs/images/03-connected.png)
 
-tkadm 上還沒有這個版本的 vscodium-server 時（第一次連線、tkadm 重建後，或升級映像檔後），tkadm 會先下載約 90 MB，需要多等一下。之後每次重新連線（包括「重新載入視窗」）都會再問一次密碼。
+tkadm 上還沒有這個版本的 vscodium-server 時，會先下載約 90 MB，需要多等一下。第一次連線、tkadm 重建後或升級映像檔後都會下載。每次重新連線都會再問一次密碼，包括「重新載入視窗」。
 
 ### 3. 在 tkadm 部署網站，用叢集內的網址開啟
 
@@ -95,10 +96,10 @@ kubectl -n default expose deploy web --port 80
 
 ### 4. 使用時要知道的事
 
-- **關掉 VSCodium 就登出**：按 `Ctrl+Q` 或右上角的關閉按鈕，遠端桌面隨即中斷
-- **斷線後無法接回**：重新連線一定是新的桌面，原本的桌面在斷線 2 分鐘後關閉，**未存檔的修改會遺失**；已存檔的檔案在 tkadm 上，不受影響
-- **輸入中文**：Pod 裡沒有中文輸入法，在自己的電腦打好再複製，到 VSCodium 按 `Ctrl+V` 貼上
-- **大家共用 tkadm 上的 bigred**：不同的 RDP 帳號連到 tkadm 後都是同一個使用者，彼此看得到、也改得到對方的檔案
+- 按 `Ctrl+Q` 或右上角的關閉按鈕關掉 VSCodium，就會登出並中斷遠端桌面。
+- 斷線後無法接回原本的桌面。重新連線一定會開新桌面，原本的桌面會在斷線 2 分鐘後關閉，**未存檔的修改會遺失**。已存檔的檔案在 tkadm 上，不受影響。
+- Pod 裡沒有中文輸入法。請在自己的電腦打好、複製，再到 VSCodium 按 `Ctrl+V` 貼上。
+- 不同的 RDP 帳號連到 tkadm 後都是同一個使用者 bigred，彼此看得到、也改得到對方的檔案。
 
 完整的操作說明和常見問題見 [docs/user-guide.md](docs/user-guide.md)。
 
@@ -117,7 +118,7 @@ kubectl -n default expose deploy web --port 80
 
 ## 文件
 
-- [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize 多帳號與保留 home、單機 podman、從區網連線、移除）
+- [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize 多帳號與保留 home、沒有 Kubernetes 時的單機 podman、節點在內部網段時從區網連線、移除）
 - [architecture.md](docs/architecture.md)：系統運作架構（連線路徑、Pod 內各 process 的職責、安全邊界）
 - [user-guide.md](docs/user-guide.md)：使用手冊（連線登入、連到 tkadm、開網站、多人使用、常見問題）
 - [build-image.md](docs/build-image.md)：建置手冊（從原始碼建置兩個 tag、測試，並部署到 Kubernetes（tk8s）的完整步驟）
