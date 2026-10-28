@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Tests for startwm.sh, run inside the image: bash tests/unit/startwm.test.sh [image]
+# Tests for startwm.sh, run inside the image: bash test/unit/startwm.test.sh [image]
 # shellcheck disable=SC1091,SC2015,SC2016  # pass() never fails; single-quoted scripts expand inside the container
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 IMG=${1:-localhost/rdp-vscode:dev}
 run() { podman run --rm --entrypoint bash "$IMG" -c "$1"; }
 

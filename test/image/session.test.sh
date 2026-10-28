@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 # Session tests: log in over RDP with the e2e client and check the kiosk
-# VSCodium session.  bash tests/image/session.test.sh [image]
+# VSCodium session.  bash test/image/session.test.sh [image]
 # Needs the tk8s cluster DNS (10.98.0.10) so tkadm.taroko resolves.
 # Chromium keeps CJK font data in /dev/shm; the 64MB default is too small.
 # shellcheck disable=SC1091,SC2015,SC2016  # pass() never fails; single-quoted scripts expand inside the container
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 IMG=${1:-localhost/rdp-vscode:dev}
 CLIENT=localhost/rdp-vscode-e2e-client:dev
 SRV=rdp-vscode-session-test
 PORT=33391
-OUT=$PWD/tests/e2e/out
+OUT=$PWD/test/e2e/out
 mkdir -p "$OUT"
 
 cleanup() { podman rm -f "$SRV" rdp-vscode-client-1 rdp-vscode-client-2 rdp-vscode-client-3 >/dev/null 2>&1; }
 trap cleanup EXIT
 cleanup
 
-podman build -q -t "$CLIENT" tests/e2e/client >/dev/null || { bad "build e2e client"; finish; }
+podman build -q -t "$CLIENT" test/e2e/client >/dev/null || { bad "build e2e client"; finish; }
 
 start_server() {  # start_server [podman run args...]
   podman rm -f "$SRV" >/dev/null 2>&1
@@ -62,8 +62,8 @@ fi
 S1=$(sess_dirs)
 
 say ext-sync
-ver=$(sed -n 's/^ARG OPEN_REMOTE_SSH_VERSION=//p' Dockerfile)
-zh=$(sed -n 's/^ARG ZH_HANT_VERSION=//p' Dockerfile)
+ver=$(sed -n 's/^ARG OPEN_REMOTE_SSH_VERSION=//p' images/rdp-vscode/Dockerfile)
+zh=$(sed -n 's/^ARG ZH_HANT_VERSION=//p' images/rdp-vscode/Dockerfile)
 listing1=$(sx "ls $EXT")
 grep -qx "jeanp413.open-remote-ssh-0.0.1" <<<"$listing1" && bad "stale open-remote-ssh-0.0.1 kept" || pass "stale version removed"
 grep -qx "jeanp413.open-remote-ssh-$ver" <<<"$listing1" && pass "open-remote-ssh-$ver installed" || bad "open-remote-ssh-$ver missing: $listing1"

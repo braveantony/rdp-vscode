@@ -1,11 +1,11 @@
 # 手動驗收清單
 
-`tests/e2e/run.sh` 已經自動驗證了每一項可以用程式檢查的部分。以下是只能用眼睛確認的部分，請在真實的 RDP client（Windows 遠端桌面、Remmina 等）上操作。
+`test/e2e/run.sh` 已經自動驗證了每一項可以用程式檢查的部分。以下是只能用眼睛確認的部分，請在真實的 RDP client（Windows 遠端桌面、Remmina 等）上操作。
 
 ## 準備
 
 ```bash
-kubectl apply -k deploy/stateless        # AC8 改用 deploy/stateful
+kubectl apply -k manifests/stateless        # AC8 改用 manifests/stateful
 kubectl -n rdp-vscode wait --for=condition=Ready pod -l app=rdp-vscode --timeout=180s
 ```
 
@@ -39,7 +39,7 @@ RDP 連到 `<節點 IP>:30390`，在 xrdp 登入畫面輸入 `bigred` / `bigred`
 
 ## AC8：Stateful 模式的設定保留（畫面確認）
 
-- [ ] 用 `deploy/stateful` 部署，登入後按 `Ctrl+,` 把「Editor: Font Size」改成 `20`
+- [ ] 用 `manifests/stateful` 部署，登入後按 `Ctrl+,` 把「Editor: Font Size」改成 `20`
 - [ ] 執行 `kubectl -n rdp-vscode delete pod -l app=rdp-vscode`，等新 pod Ready 後重新連線
 - [ ] 編輯器的字型仍然是放大後的大小
 

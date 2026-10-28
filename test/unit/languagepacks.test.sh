@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Tests for languagepacks.js, run inside the image: bash tests/unit/languagepacks.test.sh [image]
+# Tests for languagepacks.js, run inside the image: bash test/unit/languagepacks.test.sh [image]
 # shellcheck disable=SC1091,SC2015,SC2016  # pass() never fails; single-quoted scripts expand inside the container
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 IMG=${1:-localhost/rdp-vscode:dev}
-zh=$(sed -n 's/^ARG ZH_HANT_VERSION=//p' Dockerfile)
+zh=$(sed -n 's/^ARG ZH_HANT_VERSION=//p' images/rdp-vscode/Dockerfile)
 run() { podman run --rm --user 65534 -e HOME=/tmp -e ZH="$zh" --entrypoint bash "$IMG" -c "$1"; }
 gen='ELECTRON_RUN_AS_NODE=1 /usr/share/codium/codium /opt/rdp-vscode/languagepacks.js'
 q() { printf "ELECTRON_RUN_AS_NODE=1 /usr/share/codium/codium -e 'const j=JSON.parse(require(\"fs\").readFileSync(\"/tmp/lp.json\",\"utf8\")); process.stdout.write(String(%s))'" "$1"; }

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Unit tests for rootfs/opt/rdp-vscode/ssh-config.sh
+# Unit tests for images/rdp-vscode/rootfs/opt/rdp-vscode/ssh-config.sh
 # shellcheck disable=SC1091,SC2015  # pass() never fails, so A && B || C is safe here
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
-GEN=rootfs/opt/rdp-vscode/ssh-config.sh
+. test/lib.sh
+GEN=images/rdp-vscode/rootfs/opt/rdp-vscode/ssh-config.sh
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 export RDP_VSCODE_SSH_CONFIG="$TMP/missing"

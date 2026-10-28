@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Render every kustomize overlay and check it: bash tests/deploy/render.test.sh
+# Render every kustomize overlay and check it: bash test/deploy/render.test.sh
 # Needs kubectl (with a reachable cluster for the server-side dry run) and PyYAML.
 # shellcheck disable=SC1091,SC2015  # pass() never fails, so A && B || C is safe here
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
@@ -30,7 +30,7 @@ expect() {  # expect <overlay> <description> <python expression>
 
 for o in stateless stateful example/ssh-configmap; do
   name=${o//\//-}
-  if kubectl kustomize "deploy/$o" > "$TMP/$name.yaml" 2>"$TMP/$name.err"; then
+  if kubectl kustomize "manifests/$o" > "$TMP/$name.yaml" 2>"$TMP/$name.err"; then
     pass "$o renders"
   else
     bad "$o does not render: $(head -3 "$TMP/$name.err")"; continue
@@ -59,7 +59,7 @@ expect example-ssh-configmap "ConfigMap rdp-vscode-ssh with key config" \
   'any(c["metadata"]["name"].startswith("rdp-vscode-ssh") and "config" in c["data"] for c in kind("ConfigMap"))'
 expect example-ssh-configmap "/home is an emptyDir (built on stateless)" '"emptyDir" in vol_at("/home")'
 for o in stateless stateful; do
-  grep -q '^# .*password' "deploy/$o/users.txt" 2>/dev/null && pass "$o users.txt warns to change the password" || bad "$o users.txt has no password warning"
+  grep -q '^# .*password' "manifests/$o/users.txt" 2>/dev/null && pass "$o users.txt warns to change the password" || bad "$o users.txt has no password warning"
 done
 
 say server-dry-run

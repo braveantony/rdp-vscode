@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Smoke tests for the rdp-vscode image: bash tests/image/smoke.test.sh <image> [--firefox]
+# Smoke tests for the rdp-vscode image: bash test/image/smoke.test.sh <image> [--firefox]
 # shellcheck disable=SC1091,SC2015  # pass() never fails, so A && B || C is safe here
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 IMG=${1:?usage: smoke.test.sh <image> [--firefox]}
 FIREFOX=${2:-}
-arg() { sed -n "s/^ARG $1=//p" Dockerfile; }
+arg() { sed -n "s/^ARG $1=//p" images/rdp-vscode/Dockerfile; }
 run() { podman run --rm --entrypoint /bin/sh "$IMG" -c "$1"; }
 
 say versions

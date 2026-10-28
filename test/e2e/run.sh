@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# End-to-end acceptance on the tk8s cluster: bash tests/e2e/run.sh [stateless|stateful|all]
+# End-to-end acceptance on the tk8s cluster: bash test/e2e/run.sh [stateless|stateful|all]
 # Builds the image, loads it into the worker nodes, deploys an overlay with
 # kustomize, logs in over RDP with the e2e client and checks AC1-AC10.
 # E2E_KEEP=1 keeps the rdp-vscode namespace afterwards.
 # shellcheck disable=SC1091,SC2015,SC2016  # pass() never fails; single-quoted scripts run elsewhere
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 MODE=${1:-all}
 IMG=localhost/rdp-vscode:dev
 CLIENT=localhost/rdp-vscode-e2e-client:dev
 NS=rdp-vscode
 PORT=33390
-OUT=$PWD/tests/e2e/out
+OUT=$PWD/test/e2e/out
 WORK=$(mktemp -d)
 NODES="tk8s-worker-1 tk8s-worker-2"
 MARKER=/tmp/rdp-vscode-e2e.marker
@@ -57,8 +57,8 @@ cleanup() {
 trap cleanup EXIT
 
 say build
-podman build -q -t "$IMG" . >/dev/null && pass "image built" || { bad "image build"; finish; }
-podman build -q -t "$CLIENT" tests/e2e/client >/dev/null || { bad "client build"; finish; }
+podman build -q -t "$IMG" images/rdp-vscode >/dev/null && pass "image built" || { bad "image build"; finish; }
+podman build -q -t "$CLIENT" test/e2e/client >/dev/null || { bad "client build"; finish; }
 podman save -o "$WORK/img.tar" "$IMG" >/dev/null
 for n in $NODES; do
   sudo podman --root "/var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage" \
@@ -68,14 +68,14 @@ done
 rm -f "$WORK/img.tar"
 
 deploy() {  # deploy <overlay>: kustomize only accepts relative paths, so the
-  # wrapper lives in the git-ignored tests/e2e/out/
+  # wrapper lives in the git-ignored test/e2e/out/
   local k=$OUT/kustomize
   mkdir -p "$k"
   cat > "$k/kustomization.yaml" <<EOF
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../../../deploy/$1
+- ../../../../manifests/$1
 images:
 - name: ghcr.io/braveantony/rdp-vscode
   newName: localhost/rdp-vscode

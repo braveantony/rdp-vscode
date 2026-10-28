@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Tests for accounts.sh, run inside the image: bash tests/unit/accounts.test.sh [image]
+# Tests for accounts.sh, run inside the image: bash test/unit/accounts.test.sh [image]
 # shellcheck disable=SC1091,SC2015,SC2016  # pass() never fails; single-quoted scripts expand inside the container
 set -u
 cd "$(dirname "$0")/../.." || exit 1
-. tests/lib.sh
+. test/lib.sh
 IMG=${1:-localhost/rdp-vscode:dev}
 VOL=rdp-vscode-test-home
 trap 'podman volume rm -f "$VOL" >/dev/null 2>&1' EXIT
