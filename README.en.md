@@ -1,8 +1,6 @@
 # rdp-vscode
 
-[繁體中文](README.md)
-
-Use Windows Remote Desktop to connect to your Kubernetes cluster and you get a full-screen VSCodium (an open-source build of VS Code). It automatically connects over SSH (an encrypted remote connection) to the cluster's admin Pod, tkadm, where you edit files and run `kubectl`. New to Kubernetes? A Pod is the unit the cluster runs programs in, `kubectl` is the command-line tool for managing the cluster, and a namespace groups resources.
+Use Windows Remote Desktop to connect to your Kubernetes cluster and you get a full-screen VSCodium (an open-source build of VS Code). It automatically connects over SSH (an encrypted remote connection) to the cluster's admin Pod, tkadm, where you edit files and run `kubectl`.
 
 Several people can use it at once, and each login gets its own desktop. The default limit is 3 desktops at a time, and you can change it.
 
