@@ -21,7 +21,7 @@
 </text>
 <rect x="230" y="120" width="960" height="340" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
 <text x="260" y="155" font-size="21" text-anchor="start" font-weight="700">
-<tspan x="260" dy="0">deploy/base</tspan>
+<tspan x="260" dy="0">manifests/base</tspan>
 </text>
 <text x="260" y="193" font-size="17" text-anchor="start">
 <tspan x="260" dy="0">Namespace rdp-vscode</tspan>
@@ -44,14 +44,14 @@
 </text>
 <rect x="40" y="565" width="590" height="180" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
 <text x="335.0" y="623.1" font-size="16" text-anchor="middle">
-<tspan x="335.0" dy="0">deploy/stateless</tspan>
+<tspan x="335.0" dy="0">manifests/stateless</tspan>
 <tspan x="335.0" dy="25">/home ← emptyDir（Pod 重建即重置）</tspan>
 <tspan x="335.0" dy="25">secretGenerator rdp-vscode-users（key users ← users.txt）</tspan>
 <tspan x="335.0" dy="25">預設 bigred:bigred</tspan>
 </text>
 <rect x="710" y="565" width="670" height="210" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
 <text x="1045.0" y="625.6" font-size="16" text-anchor="middle">
-<tspan x="1045.0" dy="0">deploy/stateful</tspan>
+<tspan x="1045.0" dy="0">manifests/stateful</tspan>
 <tspan x="1045.0" dy="25">/home ← PVC rdp-vscode-home</tspan>
 <tspan x="1045.0" dy="25">5Gi、RWO</tspan>
 <tspan x="1045.0" dy="25">不指定 storageClassName → 叢集預設 SC</tspan>
@@ -63,14 +63,14 @@
 </text>
 <rect x="40" y="900" width="590" height="140" rx="12" fill="#fff4e0" stroke="#d9480f" stroke-width="2"/>
 <text x="335.0" y="950.6" font-size="16" text-anchor="middle">
-<tspan x="335.0" dy="0">deploy/example/ssh-configmap</tspan>
+<tspan x="335.0" dy="0">manifests/example/ssh-configmap</tspan>
 <tspan x="335.0" dy="25">configMapGenerator rdp-vscode-ssh</tspan>
 <tspan x="335.0" dy="25">key config</tspan>
 </text>
 <rect x="710" y="840" width="670" height="145" rx="12" fill="#ffe3e3" stroke="#c92a2a" stroke-width="2"/>
 <text x="1045.0" y="905.6" font-size="16" text-anchor="middle">
 <tspan x="1045.0" dy="0">需要預設 SC 為 WaitForFirstConsumer 或網路儲存。</tspan>
-<tspan x="1045.0" dy="25">tk8s：local-path 目前是 Immediate，需重建</tspan>
+<tspan x="1045.0" dy="25">tk8s：local-path 已於 2026-10-28 重建為 WaitForFirstConsumer</tspan>
 </text>
 <path d="M 1045 775 V 840" fill="none" stroke="#c92a2a" stroke-width="2" stroke-dasharray="7 5"/>
 </g>
