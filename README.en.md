@@ -103,7 +103,7 @@ The [user guide](docs/user-guide.md) (Traditional Chinese) has the full instruct
 
 ## Image
 
-The image is `ghcr.io/braveantony/rdp-vscode:1.2`, about 1.3 GB, with VSCodium 1.143.17183, Open Remote-SSH 0.5.1, the Traditional Chinese language pack 1.131.0 and the Cascadia Code and JetBrains Mono fonts. See [Releases](../../releases) for each version's release notes.
+The image is `ghcr.io/braveantony/rdp-vscode:1.3`, about 1.3 GB, with VSCodium 1.143.17183, Open Remote-SSH 0.5.1, the Traditional Chinese language pack 1.131.0 and the Cascadia Code and JetBrains Mono fonts. See [Releases](../../releases) for each version's release notes.
 
 ## Documentation (Traditional Chinese)
 

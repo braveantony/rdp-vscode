@@ -1,6 +1,6 @@
 # rdp-vscode 映像檔建置手冊
 
-本文件從原始碼做出 `ghcr.io/braveantony/rdp-vscode:1.2`，跑過測試，載入 tk8s 的節點並部署，最後推到 ghcr.io。**由上到下依序複製每個指令區塊貼到終端機執行。** 需要在 repo 目錄執行的區塊，開頭都會 `cd ~/rdp-vscode`，中途換終端機也能接著貼。
+本文件從原始碼做出 `ghcr.io/braveantony/rdp-vscode:1.3`，跑過測試，載入 tk8s 的節點並部署，最後推到 ghcr.io。**由上到下依序複製每個指令區塊貼到終端機執行。** 需要在 repo 目錄執行的區塊，開頭都會 `cd ~/rdp-vscode`，中途換終端機也能接著貼。
 
 ## 這個映像檔做什麼
 
@@ -60,7 +60,7 @@ rdp-vscode/
 
 ```bash
 cd ~/rdp-vscode
-podman build -t ghcr.io/braveantony/rdp-vscode:1.2 images/rdp-vscode
+podman build -t ghcr.io/braveantony/rdp-vscode:1.3 images/rdp-vscode
 podman image ls ghcr.io/braveantony/rdp-vscode
 ```
 
@@ -75,10 +75,10 @@ cd ~/rdp-vscode
 bash test/unit/ssh-config.test.sh
 bash test/unit/font-config.test.sh
 bash test/unit/install.test.sh
-bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.2
-bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.2
-bash test/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.2
-bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.2
+bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.3
+bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.3
+bash test/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.3
+bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.3
 ```
 
 每個測試最後一行都應該是 `N passed, 0 failed`。
@@ -87,7 +87,7 @@ bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.2
 
 ```bash
 cd ~/rdp-vscode
-bash test/image/session.test.sh ghcr.io/braveantony/rdp-vscode:1.2
+bash test/image/session.test.sh ghcr.io/braveantony/rdp-vscode:1.3
 bash test/deploy/render.test.sh
 ```
 
@@ -99,7 +99,7 @@ tk8s 的節點是 podman container，映像檔要直接載入節點的 container
 
 ```bash
 cd ~/rdp-vscode
-podman save -o /tmp/rdp-vscode.tar ghcr.io/braveantony/rdp-vscode:1.2
+podman save -o /tmp/rdp-vscode.tar ghcr.io/braveantony/rdp-vscode:1.3
 for n in tk8s-control-plane-1 tk8s-worker-1 tk8s-worker-2; do
   sudo podman --root /var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage \
     --runroot /run/rdp-vscode-load-$n --storage-driver overlay load -i /tmp/rdp-vscode.tar
@@ -158,7 +158,7 @@ kubectl -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' | gr
 
 ```bash
 podman login ghcr.io -u braveantony      # 密碼貼上 PAT
-podman push ghcr.io/braveantony/rdp-vscode:1.2
+podman push ghcr.io/braveantony/rdp-vscode:1.3
 ```
 
 Dockerfile 裡的 `org.opencontainers.image.source` label 會讓 ghcr.io 自動把 package 連到 repo。第一次推送後，到 GitHub 的 **Packages → rdp-vscode → Package settings → Change visibility**，設為 Public，別人才拉得到。
@@ -205,7 +205,7 @@ ARG ZH_HANT_VERSION=1.131.0
    curl -fsSL https://open-vsx.org/api/MS-CEINTL/vscode-language-pack-zh-hant | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["version"], d["engines"])'
    ```
 
-3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號：把 Step 2～4、7 指令裡的 `:1.2` 換成例如 `:1.3`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。注意：Step 3 測的是指定的發佈 tag；完整驗收則是從目前的原始碼另外建置 `localhost/rdp-vscode:dev` 來測。
+3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號：把 Step 2～4、7 指令裡的 `:1.3` 換成例如 `:1.4`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。注意：Step 3 測的是指定的發佈 tag；完整驗收則是從目前的原始碼另外建置 `localhost/rdp-vscode:dev` 來測。
 
 使用者的 home 裡如果有舊版的預裝擴充功能，下次登入時會自動換成映像檔裡的版本；自己裝的擴充功能不會被動到。
 

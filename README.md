@@ -103,7 +103,7 @@ kubectl -n default expose deploy web --port 80
 
 ## 映像檔
 
-映像檔是 `ghcr.io/braveantony/rdp-vscode:1.2`，約 1.3 GB，內含 VSCodium 1.143.17183、Open Remote-SSH 0.5.1、繁中語言包 1.131.0，以及 Cascadia Code、JetBrains Mono 字型。各版本的說明見 [Releases](../../releases)。
+映像檔是 `ghcr.io/braveantony/rdp-vscode:1.3`，約 1.3 GB，內含 VSCodium 1.143.17183、Open Remote-SSH 0.5.1、繁中語言包 1.131.0，以及 Cascadia Code、JetBrains Mono 字型。各版本的說明見 [Releases](../../releases)。
 
 ## 文件
 

@@ -1,6 +1,6 @@
 # rdp-vscode 系統運作架構
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.2`
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.3`
 
 ![rdp-vscode 系統運作架構](architecture/rdp-vscode-architecture.png)
 
@@ -57,6 +57,7 @@ xrdp 或 xrdp-sesman 結束時，container 就會停止，由 Kubernetes 重啟�
 - 叢集外只有 NodePort `30390`（RDP）一個入口。
 - 登入後就在叢集內部網路裡：Pod 裡的程式（VSCodium、Integrated Browser）連得到叢集內的 Service 和 Pod（叢集沒有設定 NetworkPolicy 這類網路存取規則限制時）。再加上 tkadm 的 kubectl，**預設帳密等於整個叢集的控制權**，只適合隔離的實驗環境。
 - xrdp 與 xrdp-sesman 以 root 執行（Debian trixie 的 xrdp 0.10.1 不支援降權；sesman 本來就需要 root 才能驗證帳號、切換成登入者）；Xorg、openbox、VSCodium 以登入者的身分執行，container 設了 `allowPrivilegeEscalation: false`。
+- 每個桌面的 X display 只接受帶著該帳號 cookie（`~/.Xauthority`，權限 `0600`）的程式，其他帳號連不上別人的桌面。
 - 不同帳號的 home 彼此看不到（`0700`）；從帳號清單移除的帳號，home 會改成 root 擁有。但所有帳號連到 tkadm 後都是同一個 bigred，會共用那裡的檔案與 kubectl 權限。
 - TLS 憑證與 RSA 金鑰在 container 啟動時、還不存在時才產生，所以每個新建的 Pod 都有自己的一組，不寫進映像檔；密碼來自 Secret，也不寫進映像檔。
 - 連 tkadm 時不檢查 SSH host key（主機用來證明自己身分的金鑰；tkadm 重建後 host key 會改變），所以叢集內如果有人冒充 `tkadm.taroko`，就可能拿到使用者輸入的密碼。

@@ -9,10 +9,13 @@ ARG VSCODIUM_VERSION=1.143.17183
 ARG OPEN_REMOTE_SSH_VERSION=0.5.1
 ARG ZH_HANT_VERSION=1.131.0
 
-# xrdp + xorgxrdp: every RDP login gets its own Xorg (xrdpdev driver), no VNC
+# xrdp + xorgxrdp: every RDP login gets its own Xorg (xrdpdev driver), no VNC.
+# xauth is only a Recommends, but without it sesman cannot write the session's
+# MIT cookie and Xorg runs with no access control: any account in the pod could
+# read and type into another account's desktop.
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      xrdp xorgxrdp openbox dbus-x11 fonts-noto-cjk locales tini \
+      xrdp xorgxrdp xauth openbox dbus-x11 fonts-noto-cjk locales tini \
       fonts-jetbrains-mono fonts-cascadia-code \
       openssh-client openssl ca-certificates curl xdg-utils \
  && rm -rf /var/lib/apt/lists/*
