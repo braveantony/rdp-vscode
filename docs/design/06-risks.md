@@ -24,14 +24,14 @@
 | 共用 tkadm 帳號 | 所有 RDP 帳號都以 tkadm 的 bigred 登入，會互相改到檔案，也共用 kubeconfig 的權限（B1） |
 | tkadm 重啟後要重新下載 server | `~/.vscodium-server` 沒有持久化，下次連線會重新下載約 60MB |
 | Extension 生態系 | 只能用 Open VSX 的 extension，Pylance、C# Dev Kit、Copilot 等不能用 |
-| Image 大小 | 約 1.3GB；`-firefox` 版本約 1.6GB |
+| Image 大小 | 約 1.3GB |
 | 記憶體 | 每多一個人約加 1Gi；超過 limit 時整個 pod 被 OOMKilled，所有人一起斷線 |
 | local-path 綁定節點 | stateful 模式下，節點掛掉時 pod 就起不來 |
 | 中文輸入 | 不支援在 pod 裡打中文，要在本機打好再用剪貼簿貼上 |
 | 沒有 session 分享 | 第一版不做（D9） |
 | 每次連線都要輸入 tkadm 密碼 | 包括 `Reload Window`；ControlMaster 對 Open Remote-SSH 沒有作用（B4 已拿掉） |
 | xrdp 以 root 執行 | Debian trixie 的 xrdp 0.10.1 不支援降權，跟 rdp-firefox 不同 |
-| 點連結不會用內建瀏覽器開 | 要自己開 Integrated Browser；只有 `-firefox` 版本點連結會開 Firefox |
+| 點連結不會用內建瀏覽器開 | 要自己開 Integrated Browser |
 
 ## Task 0 驗證過的假設
 

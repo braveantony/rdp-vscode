@@ -90,7 +90,7 @@ Press `Ctrl+Shift+P`, run "Browser: Open Integrated Browser" (or click the globe
 
 Use the short name `http://<service>.<namespace>` or the full domain name (see the [user guide](docs/user-guide.md), Traditional Chinese). Add `:<port>` when the service does not listen on 80.
 
-> `Ctrl`-clicking a URL in the terminal does not open the Integrated Browser, and the default image has no other browser, so nothing happens. The `-firefox` image opens such links in Firefox.
+> `Ctrl`-clicking a URL in the terminal does not open the Integrated Browser, and the image has no other browser, so nothing happens.
 
 ### 4. Good to know
 
@@ -101,18 +101,9 @@ Use the short name `http://<service>.<namespace>` or the full domain name (see t
 
 The [user guide](docs/user-guide.md) (Traditional Chinese) has the full instructions and troubleshooting.
 
-## Images
+## Image
 
-| | 1.2 | 1.2-firefox |
-|---|---|---|
-| Image | `ghcr.io/braveantony/rdp-vscode:1.2` | `ghcr.io/braveantony/rdp-vscode:1.2-firefox` |
-| VSCodium 1.143.17183, Open Remote-SSH 0.5.1, Traditional Chinese pack 1.131.0 | ✅ | ✅ |
-| Auto-connect to tkadm, YAML extension installed on tkadm | ✅ | ✅ |
-| Open cluster websites in the Integrated Browser | ✅ | ✅ |
-| Firefox ESR (`Ctrl`-clicked URLs in the terminal open in it, `Alt+Tab` switches windows) | — | ✅ |
-| Size | about 1.3 GB | about 1.6 GB |
-
-`images/rdp-vscode/Dockerfile` selects the variant with the build argument `WITH_FIREFOX`; `WITH_FIREFOX=1` builds `-firefox`, and only the last layer differs. See [Releases](../../releases) for each version's release notes.
+The image is `ghcr.io/braveantony/rdp-vscode:1.2`, about 1.3 GB, with VSCodium 1.143.17183, Open Remote-SSH 0.5.1, the Traditional Chinese language pack 1.131.0 and the Cascadia Code and JetBrains Mono fonts. See [Releases](../../releases) for each version's release notes.
 
 ## Documentation (Traditional Chinese)
 
@@ -148,9 +139,8 @@ The SSH config is written to `/etc/ssh/ssh_config.d/rdp-vscode.conf`. If a Confi
 | Path | Contents |
 |---|---|
 | `VERSION` | Current version |
-| `images/rdp-vscode/Dockerfile` | Image definition (base `debian:trixie-slim`; `WITH_FIREFOX=1` adds Firefox ESR) |
+| `images/rdp-vscode/Dockerfile` | Image definition (base `debian:trixie-slim`) |
 | `images/rdp-vscode/rootfs/` | Config files and scripts copied to `/` in the image (entrypoint, accounts, SSH config, desktop start and cleanup) |
-| `images/rdp-vscode/rootfs-firefox/` | Files used only by the `-firefox` variant |
 | `install.sh` | Quick-install `curl \| bash` script (account and password both `bigred`, `/home` in an emptyDir) |
 | `manifests/base/` | Kustomize base (shared settings): Namespace, Deployment, NodePort Service (30390) |
 | `manifests/stateless/`, `manifests/stateful/` | Overlays: both build the Secret from `users.txt`; `/home` is an emptyDir (stateless) or a PVC (stateful) |

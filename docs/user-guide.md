@@ -1,6 +1,6 @@
 # VSCodium 遠端桌面使用手冊
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.2`（`:1.2-firefox` 另見第 5 節）。安裝方式見 [README](../README.md#快速開始)。
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.2`。安裝方式見 [README](../README.md#快速開始)。
 
 用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動以 SSH 連到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
@@ -45,7 +45,7 @@
 
 網址可以只寫 `http://<service 名稱>.<namespace>`；完整網域名稱（FQDN）請問管理者。
 
-> 在終端機裡按住 `Ctrl` 點網址時，VSCodium 會問要不要開啟外部網站，但 預設版的映像檔裡沒有其他瀏覽器，所以按了也沒有反應。請照上面的步驟用 Integrated Browser 開。`-firefox` 版見第 5 節。
+> 在終端機裡按住 `Ctrl` 點網址時，VSCodium 會問要不要開啟外部網站，但映像檔裡沒有其他瀏覽器，所以按了也沒有反應。請照上面的步驟用 Integrated Browser 開。
 
 測完記得刪除：
 
@@ -64,15 +64,7 @@ kubectl -n default delete deploy/web svc/web
 - **輸入中文**：遠端桌面裡沒有中文輸入法。在自己的電腦（例如記事本）打好，複製後在 VSCodium 按 `Ctrl+V` 貼上。
 - **YAML 補全**：`tkadm` 第一次連線時會自動安裝 YAML 擴充功能（extension）。編輯 `.yaml` 檔時，按 `Ctrl+Space` 會出現 Kubernetes 欄位的建議。
 
-## 5. `-firefox` 版（`:1.2-firefox`）
-
-管理者部署的是 `-firefox` 版時：
-
-- 在終端機按住 `Ctrl` 點網址，確認開啟後會用 Firefox 開，一樣可以用叢集內的網址。
-- 按 `Alt+Tab` 在 VSCodium 和 Firefox 之間切換。
-- 關掉 Firefox 不會登出；關掉 VSCodium 才會。
-
-## 6. 常見問題
+## 5. 常見問題
 
 | 看到的訊息或現象 | 原因 | 處理 |
 |---|---|---|
@@ -83,4 +75,4 @@ kubectl -n default delete deploy/web svc/web
 | 登入後畫面閃一下就斷線 | Pod 的 `/dev/shm` 太小，VSCodium 啟動時崩潰 | 請管理者確認部署有掛 `/dev/shm`（見 [architecture.md](architecture.md) 的「其他連線」） |
 | 重新連線後，原本開的檔案分頁不見了 | 每次連線都是新的桌面 | 從檔案總管重新開啟；檔案在 `tkadm` 上，不會遺失 |
 
-> 本手冊的步驟已於 2026-10-28 在 tk8s 上，以 FreeRDP 模擬遠端桌面連線實測：xrdp 登入、輸入 tkadm 密碼後連線、在 tkadm 用 `kubectl` 部署 nginx、在 Pod 內用 FQDN 開啟、關掉 VSCodium 後登出、同一個帳號同時登入兩次、斷線後清除、stateful 模式在 Pod 重建後保留設定。尚未用實體 Windows 電腦實測；剪貼簿貼上中文、YAML 補全畫面、Firefox 版本的操作尚未實測。
+> 本手冊的步驟已於 2026-10-28 在 tk8s 上，以 FreeRDP 模擬遠端桌面連線實測：xrdp 登入、輸入 tkadm 密碼後連線、在 tkadm 用 `kubectl` 部署 nginx、在 Pod 內用 FQDN 開啟、關掉 VSCodium 後登出、同一個帳號同時登入兩次、斷線後清除、stateful 模式在 Pod 重建後保留設定。尚未用實體 Windows 電腦實測；剪貼簿貼上中文、YAML 補全畫面尚未實測。

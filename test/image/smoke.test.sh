@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Smoke tests for the rdp-vscode image: bash test/image/smoke.test.sh <image> [--firefox]
+# Smoke tests for the rdp-vscode image: bash test/image/smoke.test.sh <image>
 # shellcheck disable=SC1091,SC2015  # pass() never fails, so A && B || C is safe here
 set -u
 cd "$(dirname "$0")/../.." || exit 1
 . test/lib.sh
-IMG=${1:?usage: smoke.test.sh <image> [--firefox]}
-FIREFOX=${2:-}
+IMG=${1:?usage: smoke.test.sh <image>}
 arg() { sed -n "s/^ARG $1=//p" images/rdp-vscode/Dockerfile; }
 run() { podman run --rm --entrypoint /bin/sh "$IMG" -c "$1"; }
 
@@ -60,14 +59,5 @@ say scripts
 for f in ssh-config.sh font-config.sh; do
   run "test -x /opt/rdp-vscode/$f" && pass "$f" || bad "/opt/rdp-vscode/$f missing"
 done
-
-say firefox
-if [ "$FIREFOX" = --firefox ]; then
-  run 'command -v firefox-esr >/dev/null' && pass "firefox-esr installed" || bad "firefox-esr missing"
-  got=$(podman run --rm --user 65534 -e HOME=/tmp --entrypoint xdg-mime "$IMG" query default x-scheme-handler/https)
-  [ "$got" = firefox-esr.desktop ] && pass "https opens in firefox-esr" || bad "https handler: '$got'"
-else
-  run '! command -v firefox-esr >/dev/null' && pass "no firefox-esr in default image" || bad "firefox-esr in default image"
-fi
 
 finish

@@ -14,7 +14,7 @@
 | AC6 | YAML 檔有 Kubernetes schema 補全 | tkadm 上有安裝 `redhat.vscode-yaml` | 實際打字時出現補全 |
 | AC7 | 關掉 VSCodium，RDP session 跟著結束 | Xorg 消失，session 目錄被清掉 | — |
 | AC8 | Stateful：改一個設定、刪掉 pod、重新連線後設定還在 | pod 重建後**重新登入**，新 session 讀到的設定值仍然正確 | 畫面上的字型大小真的有改變 |
-| AC9 | `-firefox` tag：點連結會開 Firefox，Firefox 也能用 FQDN 開網站 | 不在 e2e 裡驗證，由 Task 5 的 podman 測試檢查預設瀏覽器 | 實際點連結、開網站 |
+| AC9 | （已移除：`-firefox` 版在 2026-10-29 拿掉） | — | — |
 | AC10 | `VSCODIUM_LOCALE=en` 時介面是英文 | codium 的啟動參數包含 `--locale en` | 截圖確認 |
 
 ## 額外檢查（Review Focus）
