@@ -16,15 +16,7 @@
 
 ## 架構
 
-![rdp-vscode 系統運作架構](docs/architecture/rdp-vscode-architecture.png)
-
-用戶端以遠端桌面協定 RDP 連到節點的 NodePort `30390`，再經 Service `rdp-vscode` 轉到 Pod 的 3389 埠。Pod 裡只有一個 container（容器），裡面跑著這些 process（執行中的程式）和 session（一組 process 組成的桌面工作階段）：
-
-- ① xrdp／xrdp-sesman：接收 RDP 連線、顯示登入畫面、驗證帳號，並替每次登入開一個新桌面
-- ② Xorg session：每次登入各一個桌面，執行全螢幕的 VSCodium；關掉 VSCodium 就登出
-- ③ vscodium-server：VSCodium 以 SSH 連到 namespace `taroko` 的 tkadm（`tkadm.taroko:22100`）後，在上面啟動的服務端程式；檔案和終端機都在 tkadm 上
-
-詳細說明見 [docs/architecture.md](docs/architecture.md)。
+詳細說明請參考 [docs/architecture.md](docs/architecture.md)。
 
 ## 先決條件
 
