@@ -16,15 +16,7 @@ Several people can use it at once, and each login gets its own desktop. The defa
 
 ## Architecture
 
-![rdp-vscode architecture](docs/architecture/rdp-vscode-architecture.png)
-
-The client connects over the Remote Desktop Protocol (RDP) to NodePort `30390` on a node, and Service `rdp-vscode` forwards the connection to port 3389 of the Pod. The Pod has a single container, running these processes (programs) and sessions (the group of processes behind one desktop):
-
-- ① xrdp / xrdp-sesman: accept RDP connections, show the login screen, check the account, and open a new desktop for every login
-- ② Xorg session: one desktop per login, running VSCodium full screen; closing VSCodium logs you out
-- ③ vscodium-server: the server side of VSCodium, started on tkadm after VSCodium connects over SSH to tkadm in namespace `taroko` (`tkadm.taroko:22100`); files and terminals are on tkadm
-
-Details in [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
+For details, see [docs/architecture.md](docs/architecture.md) (Traditional Chinese).
 
 ## Prerequisites
 
