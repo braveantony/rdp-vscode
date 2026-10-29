@@ -21,7 +21,7 @@ done
 run 'test ! -e /etc/skel/.vscode-oss' && pass "no /etc/skel/.vscode-oss" || bad "/etc/skel/.vscode-oss exists"
 
 say commands
-for c in xrdp xrdp-sesman tini openbox dbus-launch ssh; do
+for c in xrdp xrdp-sesman tini openbox dbus-launch ssh xauth; do
   run "command -v $c >/dev/null" && pass "$c" || bad "command not found: $c"
 done
 

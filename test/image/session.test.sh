@@ -61,6 +61,27 @@ else
 fi
 S1=$(sess_dirs)
 
+say x-auth
+# xrdp writes an MIT cookie with xauth and starts Xorg with -auth ~/.Xauthority.
+# Without the cookie file Xorg has no access control and any process in the pod
+# (another account included) can read and type into this desktop.
+# x_setup <display> prints the X connection-setup status byte for a client
+# without credentials: 1 = accepted, 0 = refused.
+x_setup() {
+  podman exec -i "$SRV" su nobody -s /bin/sh -c "python3 - $1" <<'PY'
+import socket, struct, sys
+s = socket.socket(socket.AF_UNIX)
+s.connect("/tmp/.X11-unix/X" + sys.argv[1])
+s.sendall(struct.pack("<cxHHHHxx", b"l", 11, 0, 0, 0))
+print(s.recv(1)[0])
+PY
+}
+disp=$(basename "${S1%%$'\n'*}"); disp=${disp%%.*}
+sx 'test -s /home/bigred/.Xauthority && [ "$(stat -c %a /home/bigred/.Xauthority)" = 600 ]' \
+  && pass "~/.Xauthority holds the cookie (0600)" || bad "no 0600 ~/.Xauthority"
+got=$(x_setup "$disp")
+[ "$got" = 0 ] && pass "X display :$disp refuses a client without the cookie" || bad "X display :$disp accepts a client without the cookie (got '$got')"
+
 say ext-sync
 ver=$(sed -n 's/^ARG OPEN_REMOTE_SSH_VERSION=//p' images/rdp-vscode/Dockerfile)
 zh=$(sed -n 's/^ARG ZH_HANT_VERSION=//p' images/rdp-vscode/Dockerfile)

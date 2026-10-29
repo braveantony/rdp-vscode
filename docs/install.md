@@ -1,6 +1,6 @@
 # rdp-vscode 安裝手冊
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.2`。先決條件見 [README](../README.md#先決條件)。
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.3`。先決條件見 [README](../README.md#先決條件)。
 
 ## 選擇安裝方式
 
@@ -88,7 +88,7 @@ StorageClass 是決定 PVC 用哪種儲存的叢集設定。PVC 沒有指定 `st
   images:
   - name: ghcr.io/braveantony/rdp-vscode
     newName: registry.example.com/rdp-vscode
-    newTag: "1.2"
+    newTag: "1.3"
   ```
 
 - **改環境變數**：修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k manifests/stateless`（或 `manifests/stateful`）。變數說明見 [README 的「環境變數」](../README.md#環境變數)。
@@ -107,7 +107,7 @@ StorageClass 是決定 PVC 用哪種儲存的叢集設定。PVC 沒有指定 `st
 ```bash
 podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
   -e RDP_PASSWORD=bigred -e SSH_HOST=<SSH 主機> -e SSH_PORT=22 -e SSH_USER=<SSH 帳號> \
-  ghcr.io/braveantony/rdp-vscode:1.2
+  ghcr.io/braveantony/rdp-vscode:1.3
 ```
 
 用遠端桌面連到 `<主機 IP>:13390`。`<主機 IP>` 是執行 podman 的那台主機的 IP；在同一台主機上連可以用 `localhost:13390`。帳號 `bigred`、密碼 `bigred`。
