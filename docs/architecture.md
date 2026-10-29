@@ -4,7 +4,7 @@
 
 ![rdp-vscode 系統運作架構](architecture/rdp-vscode-architecture.png)
 
-圖中的編號、顏色與下文對應。架構圖的原始檔與重製方式見 [architecture/README.md](architecture/README.md)。
+圖中的編號、顏色與下文對應。架構圖的原始檔與重製方式見 [architecture/README.md](architecture/README.md)。要在叢集上逐項確認圖中的元件和連線，見[驗證架構圖](verify-architecture.md)。
 
 ## 連線路徑（粗藍線）
 
