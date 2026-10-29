@@ -71,7 +71,6 @@ rdp-vscode/
 │   │   │   └── vsix/               # 預裝 extension 的 .vsix（build 時下載）
 │   │   ├── etc/xrdp/startwm.sh     # 每個 session 的啟動與清理
 │   │   └── etc/skel/               # 新 home 的初始內容（openbox kiosk 設定、VSCodium 預設設定）
-│   └── rootfs-firefox/             # 只有 WITH_FIREFOX=1 時才會複製
 ├── manifests/                      # kustomize（見 03-deployment.md）
 ├── test/                           # unit、image、deploy、e2e 測試
 └── docs/                           # architecture.md、user-guide.md、build-image.md、design/、ops/

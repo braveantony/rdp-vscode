@@ -90,7 +90,7 @@ kubectl -n default expose deploy web --port 80
 
 網址可以用短名稱 `http://<service>.<namespace>`，也可以用完整網域名稱（見[使用手冊](docs/user-guide.md)）。服務的埠號不是 80 時，在網址後加上 `:<埠號>`。
 
-> 在終端機裡按住 `Ctrl` 點網址時，不會用 Integrated Browser 開啟；預設版的映像檔裡沒有其他瀏覽器，所以不會有反應。`-firefox` 版則會用 Firefox 開啟。
+> 在終端機裡按住 `Ctrl` 點網址時，不會用 Integrated Browser 開啟；映像檔裡沒有其他瀏覽器，所以不會有反應。
 
 ### 4. 使用時要知道的事
 
@@ -101,18 +101,9 @@ kubectl -n default expose deploy web --port 80
 
 完整的操作說明和常見問題見 [docs/user-guide.md](docs/user-guide.md)。
 
-## 版本比較
+## 映像檔
 
-| | 1.2 | 1.2-firefox |
-|---|---|---|
-| 映像檔 | `ghcr.io/braveantony/rdp-vscode:1.2` | `ghcr.io/braveantony/rdp-vscode:1.2-firefox` |
-| VSCodium 1.143.17183、Open Remote-SSH 0.5.1、繁中語言包 1.131.0 | ✅ | ✅ |
-| 自動連線 tkadm、遠端自動安裝 YAML 擴充功能 | ✅ | ✅ |
-| 用 Integrated Browser 開叢集內的網站 | ✅ | ✅ |
-| Firefox ESR（終端機裡按住 `Ctrl` 點網址會用它開啟，可用 `Alt+Tab` 切換視窗） | — | ✅ |
-| 映像檔大小 | 約 1.3 GB | 約 1.6 GB |
-
-`images/rdp-vscode/Dockerfile` 用建置參數 `WITH_FIREFOX` 區分兩個版本：`WITH_FIREFOX=1` 建出 `-firefox` 版，只有最後一層不同。各版本的說明見 [Releases](../../releases)。
+映像檔是 `ghcr.io/braveantony/rdp-vscode:1.2`，約 1.3 GB，內含 VSCodium 1.143.17183、Open Remote-SSH 0.5.1、繁中語言包 1.131.0，以及 Cascadia Code、JetBrains Mono 字型。各版本的說明見 [Releases](../../releases)。
 
 ## 文件
 
@@ -148,9 +139,8 @@ SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 Co
 | 路徑 | 說明 |
 |---|---|
 | `VERSION` | 目前版本 |
-| `images/rdp-vscode/Dockerfile` | 映像檔定義（基底 `debian:trixie-slim`；`WITH_FIREFOX=1` 時加裝 Firefox ESR） |
+| `images/rdp-vscode/Dockerfile` | 映像檔定義（基底 `debian:trixie-slim`） |
 | `images/rdp-vscode/rootfs/` | 複製進映像檔 `/` 的設定檔與腳本（entrypoint、帳號、SSH 設定、桌面的啟動與清理） |
-| `images/rdp-vscode/rootfs-firefox/` | 只有 `-firefox` 版會套用的檔案 |
 | `install.sh` | 快速安裝用的 `curl \| bash` 腳本（帳號密碼 `bigred`／`bigred`、`/home` 用 emptyDir） |
 | `manifests/base/` | Kustomize base（共用的基本設定）：Namespace、Deployment、NodePort Service（30390） |
 | `manifests/stateless/`、`manifests/stateful/` | 兩種 overlay：由 `users.txt` 產生 Secret，`/home` 分別用 emptyDir 和 PVC |

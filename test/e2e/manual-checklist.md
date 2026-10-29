@@ -43,14 +43,6 @@ RDP 連到 `<節點 IP>:30390`，在 xrdp 登入畫面輸入 `bigred` / `bigred`
 - [ ] 執行 `kubectl -n rdp-vscode delete pod -l app=rdp-vscode`，等新 pod Ready 後重新連線
 - [ ] 編輯器的字型仍然是放大後的大小
 
-## AC9：`-firefox` 版本
-
-用 `localhost/rdp-vscode:dev-firefox`（或 `ghcr.io/braveantony/rdp-vscode:1.2-firefox`）部署：
-
-- [ ] 在 VSCodium terminal 執行 `echo http://web.default.svc.tk8s.k8s`，用 `Ctrl+` 點擊網址，確認對話框後會開啟 Firefox，並顯示 nginx 歡迎頁
-- [ ] `Alt+Tab` 可以在 VSCodium 和 Firefox 之間切換
-- [ ] 關掉 Firefox 不會結束 session；關掉 VSCodium 才會
-
 ## AC10：英文介面
 
 - [ ] `kubectl -n rdp-vscode set env deploy/rdp-vscode VSCODIUM_LOCALE=en`，重新連線後介面是英文

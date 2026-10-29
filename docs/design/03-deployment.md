@@ -73,8 +73,7 @@ kubectl apply -k manifests/stateless   # 或 manifests/stateful
 
 | Tag | 內容 |
 |---|---|
-| `ghcr.io/braveantony/rdp-vscode:1.2` | 預設版本，用內建的 Integrated Browser，約 1.3GB |
-| `ghcr.io/braveantony/rdp-vscode:1.2-firefox` | 多了 Firefox ESR，約 1.6GB（多約 310MB） |
+| `ghcr.io/braveantony/rdp-vscode:1.2` | 用內建的 Integrated Browser，約 1.3GB（`-firefox` 版已在 2026-10-29 移除） |
 
 manifest 預設使用 `imagePullPolicy: IfNotPresent`。e2e 測試時，會用 kustomize 的 `images:` 換成本機 build 的 `localhost/rdp-vscode:dev`，再用 rdp-firefox 的方式載入 tk8s 的 worker 節點。
 

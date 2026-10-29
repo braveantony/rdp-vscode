@@ -1,6 +1,6 @@
 # rdp-vscode 安裝手冊
 
-適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.2`。`-firefox` 版的安裝方式相同，只有換映像檔的方法依安裝方式而不同，見各節。先決條件見 [README](../README.md#先決條件)。
+適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.2`。先決條件見 [README](../README.md#先決條件)。
 
 ## 選擇安裝方式
 
@@ -25,17 +25,11 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 
 腳本會部署單一帳號 `bigred` / `bigred`，完成後印出每個節點的連線位址。節點 IP 也可以用 `kubectl get nodes -o wide` 的 INTERNAL-IP 欄查看，連任何一個節點都可以；雲端叢集則要改成用戶端連得到的 IP（例如節點的外部 IP）。
 
-平常不需要設定任何變數。要改裝 `-firefox` 版時，用 `RDP_VSCODE_IMAGE`：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install.sh | RDP_VSCODE_IMAGE=ghcr.io/braveantony/rdp-vscode:1.2-firefox bash
-```
-
-`install.sh` 讀取的變數：
+平常不需要設定任何變數。`install.sh` 讀取的變數：
 
 | 變數 | 說明 |
 |---|---|
-| `RDP_VSCODE_IMAGE` | 改用其他映像檔，例如 `ghcr.io/braveantony/rdp-vscode:1.2-firefox` 或私有 registry 上的映像檔 |
+| `RDP_VSCODE_IMAGE` | 改用其他映像檔，例如私有 registry 上的映像檔 |
 | `RDP_VSCODE_REF` | 下載 `manifests/` 時用的 branch 或 tag，決定部署哪個版本的設定和映像檔；預設 `main`。主要給測試用 |
 | `RDP_VSCODE_RAW` | `manifests/` 的下載位置，可以是網址或 `file://` 路徑；預設是 GitHub 上 `RDP_VSCODE_REF` 指定的版本，設定後 `RDP_VSCODE_REF` 就沒有作用。主要給測試用 |
 
@@ -88,12 +82,13 @@ StorageClass 是決定 PVC 用哪種儲存的叢集設定。PVC 沒有指定 `st
 
 ### 其他設定
 
-- **換映像檔**（例如私有 registry 或 `-firefox` 版）：在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊：
+- **換映像檔**（例如私有 registry）：在 overlay 的 `kustomization.yaml` 加上 `images:` 區塊：
 
   ```yaml
   images:
   - name: ghcr.io/braveantony/rdp-vscode
-    newTag: 1.2-firefox
+    newName: registry.example.com/rdp-vscode
+    newTag: "1.2"
   ```
 
 - **改環境變數**：修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k manifests/stateless`（或 `manifests/stateful`）。變數說明見 [README 的「環境變數」](../README.md#環境變數)。
@@ -123,7 +118,6 @@ podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
 - **多個帳號**：用帳號清單取代 `RDP_PASSWORD`。拿掉 `-e RDP_PASSWORD=bigred`，改在映像檔名稱之前加上 `-v ./users.txt:/etc/rdp-vscode/users:ro,Z`（`ro` 表示唯讀，`Z` 是給 SELinux 系統用的標記，沒有 SELinux 也不影響）。`users.txt` 的格式和[帳號清單](#帳號清單)相同。
 - **不自動連線**：把 `-e SSH_HOST=…`、`-e SSH_PORT=…`、`-e SSH_USER=…` 都換成 `-e SSH_HOST_ALIAS=`（空字串），登入後只開啟 container 裡的 VSCodium，不會連到任何 SSH 主機。
 - **SSH 主機上的家目錄不是 `/home/<SSH 帳號>` 時**（例如 root），再加上 `-e SSH_REMOTE_FOLDER=<路徑>`。
-- **改裝 `-firefox` 版**：把最後的 `:1.2` 換成 `:1.2-firefox`。
 - 檔案和設定都在 container 裡，刪掉 container（`podman rm -f rdp-vscode`）就會消失。
 - 其他環境變數見 [README 的「環境變數」](../README.md#環境變數)。
 
@@ -157,4 +151,4 @@ systemctl --user enable podman-restart.service
 
 stateful 模式的 PVC 會跟著 namespace 一起刪除。大多數 StorageClass 預設的 reclaimPolicy 是 `Delete`，這時 `/home` 的資料也會消失，要保留資料請先備份。
 
-> 本文件的指令已於 2026-10-28 實測：快速安裝（包括從 GitHub 下載 `install.sh`、用 `RDP_VSCODE_IMAGE` 改裝 `-firefox` 版）與 Kustomize（stateless、stateful）在 tk8s 上部署並以 RDP 登入；單機以 `RDP_PASSWORD` 啟動並連上 SSH 主機，也以掛載帳號清單的方式啟動、用其中一個帳號登入，開啟的是該帳號自己的 VSCodium；區網轉發以 `192.168.11.64:3390` 登入。
+> 本文件的指令已於 2026-10-28 實測：快速安裝（包括從 GitHub 下載 `install.sh`）與 Kustomize（stateless、stateful）在 tk8s 上部署並以 RDP 登入；單機以 `RDP_PASSWORD` 啟動並連上 SSH 主機，也以掛載帳號清單的方式啟動、用其中一個帳號登入，開啟的是該帳號自己的 VSCodium；區網轉發以 `192.168.11.64:3390` 登入。

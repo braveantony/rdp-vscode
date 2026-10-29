@@ -62,19 +62,6 @@ RUN sed -i '/^\[Xvnc\]/,$d' /etc/xrdp/xrdp.ini \
  && rm -f /etc/xrdp/cert.pem /etc/xrdp/key.pem /etc/xrdp/rsakeys.ini
 
 COPY rootfs/ /
-# Firefox variant files; only installed when built with WITH_FIREFOX=1 (below)
-COPY rootfs-firefox/ /usr/share/rdp-vscode/firefox/
-
-# WITH_FIREFOX=1 builds the :<version>-firefox tag: Firefox ESR becomes the
-# browser for http(s) links. Kept as the last layer so both tags share every
-# layer above.
-ARG WITH_FIREFOX=0
-RUN if [ "$WITH_FIREFOX" = 1 ]; then \
-      apt-get update \
- &&   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends firefox-esr \
- &&   rm -rf /var/lib/apt/lists/* \
- &&   cp -R /usr/share/rdp-vscode/firefox/. / ; \
-    fi
 
 EXPOSE 3389
 

@@ -21,7 +21,7 @@
 
 ### D14 名稱與授權
 - GitHub repo：`braveantony/rdp-vscode`
-- Image：`ghcr.io/braveantony/rdp-vscode:1.2`（Firefox 版本是 `:1.2-firefox`）
+- Image：`ghcr.io/braveantony/rdp-vscode:1.2`（`-firefox` 版已在 2026-10-29 移除，見文末「實作後的修正」）
 - 授權：**Apache-2.0**。它跟 VSCodium（MIT）、xrdp（Apache-2.0）相容，而且附帶專利授權。沒有 LICENSE 檔的 repo，法律上等於「保留所有權利」，別人不能合法使用
 
 ### D15 Build 方式：podman 手動 build、手動 push
@@ -53,7 +53,7 @@ VSCodium 是 glibc 程式，沒辦法沿用 rdp-firefox 的 Alpine（musl）。�
 
 ### D7、D8 瀏覽器：預設用內建瀏覽器，Firefox 透過 build arg 加裝
 - **Integrated Browser**：VSCodium 內建，在分頁裡直接打開叢集內的網站。原本的決定是 Simple Browser，Task 0 發現它只能開 `localhost` 這類網址，改用 Integrated Browser（見文末「實作後的修正」）
-- **Firefox ESR**：只有用 `WITH_FIREFOX=1` build 出來的 `-firefox` tag 才有，設為 `xdg-open` 的預設瀏覽器，需要 DevTools 或瀏覽外部網站時使用
+- **Firefox ESR**（2026-10-29 移除）：只有用 `WITH_FIREFOX=1` build 出來的 `-firefox` tag 才有，設為 `xdg-open` 的預設瀏覽器，需要 DevTools 或瀏覽外部網站時使用
 
 為什麼用 build arg，而不是執行時的環境變數？因為預設 image 可以少大約 310MB，做法也跟 rdp-firefox 的 `SESSION_SHARE` 一致。
 
@@ -145,3 +145,4 @@ Task 0 和實作過程中發現的問題，以及對應的修改。詳細紀錄�
 | 容器的環境變數會帶進 session | sesman 用乾淨的環境啟動 session | entrypoint 寫出 `/run/rdp-vscode/session.env`，由 startwm.sh 讀取 |
 | ssh 設定只放 Host、Port、User | Debian 預設 `GSSAPIAuthentication yes` 會讓 Open Remote-SSH 走另一條會失敗的路徑 | 加上 `GSSAPIAuthentication no`；VSCodium 設定加上 `remote.SSH.verifyUnknownHosts: "accept"` |
 | tk8s 的 `local-path` SC | `Immediate`，PVC 會一直 Pending | 經使用者同意，重建成 `WaitForFirstConsumer`（[紀錄](../ops/2026-10-28-tk8s-local-path-sc.md)） |
+| D8 `-firefox` tag | Integrated Browser 已經能開叢集內的網站，`-firefox` 版只多了「終端機裡點網址用 Firefox 開」，卻多約 310MB，還要另外維護建置、測試和文件；叢集上的端到端驗收也一直沒做（issue #1） | 2026-10-29 經使用者同意移除：拿掉 `WITH_FIREFOX` 和 `rootfs-firefox/`，不再發佈 `-firefox` tag |
