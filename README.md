@@ -106,7 +106,7 @@ kubectl -n default expose deploy web --port 80
 - [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize 多帳號與保留 home、單機 podman、從區網連線、移除）
 - [architecture.md](docs/architecture.md)：系統運作架構（連線路徑、Pod 內各 process 的職責、安全邊界）
 - [user-guide.md](docs/user-guide.md)：使用手冊（連線登入、連到 tkadm、開網站、多人使用、常見問題）
-- [build-image.md](docs/build-image.md)：建置手冊（從原始碼建置兩個 tag、測試，到部署上 tk8s 的完整步驟）
+- [build-image.md](docs/build-image.md)：建置手冊（從原始碼建置映像檔、測試，到部署上 tk8s 的完整步驟）
 - [design/](docs/design/README.md)：設計決策、驗收標準、風險與審查紀錄
 - [ops/](docs/ops/)：為了本專案對 tk8s 做的修改紀錄（tkadm sshd、local-path StorageClass）
 
