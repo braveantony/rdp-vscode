@@ -38,7 +38,7 @@
 kubectl -n rdp-vscode set env deploy/rdp-vscode SSH_AUTO_CONNECT=true
 ```
 
-改完 Pod 會重建，所有使用者的桌面都會中斷，請挑沒人使用時執行。改回 `false` 就關閉自動連線。`tkadm` 的 sshd 要允許埠轉發（`AllowTcpForwarding local` 或 `yes`）才連得上；不允許時 VSCodium 會一直重新連線、每次都問密碼，見下方的常見問題。
+改完 Pod 會重建，所有使用者的桌面都會中斷，請挑沒人使用時執行。改回 `false` 就關閉自動連線。之後重新執行 `kubectl apply -k` 或安裝指令時，會蓋回預設的 `false`，要再設定一次。`tkadm` 的 sshd 要允許埠轉發（`AllowTcpForwarding local` 或 `yes`）才連得上；不允許時 VSCodium 會一直重新連線、每次都問密碼，見下方的常見問題。
 
 ## 3. 在 tkadm 部署網站並開啟（選用的管理範例）
 

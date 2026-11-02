@@ -8,7 +8,7 @@
 
 1. 用預設帳密登入 RDP
 2. 登入後就在 pod 內：透過 VSCodium、Integrated Browser 或本地 terminal，都能存取叢集內所有 ClusterIP Service（**不需要另外取得 shell**，所以關掉本地 terminal 並不會讓它變安全）
-3. 用 bigred/bigred SSH 到 tkadm（VSCodium 會自動連線）
+3. 用 bigred/bigred SSH 到 tkadm（手動連線，或設定 `SSH_AUTO_CONNECT=true` 後自動連線）
 4. 用 tkadm 上的 kubectl 控制整個叢集
 
 緩解方式：
