@@ -1,6 +1,6 @@
 # rdp-vscode 映像檔建置手冊
 
-本文件從原始碼做出 `ghcr.io/braveantony/rdp-vscode:1.3`，跑過測試，載入 tk8s 的節點並部署，最後推到 ghcr.io。**由上到下依序複製每個指令區塊貼到終端機執行。** 需要在 repo 目錄執行的區塊，開頭都會 `cd ~/rdp-vscode`，中途換終端機也能接著貼。
+本文件從原始碼做出 `ghcr.io/braveantony/rdp-vscode:1.4`，跑過測試，載入 tk8s 的節點並部署，最後推到 ghcr.io。**由上到下依序複製每個指令區塊貼到終端機執行。** 需要在 repo 目錄執行的區塊，開頭都會 `cd ~/rdp-vscode`，中途換終端機也能接著貼。
 
 ## 這個映像檔做什麼
 
@@ -61,7 +61,7 @@ rdp-vscode/
 
 ```bash
 cd ~/rdp-vscode
-podman build -t ghcr.io/braveantony/rdp-vscode:1.3 images/rdp-vscode
+podman build -t ghcr.io/braveantony/rdp-vscode:1.4 images/rdp-vscode
 podman image ls ghcr.io/braveantony/rdp-vscode
 ```
 
@@ -77,10 +77,10 @@ bash test/unit/ssh-config.test.sh
 bash test/unit/font-config.test.sh
 bash test/unit/session-env.test.sh
 bash test/unit/install.test.sh
-bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.3
-bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.3
-bash test/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.3
-bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.3
+bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.4
+bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.4
+bash test/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.4
+bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.4
 ```
 
 每個測試最後一行都應該是 `N passed, 0 failed`。
@@ -89,7 +89,7 @@ bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.3
 
 ```bash
 cd ~/rdp-vscode
-bash test/image/session.test.sh ghcr.io/braveantony/rdp-vscode:1.3
+bash test/image/session.test.sh ghcr.io/braveantony/rdp-vscode:1.4
 bash test/deploy/render.test.sh
 ```
 
@@ -101,12 +101,12 @@ tk8s 的節點是 podman container，映像檔要直接載入節點的 container
 
 ```bash
 cd ~/rdp-vscode
-podman save -o /tmp/rdp-vscode.tar ghcr.io/braveantony/rdp-vscode:1.3
+podman save -o /tmp/rdp-vscode.tar ghcr.io/braveantony/rdp-vscode:1.4
 for n in tk8s-control-plane-1 tk8s-worker-1 tk8s-worker-2; do
   st=/var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage
   sudo test -d "$st/overlay-images" || { echo "找不到 $n 的儲存區，用 sudo podman ps 確認節點名稱"; break; }
   sudo skopeo copy docker-archive:/tmp/rdp-vscode.tar \
-    "containers-storage:[overlay@$st+/run/rdp-vscode-load-$n]ghcr.io/braveantony/rdp-vscode:1.3"
+    "containers-storage:[overlay@$st+/run/rdp-vscode-load-$n]ghcr.io/braveantony/rdp-vscode:1.4"
 done
 rm -f /tmp/rdp-vscode.tar
 ```
@@ -167,7 +167,7 @@ kubectl -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' | gr
 
 ```bash
 podman login ghcr.io -u braveantony      # 密碼貼上 PAT
-podman push ghcr.io/braveantony/rdp-vscode:1.3
+podman push ghcr.io/braveantony/rdp-vscode:1.4
 ```
 
 Dockerfile 裡的 `org.opencontainers.image.source` label 會讓 ghcr.io 自動把 package 連到 repo。第一次推送後，到 GitHub 的 **Packages → rdp-vscode → Package settings → Change visibility**，設為 Public，別人才拉得到。
@@ -214,7 +214,7 @@ ARG ZH_HANT_VERSION=1.131.0
    curl -fsSL https://open-vsx.org/api/MS-CEINTL/vscode-language-pack-zh-hant | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["version"], d["engines"])'
    ```
 
-3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號：把 Step 2～4、7 指令裡的 `:1.3` 換成例如 `:1.4`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。注意：Step 3 測的是指定的發佈 tag；完整驗收則是從目前的原始碼另外建置 `localhost/rdp-vscode:dev` 來測。
+3. 修改 `images/rdp-vscode/Dockerfile` 的 `ARG`，從 Step 2 重做一次，並跑完 Step 3 的所有測試和完整驗收。新 tag 用新的版本號：把 Step 2～4、7 指令裡的 `:1.4` 換成例如 `:1.5`，並同步修改 `VERSION` 和 `manifests/base/deployment.yaml` 的 `image:`。注意：Step 3 測的是指定的發佈 tag；完整驗收則是從目前的原始碼另外建置 `localhost/rdp-vscode:dev` 來測。
 
 使用者的 home 裡如果有舊版的預裝擴充功能，下次登入時會自動換成映像檔裡的版本；自己裝的擴充功能不會被動到。
 
@@ -230,4 +230,4 @@ ARG ZH_HANT_VERSION=1.131.0
 | 在 ssh 設定加了 `ControlMaster` 沒有效果 | Open Remote-SSH 用內建的 SSH 實作，不呼叫系統的 `ssh`；它會讀 `Host`、`HostName`、`Port` 這些基本設定，但不支援 `ControlMaster` |
 | `codium --version` 在映像檔裡印出 super user 警告 | VSCodium 拒絕以 root 執行；測試時要用一般使用者（例如 `--user 65534`） |
 
-> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置映像檔、Step 3 的所有測試、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；完整驗收 `test/e2e/run.sh all` 22 項通過（當時載入節點用的是 `podman load`）；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 4 和 `run.sh` 改用 `skopeo` 後的載入、Step 7 的推送，以及 Windows 實機連線尚未實測。
+> 本文件的指令已於 2026-11-02 發佈 1.4 時在 tk8s 上照貼實測：Step 2 建置映像檔（每一層都用到先前的建置快取）、Step 3 的所有測試、Step 4 用 `skopeo` 載入三個節點；完整驗收 `test/e2e/run.sh all` 22 項通過，載入節點同樣用 `skopeo`。Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功，以及「升級 VSCodium」的兩個查詢指令，是 2026-10-28 實測的。Step 1 的 `git clone`、Step 7 的推送，以及 Windows 實機連線尚未實測。
