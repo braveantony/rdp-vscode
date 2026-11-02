@@ -2,7 +2,7 @@
 
 適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.3`。安裝方式見 [README](../README.md#快速開始)。
 
-用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動以 SSH 連到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
+用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。用它以 SSH 連到叢集的管理 Pod `tkadm` 後，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
 ## 1. 連線與登入
 
@@ -19,13 +19,26 @@
 
 ## 2. 連到 tkadm
 
-1. 登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`，要你輸入連到 `tkadm` 的密碼。這是第二組密碼，可能和剛才登入遠端桌面的密碼不同，請向管理者確認。
-2. 輸入 `tkadm` 上 `bigred` 帳號的密碼（tk8s 上是 `bigred`，其他環境請問管理者），按 Enter。
-3. 左下角變成 `SSH: tkadm`，左邊的檔案總管列出 `tkadm` 上 `/home/bigred` 的檔案，就表示連上了。
+預設不會自動連線，登入後 VSCodium 只在遠端桌面的 Pod 裡執行。還沒連到 `tkadm` 前，終端機開在 Pod 裡，沒有 `kubectl` 可用。
+
+1. 按左下角的遠端按鈕（滑鼠移上去會顯示「開啟遠端視窗」），選 `Connect Current Window to Host...`，再選 `tkadm`。也可以從左側活動列的「遠端總管」，在 `tkadm` 旁按「Connect to Host in Current Window」。
+2. 上方會跳出 `Enter password for bigred@tkadm.taroko`，要你輸入連到 `tkadm` 的密碼。這是第二組密碼，可能和剛才登入遠端桌面的密碼不同，請向管理者確認。
+3. 輸入 `tkadm` 上 `bigred` 帳號的密碼（tk8s 上是 `bigred`，其他環境請問管理者），按 Enter。
+4. 左下角變成 `SSH: tkadm`，就表示連上了。按「檔案 > 開啟資料夾」，輸入 `/home/bigred` 後按「確定」，左邊的檔案總管就會列出 `tkadm` 上的檔案。
 
 - `tkadm` 上還沒有這個版本的 vscodium-server 時（第一次連線、`tkadm` 重建後，或升級映像檔後），`tkadm` 會先下載約 90 MB，需要多等一段時間。
 - 之後每次重新連線（包括「重新載入視窗」），都會再問一次密碼。
 - 不小心按了取消時，按 `Ctrl+Shift+P`，執行「Developer: Reload Window」（重新載入視窗），密碼框會再出現一次。
+
+### 讓 VSCodium 一開啟就自動連線（管理者）
+
+把環境變數 `SSH_AUTO_CONNECT` 設成 `true`，VSCodium 一開啟就會跳出 `tkadm` 的密碼框，連上後直接開啟 `/home/bigred`，不必做上面的步驟 1 和 4。在有 kubectl 的電腦上執行：
+
+```bash
+kubectl -n rdp-vscode set env deploy/rdp-vscode SSH_AUTO_CONNECT=true
+```
+
+改完 Pod 會重建，所有使用者的桌面都會中斷，請挑沒人使用時執行。改回 `false` 就關閉自動連線。`tkadm` 的 sshd 要允許埠轉發（`AllowTcpForwarding local` 或 `yes`）才連得上；不允許時 VSCodium 會一直重新連線、每次都問密碼，見下方的常見問題。
 
 ## 3. 在 tkadm 部署網站並開啟（選用的管理範例）
 

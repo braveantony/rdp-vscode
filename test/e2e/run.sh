@@ -96,6 +96,8 @@ run_overlay() {  # run_overlay <stateless|stateful>
   say "$o: deploy"
   kubectl delete ns "$NS" --ignore-not-found --wait=true >/dev/null 2>&1
   deploy "$o" || { bad "$o: apply"; return; }
+  # AC3 checks the auto-connect, which is off by default
+  kubectl -n "$NS" set env deploy/rdp-vscode SSH_AUTO_CONNECT=true >/dev/null || { bad "$o: set SSH_AUTO_CONNECT"; return; }
   kubectl -n "$NS" rollout status deploy/rdp-vscode --timeout=300s >/dev/null
   kubectl -n "$NS" wait --for=condition=Ready pod -l app=rdp-vscode --timeout=180s >/dev/null \
     && pass "AC1 $o: pod Ready" || { bad "AC1 $o: pod not Ready"; return; }

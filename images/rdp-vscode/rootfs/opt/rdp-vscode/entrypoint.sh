@@ -16,11 +16,7 @@ echo "[entrypoint] accounts: $users"
 
 # sesman starts sessions with a clean environment; startwm.sh reads this file
 install -d -m 755 /run/rdp-vscode
-{
-  printf 'VSCODIUM_LOCALE=%q\n' "${VSCODIUM_LOCALE:-zh-tw}"
-  printf 'SSH_HOST_ALIAS=%q\n' "${SSH_HOST_ALIAS-tkadm}"
-  printf 'SSH_REMOTE_FOLDER=%q\n' "${SSH_REMOTE_FOLDER:-/home/${SSH_USER:-bigred}}"
-} > /run/rdp-vscode/session.env
+/opt/rdp-vscode/session-env.sh > /run/rdp-vscode/session.env
 chmod 644 /run/rdp-vscode/session.env
 
 # Per-pod TLS certificate and RDP RSA keys (the Dockerfile removes the ones

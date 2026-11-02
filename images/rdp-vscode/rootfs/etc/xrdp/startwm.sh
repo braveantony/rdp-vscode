@@ -11,7 +11,8 @@ export LANG=zh_TW.UTF-8 LC_ALL=zh_TW.UTF-8 TZ=Asia/Taipei NO_AT_BRIDGE=1
 # shellcheck source=/dev/null
 [ -r /run/rdp-vscode/session.env ] && . /run/rdp-vscode/session.env
 VSCODIUM_LOCALE=${VSCODIUM_LOCALE:-zh-tw}
-SSH_HOST_ALIAS=${SSH_HOST_ALIAS-tkadm}
+SSH_AUTO_CONNECT=${SSH_AUTO_CONNECT:-false}
+SSH_HOST_ALIAS=${SSH_HOST_ALIAS:-tkadm}
 SSH_REMOTE_FOLDER=${SSH_REMOTE_FOLDER:-/home/bigred}
 
 # sesman sets DISPLAY=:N.0; the socket is /tmp/.X11-unix/XN
@@ -62,7 +63,7 @@ openbox &
 
 args=(--user-data-dir="$S/data" --extensions-dir="$HOME/.vscode-oss/extensions"
       --locale="$VSCODIUM_LOCALE")
-if [ -n "$SSH_HOST_ALIAS" ]; then
+if [ "$SSH_AUTO_CONNECT" = true ]; then
   args+=(--remote="ssh-remote+$SSH_HOST_ALIAS" "$SSH_REMOTE_FOLDER")
 fi
 # Run the Electron binary itself: /usr/bin/codium is a launcher that returns

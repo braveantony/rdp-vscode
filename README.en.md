@@ -1,12 +1,12 @@
 # rdp-vscode
 
-Use Windows Remote Desktop to connect to your Kubernetes cluster and you get a full-screen VSCodium (an open-source build of VS Code). It automatically connects over SSH (an encrypted remote connection) to the cluster's admin Pod, tkadm, where you edit files and run `kubectl`.
+Use Windows Remote Desktop to connect to your Kubernetes cluster and you get a full-screen VSCodium (an open-source build of VS Code). From VSCodium you connect over SSH (an encrypted remote connection) to the cluster's admin Pod, tkadm, where you edit files and run `kubectl`.
 
 Several people can use it at once, and each login gets its own desktop. The default limit is 3 desktops at a time, and you can change it.
 
 ## Overview
 
-- After you log in, VSCodium runs in the cluster and its Open Remote-SSH extension connects to tkadm over SSH automatically. The file explorer and terminal are on tkadm, so the kubeconfig (the settings `kubectl` uses to reach the cluster) never leaves the cluster.
+- After you log in, VSCodium runs in the cluster and its Open Remote-SSH extension connects to tkadm over SSH. By default you connect yourself from the remote button in the bottom-left corner; set `SSH_AUTO_CONNECT` to `true` and VSCodium connects as soon as it opens. Once connected, the file explorer and terminal are on tkadm, so the kubeconfig (the settings `kubectl` uses to reach the cluster) never leaves the cluster.
 - Open `http://<service>.<namespace>` (for example `http://web.default`) in the built-in Integrated Browser to reach web services inside the cluster.
 - Only one NodePort (a fixed port Kubernetes opens on every node; here 30390) is exposed; nothing else is opened to the outside.
 - The Remote Desktop client built into Windows is enough. You don't need to install VS Code or extensions on your own computer.
@@ -59,7 +59,11 @@ Press `Win+R`, type `mstsc` and connect to the address above. Accept the certifi
 
 ### 2. Connect to tkadm
 
-VSCodium opens full screen and asks `Enter password for bigred@tkadm.taroko`. Enter the SSH password for `bigred` on tkadm, then press Enter. This is a second password, set on tkadm: on tk8s, the test cluster of this project, it is `bigred`; elsewhere, ask your administrator. You are connected when the bottom-left corner shows `SSH: tkadm` and the explorer lists `/home/bigred` on tkadm.
+VSCodium opens full screen. Click the remote button in the bottom-left corner (its tooltip is "Open a Remote Window"), choose `Connect Current Window to Host...`, then choose `tkadm`.
+
+VSCodium asks `Enter password for bigred@tkadm.taroko`. Enter the SSH password for `bigred` on tkadm, then press Enter. This is a second password, set on tkadm: on tk8s, the test cluster of this project, it is `bigred`; elsewhere, ask your administrator. You are connected when the bottom-left corner shows `SSH: tkadm`. Then choose **File > Open Folder**, enter `/home/bigred` and press OK; the explorer lists your files on tkadm.
+
+If your administrator set `SSH_AUTO_CONNECT` to `true` (see the [user guide](docs/user-guide.md#2-連到-tkadm)), the password prompt appears as soon as VSCodium opens, and `/home/bigred` opens once you are connected.
 
 ![tkadm password prompt](docs/images/02-ssh-password.png)
 
@@ -116,11 +120,12 @@ First clone this repo as described in the [install guide](docs/install.md#kustom
 | `RDP_USER` | `bigred` | Login account when there is no account file (UID 1000); on Kubernetes the file always exists, so it is not used |
 | `RDP_PASSWORD` | — | Its password, required in that case; not used on Kubernetes |
 | `MAX_SESSIONS` | `3` | Maximum concurrent desktops, all accounts together (a disconnected desktop counts until it is removed 2 minutes later); each one needs about 1 GiB more memory |
-| `SSH_HOST_ALIAS` | `tkadm` | SSH `Host` name VSCodium connects to on login; an empty value disables the automatic connection |
+| `SSH_AUTO_CONNECT` | `false` | `true`: VSCodium connects to `SSH_HOST_ALIAS` as soon as it opens and opens `SSH_REMOTE_FOLDER`; `false`: you connect yourself from the remote button in the bottom-left corner. Any other value counts as `false` |
+| `SSH_HOST_ALIAS` | `tkadm` | `Host` name in the SSH config, also the target of the automatic connection; an empty value means `tkadm` |
 | `SSH_HOST` | `tkadm.taroko` | Host name or IP of the SSH target; the default is the short name (`<service>.<namespace>`), so you don't need to know the cluster domain (usually `cluster.local`) |
 | `SSH_PORT` | `22100` | SSH port |
 | `SSH_USER` | `bigred` | SSH user |
-| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | Folder opened on the SSH target; `manifests/base/deployment.yaml` sets it to `/home/bigred` explicitly, so change it as well when you change `SSH_USER` |
+| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | Folder opened on the SSH target after the automatic connection; `manifests/base/deployment.yaml` sets it to `/home/bigred` explicitly, so change it as well when you change `SSH_USER` |
 | `VSCODIUM_LOCALE` | `zh-tw` | UI language: `zh-tw` or `en` |
 | `VSCODIUM_FONT` | `cascadia-code` | Default editor and terminal font: `cascadia-code`, `jetbrains-mono` or `noto` (Noto Sans Mono CJK TC); Chinese always uses Noto Sans Mono CJK TC. A font set in an account's own VSCodium settings wins |
 

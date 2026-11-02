@@ -8,7 +8,7 @@
 |---|---|
 | RDP 伺服器 | xrdp 0.10.1 + xorgxrdp：sesman 替每次登入啟動一個獨立的 Xorg，解析度跟著用戶端視窗 |
 | 編輯器 | VSCodium 1.143.17183（固定版本），由 openbox 撐滿整個畫面、沒有邊框；關掉 VSCodium 就登出 |
-| 自動連線 | 預裝 Open Remote-SSH 0.5.1，登入後自動以 SSH 連到 `tkadm`；遠端第一次連線時自動安裝 `redhat.vscode-yaml` |
+| 連到 tkadm | 預裝 Open Remote-SSH 0.5.1，從左下角的遠端按鈕以 SSH 連到 `tkadm`；`SSH_AUTO_CONNECT=true` 時登入後自動連線。遠端第一次連線時自動安裝 `redhat.vscode-yaml` |
 | 中文介面 | 預裝繁體中文語言包 1.131.0，`VSCODIUM_LOCALE` 切換 `zh-tw` 或 `en` |
 | 字型 | 預裝 Cascadia Code 和 JetBrains Mono，`VSCODIUM_FONT` 選擇編輯器和終端機的預設字型；中文用 Noto Sans Mono CJK TC |
 | 多人同時使用 | sesman `Policy=Separate`：每次登入都有自己的桌面和 VSCodium 資料目錄（`/tmp/sess/<display>.<uid>`），同一個帳號的設定透過 symlink 共用 |
@@ -74,6 +74,7 @@ podman image ls ghcr.io/braveantony/rdp-vscode
 cd ~/rdp-vscode
 bash test/unit/ssh-config.test.sh
 bash test/unit/font-config.test.sh
+bash test/unit/session-env.test.sh
 bash test/unit/install.test.sh
 bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.3
 bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.3
@@ -215,7 +216,7 @@ ARG ZH_HANT_VERSION=1.131.0
 |---|---|
 | 登入後 VSCodium 一閃就消失，桌面隨即結束 | `/dev/shm` 太小。Chromium 會把中文字型放進共用記憶體，預設 64 MB 不夠，log 會出現 `font_data_service ... No space left on device`。K8s 部署已掛 1 GiB 的記憶體 `emptyDir`；用 podman 直接執行時要加 `--shm-size=1g` |
 | `VSCODIUM_LOCALE=zh-tw` 但介面是英文 | VSCodium 第一次啟動後才產生 `languagepacks.json`，下次啟動才套用語言。每個桌面都用全新的資料目錄，所以 `startwm.sh` 在啟動前先用 `languagepacks.js` 產生這個檔案 |
-| container 的環境變數在 VSCodium 裡讀不到 | sesman 用乾淨的環境啟動桌面。entrypoint 把 `VSCODIUM_LOCALE`、`SSH_HOST_ALIAS`、`SSH_REMOTE_FOLDER` 寫到 `/run/rdp-vscode/session.env`，由 `startwm.sh` 讀取 |
+| container 的環境變數在 VSCodium 裡讀不到 | sesman 用乾淨的環境啟動桌面。entrypoint 用 `session-env.sh` 把 `VSCODIUM_LOCALE`、`SSH_AUTO_CONNECT`、`SSH_HOST_ALIAS`、`SSH_REMOTE_FOLDER` 寫到 `/run/rdp-vscode/session.env`，由 `startwm.sh` 讀取 |
 | `codium` 啟動後馬上返回 | `/usr/bin/codium` 是啟動器，會把主程式丟到背景後立刻結束。`startwm.sh` 直接執行 `/usr/share/codium/codium`，關掉視窗時才返回 |
 | Open Remote-SSH 一直重新連線、每次都問密碼 | SSH 目標的 sshd 是 `AllowTcpForwarding no`。改成 `local`，見 Step 5 |
 | 在 ssh 設定加了 `ControlMaster` 沒有效果 | Open Remote-SSH 用內建的 SSH 實作，不呼叫系統的 `ssh`；它會讀 `Host`、`HostName`、`Port` 這些基本設定，但不支援 `ControlMaster` |

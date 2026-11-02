@@ -32,8 +32,9 @@ login() {  # login <n>: client n logs in as bigred on its own X display
     "$CLIENT" "127.0.0.1:$PORT" bigred bigred "session-$1" ":9$1" >/dev/null
 }
 sx() { podman exec "$SRV" bash -c "$1"; }
-# Main codium processes of bigred (no --type=, i.e. not renderer/helper processes)
-codium_main() { sx 'ps -u bigred -o args= | grep "^/usr/share/codium/codium " | grep -v -- "--type=" || true'; }
+# Main codium processes of bigred: not renderer/helper processes (--type=) and
+# not language servers the local extension host starts with the same binary
+codium_main() { sx 'ps -u bigred -o args= | grep "^/usr/share/codium/codium --user-data-dir=" | grep -v -- "--type=" || true'; }
 wait_for() {  # wait_for <seconds> <bash condition>
   for _ in $(seq "$1"); do eval "$2" && return 0; sleep 1; done
   return 1
@@ -54,11 +55,13 @@ sx 'test -f /home/bigred/.config/openbox/rc.xml' && pass "rc.xml in home" || bad
 login 1
 if wait_for 40 '[ -n "$(codium_main)" ]'; then
   args=$(codium_main)
-  grep -Eq -- "--remote[= ]ssh-remote\+tkadm( .*)? /home/bigred" <<<"$args" && pass "auto remote ssh-remote+tkadm" || bad "no ssh-remote+tkadm in: $args"
+  grep -q -- "--remote" <<<"$args" && bad "SSH_AUTO_CONNECT unset but --remote in: $args" || pass "no auto-connect by default"
   grep -Eq -- "--locale[= ]zh-tw" <<<"$args" && pass "--locale zh-tw" || bad "no --locale zh-tw in: $args"
 else
   bad "no codium process within 40s"
 fi
+# Manual connect from the Remote Explorer still needs the ssh config
+sx 'grep -qx "Host tkadm" /etc/ssh/ssh_config.d/rdp-vscode.conf' && pass "ssh config has Host tkadm" || bad "no Host tkadm in the ssh config"
 S1=$(sess_dirs)
 
 say x-auth
@@ -90,6 +93,9 @@ grep -qx "jeanp413.open-remote-ssh-0.0.1" <<<"$listing1" && bad "stale open-remo
 grep -qx "jeanp413.open-remote-ssh-$ver" <<<"$listing1" && pass "open-remote-ssh-$ver installed" || bad "open-remote-ssh-$ver missing: $listing1"
 grep -qx "ms-ceintl.vscode-language-pack-zh-hant-$zh" <<<"$listing1" && pass "zh-hant-$zh installed" || bad "zh-hant-$zh missing: $listing1"
 grep -qx "foo.bar-1.0.0" <<<"$listing1" && pass "user extension kept" || bad "user extension foo.bar removed"
+# A few seconds after start, the local VSCodium adds Open VSX metadata
+# (publisherId, ...) to extensions.json; let it finish so the baseline is stable
+wait_for 30 'sx "grep -q publisherId $EXT/extensions.json"' || true
 sum1=$(sx "cd $EXT && find . -printf '%p %s %T@\n' | sort | md5sum")
 
 say settings-shared
@@ -134,13 +140,17 @@ else
 fi
 podman rm -f rdp-vscode-client-1 >/dev/null
 
-say locale-en
-start_server -e VSCODIUM_LOCALE=en || bad "server (en) did not start"
+say locale-en-auto-connect
+# One more server for both settings keeps the extra runtime to a single login
+start_server -e VSCODIUM_LOCALE=en -e SSH_AUTO_CONNECT=true || bad "server (en, auto-connect) did not start"
 login 3
 if wait_for 40 '[ -n "$(codium_main)" ]'; then
-  codium_main | grep -Eq -- "--locale[= ]en( |$)" && pass "--locale en" || bad "no --locale en in: $(codium_main)"
+  args=$(codium_main)
+  grep -Eq -- "--locale[= ]en( |$)" <<<"$args" && pass "--locale en" || bad "no --locale en in: $args"
+  grep -Eq -- "--remote[= ]ssh-remote\+tkadm( .*)? /home/bigred" <<<"$args" && pass "SSH_AUTO_CONNECT=true: --remote ssh-remote+tkadm /home/bigred" \
+    || bad "SSH_AUTO_CONNECT=true: no ssh-remote+tkadm in: $args"
 else
-  bad "no codium process within 40s (en)"
+  bad "no codium process within 40s (en, auto-connect)"
 fi
 
 finish
