@@ -1,12 +1,12 @@
 # rdp-vscode
 
-用 Windows 內建的遠端桌面連進 Kubernetes 叢集，登入後就是一個全螢幕的 VSCodium（VS Code 的開源版本）。它會自動用 SSH（加密的遠端連線）連到叢集的管理 Pod tkadm，讓你直接在上面編輯檔案、執行 `kubectl`。
+用 Windows 內建的遠端桌面連進 Kubernetes 叢集，登入後就是一個全螢幕的 VSCodium（VS Code 的開源版本）。在 VSCodium 裡用 SSH（加密的遠端連線）連到叢集的管理 Pod tkadm，就能直接在上面編輯檔案、執行 `kubectl`。
 
 多人可以同時使用，每次登入都有自己的桌面。預設同時最多 3 個桌面，數量可以調整。
 
 ## 簡述
 
-- 登入後 VSCodium 在叢集裡執行，由它的 Open Remote-SSH 擴充功能自動以 SSH 連到 tkadm。檔案總管和終端機都在 tkadm 上，kubeconfig（`kubectl` 連叢集用的設定檔）不必離開叢集。
+- 登入後 VSCodium 在叢集裡執行，再用它的 Open Remote-SSH 擴充功能以 SSH 連到 tkadm。預設要自己從左下角的遠端按鈕連線；把 `SSH_AUTO_CONNECT` 設成 `true`，VSCodium 一開啟就會自動連線。連上後，檔案總管和終端機都在 tkadm 上，kubeconfig（`kubectl` 連叢集用的設定檔）不必離開叢集。
 - 用內建的 Integrated Browser 開 `http://<service>.<namespace>`（例如 `http://web.default`），就能直接連到叢集內的 Web 服務。
 - 對外只要開一個 NodePort（Kubernetes 在每個節點上開放的固定埠號，這裡是 30390），不必另外設定其他對外方式。
 - Windows 內建的遠端桌面就能連線，不用在自己的電腦安裝 VS Code 或擴充功能。
@@ -59,7 +59,11 @@ curl -fsSL https://raw.githubusercontent.com/braveantony/rdp-vscode/main/install
 
 ### 2. 連到 tkadm
 
-登入後會看到全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`。輸入 tkadm 上 `bigred` 帳號的 SSH 密碼，然後按 Enter。這是另一組密碼，由 tkadm 決定；本專案的測試叢集 tk8s 上是 `bigred`，其他環境請問管理者。左下角變成 `SSH: tkadm`，檔案總管列出 tkadm 上的 `/home/bigred`，就代表連上了。
+登入後會看到全螢幕的 VSCodium。按狀態列最左邊（左下角）有 `><` 圖示的遠端按鈕（滑鼠移上去會顯示「開啟遠端視窗」），選 `Connect Current Window to Host...`，再選 `tkadm`。
+
+上方會跳出 `Enter password for bigred@tkadm.taroko`。輸入 tkadm 上 `bigred` 帳號的 SSH 密碼，然後按 Enter。這是另一組密碼，由 tkadm 決定；本專案的測試叢集 tk8s 上是 `bigred`，其他環境請問管理者。左下角變成 `SSH: tkadm` 就代表連上了。接著按「檔案 > 開啟資料夾」，輸入 `/home/bigred` 後按「確定」，檔案總管就會列出 tkadm 上的檔案。
+
+管理者把 `SSH_AUTO_CONNECT` 設成 `true` 時（見[使用手冊](docs/user-guide.md#2-連到-tkadm)），VSCodium 一開啟就會跳出密碼框，連上後直接開啟 `/home/bigred`。
 
 ![tkadm 的密碼框](docs/images/02-ssh-password.png)
 
@@ -116,15 +120,16 @@ kubectl -n default expose deploy web --port 80
 | `RDP_USER` | `bigred` | 沒有帳號檔案時的登入帳號（UID 1000）；Kubernetes 上一定有帳號檔案，用不到 |
 | `RDP_PASSWORD` | — | 沒有帳號檔案時的登入密碼，此時必填；Kubernetes 上用不到 |
 | `MAX_SESSIONS` | `3` | 可以同時存在的桌面數上限（所有帳號合計，斷線後 2 分鐘內還沒清除的桌面也算在內）；每多一個桌面，約需多 1 GiB 記憶體 |
-| `SSH_HOST_ALIAS` | `tkadm` | 登入時 VSCodium 自動連線的 SSH `Host` 名稱；設成空字串就不自動連線 |
+| `SSH_AUTO_CONNECT` | `false` | 設成 `true` 時，VSCodium 一開啟就自動連到 `SSH_HOST_ALIAS`，並開啟 `SSH_REMOTE_FOLDER`；`false` 時要自己從左下角的遠端按鈕連線。空字串和其他值（包括 `True`、`1`、`yes`）一律當成 `false`；不是空字串時，Pod log 會印出 `invalid SSH_AUTO_CONNECT` |
+| `SSH_HOST_ALIAS` | `tkadm` | SSH 設定裡的 `Host` 名稱，也是自動連線的目標；空字串視為 `tkadm` |
 | `SSH_HOST` | `tkadm.taroko` | SSH 目標的主機名稱或 IP；預設用短名稱（`<service>.<namespace>`），不必知道叢集的網域名稱（cluster domain，常見的是 `cluster.local`） |
 | `SSH_PORT` | `22100` | SSH 埠 |
 | `SSH_USER` | `bigred` | SSH 帳號 |
-| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | 連線後在 SSH 目標上開啟的資料夾；`manifests/base/deployment.yaml` 已明確設成 `/home/bigred`，改 `SSH_USER` 時要一起改 |
+| `SSH_REMOTE_FOLDER` | `/home/<SSH_USER>` | 自動連線後在 SSH 目標上開啟的資料夾；`manifests/base/deployment.yaml` 已明確設成 `/home/bigred`，改 `SSH_USER` 時要一起改 |
 | `VSCODIUM_LOCALE` | `zh-tw` | 介面語言：`zh-tw` 或 `en` |
 | `VSCODIUM_FONT` | `cascadia-code` | 編輯器和終端機的預設字型：`cascadia-code`、`jetbrains-mono` 或 `noto`（Noto Sans Mono CJK TC）；中文一律用 Noto Sans Mono CJK TC 顯示。帳號在 VSCodium 裡自己設定過字型時，以自己的設定為準 |
 
-SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 ConfigMap `rdp-vscode-ssh`（key 為 `config`）且內容不是空的，就會整份改用它；這時 ConfigMap 裡要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`。
+SSH 設定會寫到 `/etc/ssh/ssh_config.d/rdp-vscode.conf`。如果掛載了 ConfigMap `rdp-vscode-ssh`（key 為 `config`）且內容不是空的，就會整份改用它。這時遠端按鈕會列出 ConfigMap 裡所有的 `Host`。`SSH_AUTO_CONNECT=true` 時，ConfigMap 裡一定要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`，才能自動連線。
 
 ## 檔案
 

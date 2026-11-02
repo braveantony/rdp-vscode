@@ -21,7 +21,7 @@ git clone https://github.com/braveantony/rdp-vscode.git
 cd rdp-vscode
 ```
 
-第 6 節和第 7 節的最後一項（③ vscodium-server）要檢查登入後才會出現的程式（process）。請先用遠端桌面登入，並在 VSCodium 輸入 tkadm 的 SSH 密碼（和遠端桌面的密碼是不同的兩組），連上 tkadm 後保持連線。
+第 6 節和第 7 節的最後一項（③ vscodium-server）要檢查登入後才會出現的程式（process）。請先用遠端桌面登入，在 VSCodium 連到 tkadm（預設要從左下角的遠端按鈕連線，步驟見[使用手冊](user-guide.md#2-連到-tkadm)），輸入 tkadm 的 SSH 密碼（和遠端桌面的密碼是不同的兩組），連上後保持連線。
 
 確認部署存在：
 
@@ -168,14 +168,21 @@ kubectl -n rdp-vscode exec deploy/rdp-vscode -c desktop -- ps -u 1000 -o comm= |
 
 輸出應該包含 `Xorg`、`openbox` 和 `codium`。
 
-VSCodium 一啟動就自動連到 tkadm：
+VSCodium 一啟動會不會自動連到 tkadm，由 Deployment 的 `SSH_AUTO_CONNECT` 決定。先查它的值（沒有印出東西表示沒設定，等於 `false`）：
+
+```bash
+kubectl -n rdp-vscode get deploy rdp-vscode \
+  -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="SSH_AUTO_CONNECT")].value}{"\n"}'
+```
+
+再看 VSCodium 的啟動參數：
 
 ```bash
 kubectl -n rdp-vscode exec deploy/rdp-vscode -c desktop -- \
-  sh -c 'ps -u 1000 -o args= | grep "^/usr/share/codium/codium " | grep -v -- --type='
+  sh -c 'ps -u 1000 -o args= | grep "^/usr/share/codium/codium --user-data-dir=" | grep -v -- --type='
 ```
 
-應該看到 `--user-data-dir=/tmp/sess/10.1000/data` 和 `--remote=ssh-remote+tkadm /home/bigred`。
+應該看到 `--user-data-dir=/tmp/sess/10.1000/data`。`SSH_AUTO_CONNECT` 是 `true` 時，還要有 `--remote=ssh-remote+tkadm /home/bigred`；是 `false` 時不應該有 `--remote`，使用者要自己從遠端按鈕連到 tkadm。
 
 ## 7. 以 SSH 連到 tkadm 與 ③ vscodium-server（綠線）
 
@@ -195,9 +202,9 @@ tkadm 的 sshd（SSH 伺服器程式）允許本機埠轉發（讓 SSH 連線順
 kubectl -n taroko exec deploy/tkadm -c tkadm -- /usr/sbin/sshd -T | grep allowtcpforwarding
 ```
 
-應該是 `allowtcpforwarding local`（或 `yes`）。
+應該是 `allowtcpforwarding local`（或 `yes`），不論是自動連線還是手動連線都需要。
 
-**需要有人登入，而且已經在 VSCodium 輸入 tkadm 的 SSH 密碼。** 先確認 Pod 現在連著 tkadm 的 22100 埠（`5654` 是 22100 的 16 進位，`01` 表示連線中）：
+**需要有人登入，而且已經在 VSCodium 連到 tkadm、輸入 SSH 密碼。** 先確認 Pod 現在連著 tkadm 的 22100 埠（`5654` 是 22100 的 16 進位，`01` 表示連線中）：
 
 ```bash
 kubectl -n rdp-vscode exec deploy/rdp-vscode -c desktop -- \
@@ -246,12 +253,13 @@ bash test/deploy/architecture.test.sh
 腳本依上面第 1～8 節的順序檢查（第 1 節的 Windows 指令除外），每一項印出 `PASS`、`FAIL` 或 `SKIP`。倒數第二行是跳過的項數（`N skipped`），最後一行應該是 `N passed, 0 failed`。
 
 - 沒有人登入，或還沒連上 tkadm 時，第 6、7 節需要登入的項目會顯示 `SKIP`，登入並連上後再跑一次即可。
+- 第 6、7 節依 `SSH_AUTO_CONNECT` 檢查：`true` 時檢查 VSCodium 帶著 `--remote`，`false` 時檢查沒有 `--remote`。`false` 時，sshd 不允許埠轉發只算 `SKIP`、不算失敗，但手動連線仍然需要它；沒有人手動連到 tkadm 時，③ vscodium-server 也顯示 `SKIP`。
 - SSH 目標依 Deployment 的 `SSH_*` 環境變數或 ConfigMap 判斷，改過 SSH 設定也能檢查。
 - rdp-vscode 或 tkadm 部署在其他 namespace 時，用 `NS=<namespace>`、`TKADM_NS=<namespace>` 指定。
 
 | 結果 | 說明 |
 |---|---|
 | `FAIL image` | 部署的映像檔版本和 repo 的 `VERSION` 不同，架構圖描述的是 `VERSION` 那一版 |
-| `FAIL ... AllowTcpForwarding` | tkadm 的 sshd 不允許埠轉發，見 [ops/2026-10-27-tkadm-sshd-forwarding.md](ops/2026-10-27-tkadm-sshd-forwarding.md) |
-| `SKIP` | 還沒有人登入，或還沒連上 tkadm；登入並連上後再跑一次 |
+| `FAIL ... AllowTcpForwarding` | `SSH_AUTO_CONNECT=true`，但 tkadm 的 sshd 不允許埠轉發，見 [ops/2026-10-27-tkadm-sshd-forwarding.md](ops/2026-10-27-tkadm-sshd-forwarding.md) |
+| `SKIP` | 還沒有人登入，或還沒連上 tkadm：登入並連上後再跑一次。`SSH_AUTO_CONNECT=false` 而 tkadm 的 sshd 不允許埠轉發時也是 `SKIP`，但手動連線仍然需要修好，見 [ops/2026-10-27-tkadm-sshd-forwarding.md](ops/2026-10-27-tkadm-sshd-forwarding.md) |
 | `NOTE /tmp/sess has leftover dirs` | 有桌面異常結束、目錄沒清掉；不影響使用，Pod 重啟時會清除 |

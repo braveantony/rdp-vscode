@@ -62,6 +62,9 @@ is "ConfigMap mounted at" "$(mnt ssh-config mountPath)" /etc/rdp-vscode/ssh
 # SSH target: from the SSH_* env, unless a non-empty ConfigMap replaces the config
 alias=$(env_of SSH_HOST_ALIAS tkadm)
 ssh_alias=${alias:-tkadm}
+# entrypoint.sh treats anything but "true" as false
+auto=$(env_of SSH_AUTO_CONNECT false)
+[ "$auto" = true ] || auto=false
 resolved=$(px "ssh -G '$ssh_alias'")
 ssh_host=$(sed -n 's/^hostname //p' <<<"$resolved")
 ssh_port=$(sed -n 's/^port //p' <<<"$resolved")
@@ -118,9 +121,12 @@ else
     px "ps -u $uid -o comm= | grep -qx openbox" && pass "session $s ($user): openbox" || bad "session $s: no openbox"
     args=$(px "ps -u $uid -o args= | grep '^/usr/share/codium/codium ' | grep -v -- --type= | grep -- '--user-data-dir=/tmp/sess/$s/'")
     [ -n "$args" ] && pass "session $s: VSCodium" || bad "session $s: no VSCodium"
-    if [ -n "$alias" ]; then
-      grep -q -- "--remote=ssh-remote+$alias" <<<"$args" && pass "session $s: VSCodium auto-connects to $alias" \
-        || bad "session $s: no --remote=ssh-remote+$alias in: $args"
+    if [ "$auto" = true ]; then
+      grep -q -- "--remote=ssh-remote+$ssh_alias" <<<"$args" && pass "session $s: VSCodium auto-connects to $ssh_alias" \
+        || bad "session $s: no --remote=ssh-remote+$ssh_alias in: $args"
+    else
+      grep -q -- "--remote" <<<"$args" && bad "session $s: SSH_AUTO_CONNECT=false but --remote in: $args" \
+        || pass "session $s: VSCodium opens locally (SSH_AUTO_CONNECT=false)"
     fi
   done
 fi
@@ -130,13 +136,20 @@ is "tkadm Service port" "$(kubectl -n "$TKADM_NS" get svc tkadm -o jsonpath="{.s
 banner=$(px "timeout 5 bash -c 'exec 3<>/dev/tcp/$ssh_host/$ssh_port; head -c 7 <&3'")
 is "pod reaches $ssh_host:$ssh_port (SSH banner)" "$banner" SSH-2.0
 fwd=$(tx '/usr/sbin/sshd -T 2>/dev/null | sed -n "s/^allowtcpforwarding //p"')
-case $fwd in local | yes) pass "tkadm sshd AllowTcpForwarding $fwd" ;; *) bad "tkadm sshd AllowTcpForwarding '$fwd' (want local or yes)" ;; esac
+# Open Remote-SSH needs it; with SSH_AUTO_CONNECT=false nobody connects until they do it by hand
+case $fwd in
+  local | yes) pass "tkadm sshd AllowTcpForwarding $fwd" ;;
+  *) if [ "$auto" = true ]; then bad "tkadm sshd AllowTcpForwarding '$fwd' (want local or yes)"
+     else skip "tkadm sshd AllowTcpForwarding '$fwd': SSH_AUTO_CONNECT=false, but a manual connect from the Remote Explorer needs local or yes"; fi ;;
+esac
 # An established TCP connection (state 01) from the pod to the SSH port means a
 # desktop is connected right now; a vscodium-server left over from an earlier
 # connection keeps running for a while after it ends, so its process alone proves nothing.
 port_hex=$(printf '%04X' "$ssh_port")
 connected=$(px "cat /proc/net/tcp /proc/net/tcp6 | awk '\$3 ~ /:$port_hex\$/ && \$4 == \"01\"' | grep -c .")
-if [ "${connected:-0}" -eq 0 ]; then
+if [ "${connected:-0}" -eq 0 ] && [ "$auto" = false ]; then
+  skip "(3) vscodium-server: SSH_AUTO_CONNECT=false and nobody has connected to $ssh_alias by hand (connect from the Remote Explorer, then run again)"
+elif [ "${connected:-0}" -eq 0 ]; then
   skip "(3) vscodium-server: no desktop is connected to $ssh_host:$ssh_port right now (log in and enter the SSH password, then run again)"
 elif tx 'ps -eo args= | grep -q "[.]vscodium-server/bin/.*/node"'; then
   pass "(3) $connected SSH connection(s) to $ssh_host:$ssh_port; vscodium-server is running on tkadm"

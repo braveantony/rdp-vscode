@@ -55,12 +55,12 @@
 <text x="465.0" y="778.1" font-size="16" text-anchor="middle">
 <tspan x="465.0" dy="0">6 啟動 VSCodium（/usr/share/codium/codium，背景執行並 wait）</tspan>
 <tspan x="465.0" dy="25">--user-data-dir=&lt;session&gt;/data --locale=zh-tw</tspan>
-<tspan x="465.0" dy="25">--remote=ssh-remote+tkadm /home/bigred</tspan>
+<tspan x="465.0" dy="25">SSH_AUTO_CONNECT=true 時加 --remote=ssh-remote+tkadm /home/bigred</tspan>
 </text>
 <path d="M 465 850 V 880" fill="none" stroke="#1c64c8" stroke-width="2" marker-end="url(#arrow-blue)"/>
 <rect x="70" y="880" width="790" height="120" rx="12" fill="#e7f1ff" stroke="#1c64c8" stroke-width="2"/>
 <text x="465.0" y="920.6" font-size="16" text-anchor="middle">
-<tspan x="465.0" dy="0">7　跳出 tkadm 密碼框 → 輸入 bigred</tspan>
+<tspan x="465.0" dy="0">7　從遠端按鈕連到 tkadm（或自動連線）→ 密碼框輸入 bigred</tspan>
 <tspan x="465.0" dy="25">tkadm 下載／啟動 vscodium-server</tspan>
 <tspan x="465.0" dy="25">左下角顯示 SSH: tkadm</tspan>
 </text>

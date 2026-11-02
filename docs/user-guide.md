@@ -2,7 +2,7 @@
 
 適用映像檔：`ghcr.io/braveantony/rdp-vscode:1.3`。安裝方式見 [README](../README.md#快速開始)。
 
-用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。它會自動以 SSH 連到叢集的管理 Pod `tkadm`，你在 VSCodium 裡開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
+用 Windows 內建的「遠端桌面連線」登入後，畫面上只有一個全螢幕的 VSCodium。從 VSCodium 以 SSH 連到叢集的管理 Pod `tkadm` 後，你開的檔案和終端機都在 `tkadm` 上，可以直接用 `kubectl` 管理叢集。
 
 ## 1. 連線與登入
 
@@ -19,13 +19,26 @@
 
 ## 2. 連到 tkadm
 
-1. 登入後畫面是全螢幕的 VSCodium，上方會跳出 `Enter password for bigred@tkadm.taroko`，要你輸入連到 `tkadm` 的密碼。這是第二組密碼，可能和剛才登入遠端桌面的密碼不同，請向管理者確認。
-2. 輸入 `tkadm` 上 `bigred` 帳號的密碼（tk8s 上是 `bigred`，其他環境請問管理者），按 Enter。
-3. 左下角變成 `SSH: tkadm`，左邊的檔案總管列出 `tkadm` 上 `/home/bigred` 的檔案，就表示連上了。
+預設不會自動連線。登入後 VSCodium 還沒連到任何主機，檔案總管和終端機都在遠端桌面的 Pod 裡，Pod 裡沒有 `kubectl`。
+
+1. 按狀態列最左邊（左下角）有 `><` 圖示的遠端按鈕（滑鼠移上去會顯示「開啟遠端視窗」），選 `Connect Current Window to Host...`，再選 `tkadm`。
+2. 上方會跳出 `Enter password for bigred@tkadm.taroko`，要你輸入連到 `tkadm` 的密碼。這是第二組密碼，可能和剛才登入遠端桌面的密碼不同，請向管理者確認。
+3. 輸入 `tkadm` 上 `bigred` 帳號的密碼（tk8s 上是 `bigred`，其他環境請問管理者），按 Enter。
+4. 左下角變成 `SSH: tkadm`，就表示連上了。按「檔案 > 開啟資料夾」，輸入 `/home/bigred` 後按「確定」，左邊的檔案總管就會列出 `tkadm` 上的檔案。
 
 - `tkadm` 上還沒有這個版本的 vscodium-server 時（第一次連線、`tkadm` 重建後，或升級映像檔後），`tkadm` 會先下載約 90 MB，需要多等一段時間。
 - 之後每次重新連線（包括「重新載入視窗」），都會再問一次密碼。
 - 不小心按了取消時，按 `Ctrl+Shift+P`，執行「Developer: Reload Window」（重新載入視窗），密碼框會再出現一次。
+
+### 讓 VSCodium 一開啟就自動連線（管理者）
+
+把環境變數 `SSH_AUTO_CONNECT` 設成 `true`，VSCodium 一開啟就會跳出 `tkadm` 的密碼框，連上後直接開啟 `/home/bigred`，不必做上面的步驟 1，也不必在步驟 4 開啟資料夾。在 `kubectl` 有權限修改 namespace `rdp-vscode` 的電腦上執行，例如 tkadm。從 VSCodium 的 tkadm 終端機執行也可以，但你自己的桌面也會一起中斷：
+
+```bash
+kubectl -n rdp-vscode set env deploy/rdp-vscode SSH_AUTO_CONNECT=true
+```
+
+改完 Pod 會重建，所有使用者的桌面都會中斷，請挑沒人使用時執行。stateless 模式下，Pod 裡的家目錄（VSCodium 設定）也會清空；`tkadm` 上的檔案不受影響。改回 `false` 就關閉自動連線。之後重新執行 `kubectl apply -k` 或安裝指令時，會蓋回預設的 `false`，要再設定一次。`tkadm` 的 sshd 要允許埠轉發（`AllowTcpForwarding local` 或 `yes`）才連得上；不允許時 VSCodium 會一直重新連線、每次都問密碼，見下方的常見問題。
 
 ## 3. 在 tkadm 部署網站並開啟（選用的管理範例）
 
@@ -73,6 +86,6 @@ kubectl -n default delete deploy/web svc/web
 | `Max session limit reached` | 已經有 3 個桌面在使用 | 等別人登出；剛斷線的桌面要 2 分鐘後才會釋放 |
 | 一直跳出 tkadm 的密碼框 | 密碼錯誤，或 `tkadm` 的 sshd 不允許埠轉發 | 確認密碼；仍然不行請管理者檢查 `AllowTcpForwarding` |
 | 登入後畫面閃一下就斷線 | Pod 的 `/dev/shm` 太小，VSCodium 啟動時崩潰 | 請管理者確認部署有掛 `/dev/shm`（見 [architecture.md](architecture.md) 的「其他連線」） |
-| 重新連線後，原本開的檔案分頁不見了 | 每次連線都是新的桌面 | 從檔案總管重新開啟；檔案在 `tkadm` 上，不會遺失 |
+| 重新連線後，原本開的檔案分頁不見了 | 每次連線都是新的桌面 | 先連到 tkadm（見第 2 節），再從檔案總管重新開啟；檔案在 `tkadm` 上，不會遺失 |
 
-> 本手冊的步驟已於 2026-10-28 在 tk8s 上，以 FreeRDP 模擬遠端桌面連線實測：xrdp 登入、輸入 tkadm 密碼後連線、在 tkadm 用 `kubectl` 部署 nginx、在 Pod 內用 FQDN 開啟、關掉 VSCodium 後登出、同一個帳號同時登入兩次、斷線後清除、stateful 模式在 Pod 重建後保留設定。尚未用實體 Windows 電腦實測；剪貼簿貼上中文、YAML 補全畫面尚未實測。
+> 本手冊的步驟已於 2026-10-28 在 tk8s 上，以 FreeRDP 模擬遠端桌面連線實測：xrdp 登入、輸入 tkadm 密碼後連線、在 tkadm 用 `kubectl` 部署 nginx、在 Pod 內用 FQDN 開啟、關掉 VSCodium 後登出、同一個帳號同時登入兩次、斷線後清除、stateful 模式在 Pod 重建後保留設定。2026-11-02 另外實測預設不自動連線、從遠端按鈕手動連到 tkadm，以及切換 `SSH_AUTO_CONNECT=true`（見 [ops 紀錄](ops/2026-11-02-tk8s-e2e-ssh-auto-connect.md)）。尚未用實體 Windows 電腦實測；剪貼簿貼上中文、YAML 補全畫面尚未實測。

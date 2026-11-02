@@ -20,7 +20,7 @@
 ### 連線流程
 
 1. 使用者用 RDP 連到 NodePort `30390`，在 xrdp 登入畫面輸入帳密
-2. 畫面出現全螢幕的 VSCodium，它自動對 `tkadm` 發起 SSH 連線（`tkadm.taroko:22100`）
+2. 畫面出現全螢幕的 VSCodium，使用者從左下角的遠端按鈕對 `tkadm` 發起 SSH 連線（`tkadm.taroko:22100`）；`SSH_AUTO_CONNECT=true` 時，VSCodium 一開啟就自動發起
 3. 使用者在密碼框輸入 `bigred`。tkadm 上會下載並啟動 vscodium-server，再自動安裝 `redhat.vscode-yaml`
 4. 使用者在 VSCodium 裡編輯的檔案、開啟的 terminal，都是在 **tkadm 上**
 5. 在 tkadm 上用 `kubectl` 部署網站後，直接用 Integrated Browser 打開 `http://<svc>.<ns>.svc.tk8s.k8s`（或短名稱 `http://<svc>.<ns>`）。rdp-vscode pod 本身就在叢集裡，所以**不需要 port forwarding、NodePort 或 Ingress**

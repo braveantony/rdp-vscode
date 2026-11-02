@@ -11,11 +11,14 @@ kubectl -n rdp-vscode wait --for=condition=Ready pod -l app=rdp-vscode --timeout
 
 RDP 連到 `<節點 IP>:30390`，在 xrdp 登入畫面輸入 `bigred` / `bigred`。
 
-## AC3：全螢幕 VSCodium，自動連到 tkadm
+## AC3：全螢幕 VSCodium，連到 tkadm
+
+`run.sh` 只自動驗證 `SSH_AUTO_CONNECT=true`；`false` 的情況由下面第二、三項和 `test/deploy/architecture.test.sh` 確認。
 
 - [ ] 畫面是全螢幕的 VSCodium，沒有視窗邊框，介面是繁體中文
-- [ ] 上方自動跳出 `Enter password for bigred@tkadm.taroko`
-- [ ] 輸入 `bigred` 後，左下角顯示 `SSH: tkadm`，檔案總管列出 tkadm 上 `/home/bigred` 的內容
+- [ ] 預設（`SSH_AUTO_CONNECT=false`）不會跳出密碼框；按左下角的遠端按鈕，選 `Connect Current Window to Host...`，再選 `tkadm` 後，上方跳出 `Enter password for bigred@tkadm.taroko`
+- [ ] 輸入 `bigred` 後，左下角顯示 `SSH: tkadm`；用「檔案 > 開啟資料夾」開啟 `/home/bigred`，檔案總管列出 tkadm 上的內容
+- [ ] 執行 `kubectl -n rdp-vscode set env deploy/rdp-vscode SSH_AUTO_CONNECT=true`，Pod 重建後重新登入：上方自動跳出密碼框，輸入後直接開啟 `/home/bigred`
 
 ## AC4、AC5：部署網站，用 FQDN 開啟
 

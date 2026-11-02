@@ -42,7 +42,7 @@
 <rect x="40" y="370" width="390" height="145" rx="12" fill="#ffe3e3" stroke="#c92a2a" stroke-width="2"/>
 <text x="235.0" y="435.6" font-size="16" text-anchor="middle">
 <tspan x="235.0" dy="0">4 用 bigred/bigred SSH 到 tkadm</tspan>
-<tspan x="235.0" dy="25">（VSCodium 會自動連線）</tspan>
+<tspan x="235.0" dy="25">（手動連線，或設定自動連線）</tspan>
 </text>
 <rect x="535" y="370" width="390" height="145" rx="12" fill="#ffe3e3" stroke="#c92a2a" stroke-width="2"/>
 <text x="730.0" y="435.6" font-size="16" text-anchor="middle">

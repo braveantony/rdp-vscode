@@ -92,7 +92,7 @@ StorageClass 是決定 PVC 用哪種儲存的叢集設定。PVC 沒有指定 `st
   ```
 
 - **改環境變數**：修改 `manifests/base/deployment.yaml` 的 `env`，再執行一次 `kubectl apply -k manifests/stateless`（或 `manifests/stateful`）。變數說明見 [README 的「環境變數」](../README.md#環境變數)。
-- **自訂完整的 SSH 設定**（例如多個 Host）：參考 `manifests/example/ssh-configmap`。這個範例用 ConfigMap 整份取代由 `SSH_*` 產生的 SSH 設定；ConfigMap 裡一定要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`，登入時才連得上。它以 `manifests/stateless` 為基礎，所以帳號清單是 `manifests/stateless/users.txt`。
+- **自訂完整的 SSH 設定**（例如多個 Host）：參考 `manifests/example/ssh-configmap`。這個範例用 ConfigMap 整份取代由 `SSH_*` 產生的 SSH 設定；手動連線時，遠端按鈕會列出 ConfigMap 裡所有的 `Host`；`SSH_AUTO_CONNECT=true` 時，ConfigMap 裡一定要有名稱等於 `SSH_HOST_ALIAS` 的 `Host`，VSCodium 才能自動連上。它以 `manifests/stateless` 為基礎，所以帳號清單是 `manifests/stateless/users.txt`。
 
 ## 單機（podman）
 
@@ -112,12 +112,12 @@ podman run -d --name rdp-vscode -p 13390:3389 --shm-size 1g \
 
 用遠端桌面連到 `<主機 IP>:13390`。`<主機 IP>` 是執行 podman 的那台主機的 IP；在同一台主機上連可以用 `localhost:13390`。帳號 `bigred`、密碼 `bigred`。
 
-要注意有兩組密碼：`RDP_PASSWORD` 是遠端桌面的登入密碼，可以自己改；登入後 VSCodium 會再問 `<SSH 帳號>` 在 SSH 主機上的密碼。
+要注意有兩組密碼：`RDP_PASSWORD` 是遠端桌面的登入密碼，可以自己改；連到 SSH 主機時，VSCodium 會再問 `<SSH 帳號>` 在 SSH 主機上的密碼。預設不會自動連線，登入後從 VSCodium 左下角的遠端按鈕連到 `tkadm`（`SSH_HOST_ALIAS` 的預設值，指向上面的 `SSH_HOST`），步驟見[使用手冊](user-guide.md#2-連到-tkadm)。
 
 - `--shm-size 1g` 用來加大共用記憶體，因為用預設的 64 MiB 時，VSCodium 載入中文字型會崩潰。
 - **多個帳號**：用帳號清單取代 `RDP_PASSWORD`。拿掉 `-e RDP_PASSWORD=bigred`，改在映像檔名稱之前加上 `-v ./users.txt:/etc/rdp-vscode/users:ro,Z`（`ro` 表示唯讀，`Z` 是給 SELinux 系統用的標記，沒有 SELinux 也不影響）。`users.txt` 的格式和[帳號清單](#帳號清單)相同。
-- **不自動連線**：把 `-e SSH_HOST=…`、`-e SSH_PORT=…`、`-e SSH_USER=…` 都換成 `-e SSH_HOST_ALIAS=`（空字串），登入後只開啟 container 裡的 VSCodium，不會連到任何 SSH 主機。
-- **SSH 主機上的家目錄不是 `/home/<SSH 帳號>` 時**（例如 root），再加上 `-e SSH_REMOTE_FOLDER=<路徑>`。
+- **自動連線**：再加上 `-e SSH_AUTO_CONNECT=true`，VSCodium 一開啟就會連到 SSH 主機，並開啟 `/home/<SSH 帳號>`。SSH 主機上的家目錄不是 `/home/<SSH 帳號>` 時（例如 root），再加上 `-e SSH_REMOTE_FOLDER=<路徑>`。
+- **不需要 SSH 主機**：可以不加 `-e SSH_HOST=…`、`-e SSH_PORT=…`、`-e SSH_USER=…`，登入後不要從遠端按鈕連線，就只使用 container 裡的 VSCodium。這時選單裡仍然有 `tkadm`，但它指向預設的 `tkadm.taroko`，單機連不到。
 - 檔案和設定都在 container 裡，刪掉 container（`podman rm -f rdp-vscode`）就會消失。
 - 其他環境變數見 [README 的「環境變數」](../README.md#環境變數)。
 
