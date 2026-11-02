@@ -106,7 +106,7 @@ The image is `ghcr.io/braveantony/rdp-vscode:1.3`, about 1.3 GB, with VSCodium 1
 - [install.md](docs/install.md): installation (quick install, Kustomize with several accounts and a persistent home, single-host podman, LAN access, uninstall)
 - [architecture.md](docs/architecture.md): how it works (connection path, what each process in the Pod does, security boundaries)
 - [user-guide.md](docs/user-guide.md): user guide (logging in, connecting to tkadm, opening websites, concurrent use, troubleshooting)
-- [build-image.md](docs/build-image.md): build guide (build both tags from source, test them, and deploy to tk8s)
+- [build-image.md](docs/build-image.md): build guide (build the image from source, test it, and deploy to tk8s)
 - [design/](docs/design/README.md): design decisions, acceptance criteria, risks and review history
 - [ops/](docs/ops/): changes made to tk8s for this project (tkadm sshd, local-path StorageClass)
 

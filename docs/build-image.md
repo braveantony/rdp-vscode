@@ -20,12 +20,13 @@
 |---|---|
 | 建置工具 | podman |
 | 網路 | 建置時要能連到 `deb.debian.org`、`github.com`（VSCodium）、`open-vsx.org`（擴充功能） |
-| 磁碟 | 至少 5 GB 可用空間（兩個 tag 約 1.3 GB 和 1.6 GB，大部分 layer 共用） |
+| 磁碟 | 至少 5 GB 可用空間供建置（映像檔約 1.3 GB，建置過程還需要暫存空間）；Step 4 會在每個節點各存一份，節點和主機共用磁碟時，每個節點再多約 1.3 GB |
 | CPU 架構 | x86_64 |
-| 測試 | `bash`、`nc`、`python3`（含 PyYAML）、`kubectl`；載入 tk8s 節點需要 `sudo` |
+| 測試 | `bash`、`nc`、`python3`（含 PyYAML）、`kubectl`；載入 tk8s 節點需要 `sudo` 和 `skopeo`（複製映像檔的工具，Ubuntu 用 `sudo apt install skopeo` 安裝） |
 
 ```bash
 podman --version
+skopeo --version
 df -h ~
 ```
 
@@ -102,12 +103,19 @@ tk8s 的節點是 podman container，映像檔要直接載入節點的 container
 cd ~/rdp-vscode
 podman save -o /tmp/rdp-vscode.tar ghcr.io/braveantony/rdp-vscode:1.3
 for n in tk8s-control-plane-1 tk8s-worker-1 tk8s-worker-2; do
-  sudo podman --root /var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage \
-    --runroot /run/rdp-vscode-load-$n --storage-driver overlay load -i /tmp/rdp-vscode.tar
+  st=/var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage
+  sudo test -d "$st/overlay-images" || { echo "找不到 $n 的儲存區，用 sudo podman ps 確認節點名稱"; break; }
+  sudo skopeo copy docker-archive:/tmp/rdp-vscode.tar \
+    "containers-storage:[overlay@$st+/run/rdp-vscode-load-$n]ghcr.io/braveantony/rdp-vscode:1.3"
 done
 rm -f /tmp/rdp-vscode.tar
 ```
 
+這裡用 `skopeo`，不用 `podman load`。主機上的 podman 第一次用 `--root` 指到節點的儲存區時，會在裡面建一個 podman 自己的狀態資料庫（`db.sql`），記下當時用的 `--runroot`（存放執行期暫存檔的目錄）。如果別的專案或工具先用不同的 `--runroot` 這樣做過，之後執行 `podman load` 時，podman 就會回報 `database configuration mismatch`，映像檔載不進去。`skopeo` 只寫入映像檔，不會碰這個資料庫。
+
+`[overlay@<儲存目錄>+<執行期目錄>]` 指定寫入節點的哪個儲存區，後面接映像檔名稱。
+
+`skopeo` 遇到不存在的儲存區會自己建一個新的，映像檔就會寫到節點看不到的地方，所以迴圈會先確認節點的 container 儲存區存在。
 
 ## Step 5：tk8s 的前置設定
 
@@ -222,4 +230,4 @@ ARG ZH_HANT_VERSION=1.131.0
 | 在 ssh 設定加了 `ControlMaster` 沒有效果 | Open Remote-SSH 用內建的 SSH 實作，不呼叫系統的 `ssh`；它會讀 `Host`、`HostName`、`Port` 這些基本設定，但不支援 `ControlMaster` |
 | `codium --version` 在映像檔裡印出 super user 警告 | VSCodium 拒絕以 root 執行；測試時要用一般使用者（例如 `--user 65534`） |
 
-> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置兩個 tag、Step 3 的所有測試、Step 4 載入三個節點、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；完整驗收 `test/e2e/run.sh all` 22 項通過；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 7 的推送，以及 Windows 實機連線尚未實測。
+> 本文件的指令已於 2026-10-28 在 tk8s 上照貼實測：Step 2 建置映像檔、Step 3 的所有測試、Step 5 的兩項檢查、Step 6 部署 stateless 並啟動 socat 轉發，再用 FreeRDP 連 `192.168.11.64:3390` 登入、輸入 tkadm 密碼後連線成功；完整驗收 `test/e2e/run.sh all` 22 項通過（當時載入節點用的是 `podman load`）；「升級 VSCodium」的兩個查詢指令。Step 1 的 `git clone`（repo 尚未公開）、Step 4 和 `run.sh` 改用 `skopeo` 後的載入、Step 7 的推送，以及 Windows 實機連線尚未實測。

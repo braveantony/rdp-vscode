@@ -61,10 +61,14 @@ say build
 podman build -q -t "$IMG" images/rdp-vscode >/dev/null && pass "image built" || { bad "image build"; finish; }
 podman build -q -t "$CLIENT" test/e2e/client >/dev/null || { bad "client build"; finish; }
 podman save -o "$WORK/img.tar" "$IMG" >/dev/null
+# skopeo writes only the node's containers/storage; podman load also opens its
+# libpod DB, which rejects any runroot other than the one that created it.
+# skopeo would create a missing store, so check that the node's one exists
 for n in $NODES; do
-  sudo podman --root "/var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage" \
-    --runroot "/run/rdp-vscode-load-$n" --storage-driver overlay load -i "$WORK/img.tar" >/dev/null 2>&1 \
-    && pass "image loaded into $n" || bad "image load into $n"
+  st=/var/lib/containers/storage/volumes/$n-var/_data/lib/containers/storage
+  sudo test -d "$st/overlay-images" && sudo skopeo copy -q "docker-archive:$WORK/img.tar" \
+    "containers-storage:[overlay@$st+/run/rdp-vscode-load-$n]$IMG" \
+    && pass "image loaded into $n" || { bad "image load into $n"; finish; }
 done
 rm -f "$WORK/img.tar"
 
