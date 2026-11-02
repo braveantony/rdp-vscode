@@ -87,8 +87,11 @@ main() {
   echo "  Connect with Windows Remote Desktop (mstsc) to any node:"
   for f in $ips; do echo "    $f:$port"; done
   echo "  On the xrdp login screen keep Session = Xorg and log in as bigred / bigred."
-  echo "  VSCodium then asks for the SSH password of tkadm.taroko (bigred)."
-  echo "  More accounts, other passwords or a persistent /home: see manifests/ (kustomize) in the repo."
+  echo "  VSCodium opens without connecting. To reach tkadm.taroko, click the remote button"
+  echo "  at the far left of the status bar, choose Connect Current Window to Host... > tkadm,"
+  echo "  and enter the SSH password for bigred on tkadm"
+  echo "  (bigred on tk8s; otherwise ask your administrator)."
+  echo "  More accounts, other passwords or a persistent /home: see docs/install.md in the repo."
   echo "  Uninstall: kubectl delete namespace $ns"
 }
 
