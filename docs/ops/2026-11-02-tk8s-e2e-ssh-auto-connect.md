@@ -2,7 +2,7 @@
 
 ## 為什麼要改
 
-`feat/ssh-auto-connect` 分支新增 `SSH_AUTO_CONNECT`（預設 `false`）。合併前在 tk8s 上跑 `test/e2e/run.sh` 和 `test/deploy/architecture.test.sh`，確認 `false` 和 `true` 兩種情況在叢集上都正常。`run.sh` 開始時會刪掉 namespace `rdp-vscode` 再重新部署，結束時也會再刪一次，所以原本的部署會被拿掉。
+`feat/ssh-auto-connect` 分支新增 `SSH_AUTO_CONNECT`（預設 `false`）。合併前在 tk8s 上跑 `test/e2e/run.sh` 和 `test/deploy/architecture.test.sh`，確認 `false` 和 `true` 兩種情況在叢集上都正常。`run.sh` 開始時會刪掉 namespace `rdp-vscode` 再重新部署，所以原本的部署會被拿掉。這次用 `E2E_KEEP=1` 執行，`run.sh` 結束時不刪 namespace，測完後再手動刪除。
 
 ## 修改前的狀態
 
@@ -11,10 +11,11 @@
 
 ## 做了什麼
 
-1. 用分支 `c1af37c` 建置 `localhost/rdp-vscode:dev`，載入 `tk8s-worker-1` 和 `tk8s-worker-2`。
-2. 以 `E2E_KEEP=1` 執行 `test/e2e/run.sh all`，22 項通過。這一輪會 `set env SSH_AUTO_CONNECT=true`。
-3. 用預設值（`false`）部署 stateless，執行三輪 `architecture.test.sh`：登入後還沒連線、手動連上 tkadm、切成 `true`。三輪都通過，各有 1 項失敗，原因是測試要求映像檔是 `ghcr.io/braveantony/rdp-vscode:1.3`，而這次部署的是 `localhost/rdp-vscode:dev`。
+1. 用分支上的 commit `c1af37c` 建置 `localhost/rdp-vscode:dev`，載入 `tk8s-worker-1` 和 `tk8s-worker-2`。
+2. 以 `E2E_KEEP=1` 執行 `test/e2e/run.sh all`，22 項通過。這一輪會用 `kubectl set env` 把 `SSH_AUTO_CONNECT` 設成 `true`。
+3. 用預設值（`false`）部署 stateless，執行三輪 `architecture.test.sh`：登入後還沒連線、手動連上 tkadm、切成 `true`。三輪都只有映像檔版本那 1 項失敗，因為測試要求 `ghcr.io/braveantony/rdp-vscode:1.3`，這次部署的是 `localhost/rdp-vscode:dev`；其餘都通過。
 4. 測試過程中在 namespace `default` 建立、再刪除 Service `web`。
+5. 測完後手動 `kubectl delete ns rdp-vscode`。
 
 ### 載入映像檔失敗的處理
 
@@ -24,7 +25,7 @@
 
 - namespace `rdp-vscode` 已刪除，原本的 `1.1` 部署和 bigred 的家目錄都不在了。
 - `default` 的 `web` 已刪除，tkadm 上的測試 marker 檔已刪除。
-- 兩台 worker 上留著 `localhost/rdp-vscode:dev`（`22ca56f`）。
+- 兩台 worker 上留著 `localhost/rdp-vscode:dev`（映像檔 ID `22ca56f`）。
 - tkadm 上 bigred 的 `~/.vscodium-server` 有這次連線產生的檔案。
 
 ## 如何還原

@@ -8,7 +8,7 @@
 |---|---|---|---|
 | AC1 | `kubectl apply -k manifests/stateless` 後，pod 會 Ready | `kubectl wait` 180 秒內 Ready | — |
 | AC2 | 用 RDP 連 `<節點 IP>:30390`，以 bigred/bigred 登入 | FreeRDP 登入後，pod 裡出現 bigred 的 Xorg | — |
-| AC3 | 畫面是全螢幕 VSCodium，自動跳出 tkadm 密碼框；輸入密碼後，左下角顯示 `SSH: tkadm` | codium 的啟動參數包含 `ssh-remote+tkadm`；輸入密碼後，tkadm 上出現**比 marker 檔新**的 server 檔案 | 畫面和左下角的連線狀態 |
+| AC3 | 全螢幕 VSCodium；預設從遠端按鈕連到 tkadm，`SSH_AUTO_CONNECT=true` 時自動跳出密碼框；輸入密碼後左下角顯示 `SSH: tkadm` | `run.sh` 先用 `kubectl set env` 設 `SSH_AUTO_CONNECT=true`，codium 的啟動參數包含 `ssh-remote+tkadm`；輸入密碼後，tkadm 上出現**比 marker 檔新**的 server 檔案 | 畫面和左下角的連線狀態 |
 | AC4 | 在 VSCodium terminal（tkadm 上）部署 nginx | `kubectl create deploy web` 和 `expose` 成功 | 在 VSCodium 裡實際操作 |
 | AC5 | 用 Integrated Browser 打開 `http://web.default.svc.tk8s.k8s`，看到 nginx 歡迎頁（原本是 Simple Browser，見 01 的「實作後的修正」） | 在 pod 內 `curl` 這個 FQDN，回應含 `Welcome to nginx` | Integrated Browser 的畫面 |
 | AC6 | YAML 檔有 Kubernetes schema 補全 | tkadm 上有安裝 `redhat.vscode-yaml` | 實際打字時出現補全 |

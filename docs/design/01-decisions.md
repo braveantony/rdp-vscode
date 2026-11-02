@@ -48,7 +48,7 @@ VSCodium 是 glibc 程式，沒辦法沿用 rdp-firefox 的 Alpine（musl）。�
 
 ### D6 畫面：kiosk 模式，關掉 VSCodium 就登出
 - openbox 只顯示 VSCodium（最大化、無邊框）
-- 啟動時自動開一個連到 tkadm 的 Remote 視窗，一進來就跳出密碼框
+- 啟動時自動開一個連到 tkadm 的 Remote 視窗，一進來就跳出密碼框（已修正，見文末「實作後的修正」）
 - 關掉 VSCodium，RDP session 就結束（rdp-firefox 的 Firefox 關掉會自動重開，這裡**不一樣**）
 
 ### D7、D8 瀏覽器：預設用內建瀏覽器，Firefox 透過 build arg 加裝
@@ -146,3 +146,4 @@ Task 0 和實作過程中發現的問題，以及對應的修改。詳細紀錄�
 | ssh 設定只放 Host、Port、User | Debian 預設 `GSSAPIAuthentication yes` 會讓 Open Remote-SSH 走另一條會失敗的路徑 | 加上 `GSSAPIAuthentication no`；VSCodium 設定加上 `remote.SSH.verifyUnknownHosts: "accept"` |
 | tk8s 的 `local-path` SC | `Immediate`，PVC 會一直 Pending | 經使用者同意，重建成 `WaitForFirstConsumer`（[紀錄](../ops/2026-10-28-tk8s-local-path-sc.md)） |
 | D8 `-firefox` tag | Integrated Browser 已經能開叢集內的網站，`-firefox` 版只多了「終端機裡點網址用 Firefox 開」，卻多約 310MB，還要另外維護建置、測試和文件；叢集上的端到端驗收也一直沒做（issue #1） | 2026-10-29 經使用者同意移除：拿掉 `WITH_FIREFOX` 和 `rootfs-firefox/`，不再發佈 `-firefox` tag |
+| D6 啟動時自動連到 tkadm | Open Remote-SSH 要 tkadm 的 sshd 允許 `AllowTcpForwarding local`；sshd 還是 Alpine 預設的 `no` 時，剛裝好 rdp-vscode，登入後 VSCodium 就會一直重新連線、每次都問密碼 | 2026-11-02：改成預設不自動連線，用 `SSH_AUTO_CONNECT=true` 開啟（PR #8） |

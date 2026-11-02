@@ -253,7 +253,7 @@ bash test/deploy/architecture.test.sh
 腳本依上面第 1～8 節的順序檢查（第 1 節的 Windows 指令除外），每一項印出 `PASS`、`FAIL` 或 `SKIP`。倒數第二行是跳過的項數（`N skipped`），最後一行應該是 `N passed, 0 failed`。
 
 - 沒有人登入，或還沒連上 tkadm 時，第 6、7 節需要登入的項目會顯示 `SKIP`，登入並連上後再跑一次即可。
-- 第 6、7 節依 `SSH_AUTO_CONNECT` 檢查：`true` 時檢查 VSCodium 帶著 `--remote`，`false` 時檢查沒有 `--remote`。`false` 時，sshd 不允許埠轉發只顯示 `SKIP`（但手動連線仍然需要它），沒有人手動連到 tkadm 時，③ vscodium-server 也顯示 `SKIP`。
+- 第 6、7 節依 `SSH_AUTO_CONNECT` 檢查：`true` 時檢查 VSCodium 帶著 `--remote`，`false` 時檢查沒有 `--remote`。`false` 時，sshd 不允許埠轉發只算 `SKIP`、不算失敗，但手動連線仍然需要它；沒有人手動連到 tkadm 時，③ vscodium-server 也顯示 `SKIP`。
 - SSH 目標依 Deployment 的 `SSH_*` 環境變數或 ConfigMap 判斷，改過 SSH 設定也能檢查。
 - rdp-vscode 或 tkadm 部署在其他 namespace 時，用 `NS=<namespace>`、`TKADM_NS=<namespace>` 指定。
 
@@ -261,5 +261,5 @@ bash test/deploy/architecture.test.sh
 |---|---|
 | `FAIL image` | 部署的映像檔版本和 repo 的 `VERSION` 不同，架構圖描述的是 `VERSION` 那一版 |
 | `FAIL ... AllowTcpForwarding` | `SSH_AUTO_CONNECT=true`，但 tkadm 的 sshd 不允許埠轉發，見 [ops/2026-10-27-tkadm-sshd-forwarding.md](ops/2026-10-27-tkadm-sshd-forwarding.md) |
-| `SKIP` | 還沒有人登入，或還沒連上 tkadm；登入並連上後再跑一次 |
+| `SKIP` | 還沒有人登入，或還沒連上 tkadm：登入並連上後再跑一次。`SSH_AUTO_CONNECT=false` 而 tkadm 的 sshd 不允許埠轉發時也是 `SKIP`，但手動連線仍然需要修好，見 [ops/2026-10-27-tkadm-sshd-forwarding.md](ops/2026-10-27-tkadm-sshd-forwarding.md) |
 | `NOTE /tmp/sess has leftover dirs` | 有桌面異常結束、目錄沒清掉；不影響使用，Pod 重啟時會清除 |

@@ -33,7 +33,7 @@ spec:
         env:
         - name: MAX_SESSIONS        # 同時連線上限；每多一人約加 1Gi 記憶體
           value: "3"
-        - name: SSH_AUTO_CONNECT    # true：VSCodium 開啟後自動連到 SSH_HOST_ALIAS；需要 tkadm 的 sshd 允許 AllowTcpForwarding local
+        - name: SSH_AUTO_CONNECT    # true：VSCodium 開啟後自動連到 SSH_HOST_ALIAS；自動或手動連線都需要 tkadm 的 sshd 允許 AllowTcpForwarding local
           value: "false"
         - name: SSH_HOST_ALIAS      # ssh 設定裡的 Host 名稱；空字串視為 tkadm
           value: "tkadm"
@@ -43,7 +43,7 @@ spec:
           value: "22100"
         - name: SSH_USER
           value: "bigred"
-        - name: SSH_REMOTE_FOLDER   # 連線後開啟的遠端資料夾
+        - name: SSH_REMOTE_FOLDER   # 自動連線後開啟的遠端資料夾
           value: "/home/bigred"
         - name: VSCODIUM_LOCALE     # zh-tw 或 en
           value: "zh-tw"

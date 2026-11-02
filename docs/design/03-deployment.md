@@ -51,7 +51,7 @@ kubectl apply -k manifests/stateless   # 或 manifests/stateful
 | 變數 | 預設值 | 用途 |
 |---|---|---|
 | `RDP_USER` / `RDP_PASSWORD` | `bigred` / — | 沒有掛 users 檔時使用的單一帳號 |
-| `SSH_AUTO_CONNECT` | `false` | `true` 時 VSCodium 一開啟就自動連到 `SSH_HOST_ALIAS`；其他值一律當成 `false`，要自己從左下角的遠端按鈕連線 |
+| `SSH_AUTO_CONNECT` | `false` | `true` 時 VSCodium 一開啟就自動連到 `SSH_HOST_ALIAS`；`false` 時要自己從左下角的遠端按鈕連線。空字串和其他值（包括 `True`、`1`、`yes`）一律當成 `false`；不是空字串時，Pod log 會印出 `invalid SSH_AUTO_CONNECT` |
 | `SSH_HOST_ALIAS` | `tkadm` | ssh_config 的 Host 名稱，也是自動連線的目標；空字串視為 `tkadm` |
 | `SSH_HOST` | `tkadm.taroko` | HostName，用短名稱，靠 search domain 解析 |
 | `SSH_PORT` | `22100` | Port |
