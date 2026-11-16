@@ -106,6 +106,7 @@ The image is `ghcr.io/braveantony/rdp-vscode:1.4`, about 1.3 GB, with VSCodium 1
 - [install.md](docs/install.md): installation (quick install, Kustomize with several accounts and a persistent home, single-host podman, LAN access, uninstall)
 - [architecture.md](docs/architecture.md): how it works (connection path, what each process in the Pod does, security boundaries)
 - [user-guide.md](docs/user-guide.md): user guide (logging in, connecting to tkadm, opening websites, concurrent use, troubleshooting)
+- [attached-mode.md](docs/attached-mode.md): attached mode (no xrdp; VSCodium is shown on the desktop of another container in the same Pod)
 - [build-image.md](docs/build-image.md): build guide (build the image from source, test it, and deploy to tk8s)
 - [design/](docs/design/README.md): design decisions, acceptance criteria, risks and review history
 - [ops/](docs/ops/): changes made to tk8s for this project (tkadm sshd, local-path StorageClass)
@@ -119,6 +120,7 @@ First clone this repo as described in the [install guide](docs/install.md#kustom
 | `USERS_FILE` | `/etc/rdp-vscode/users` | Account file, one `user:password` per line; on Kubernetes it is always mounted from Secret `rdp-vscode-users-*` |
 | `RDP_USER` | `bigred` | Login account when there is no account file (UID 1000); on Kubernetes the file always exists, so it is not used |
 | `RDP_PASSWORD` | — | Its password, required in that case; not used on Kubernetes |
+| `RDP_MODE` | `standalone` | `standalone`: this container is the desktop (what this README describes). `attached`: no xrdp, see [attached mode](docs/attached-mode.md). Any other value stops the container |
 | `MAX_SESSIONS` | `3` | Maximum concurrent desktops, all accounts together (a disconnected desktop counts until it is removed 2 minutes later); each one needs about 1 GiB more memory |
 | `SSH_AUTO_CONNECT` | `false` | `true`: VSCodium connects to `SSH_HOST_ALIAS` as soon as it opens and opens `SSH_REMOTE_FOLDER`; `false`: you connect yourself from the remote button in the bottom-left corner. An empty string or any other value (including `True`, `1` and `yes`) counts as `false`; for a non-empty value the Pod log shows `invalid SSH_AUTO_CONNECT` |
 | `SSH_HOST_ALIAS` | `tkadm` | `Host` name in the SSH config, also the target of the automatic connection; an empty value means `tkadm` |
