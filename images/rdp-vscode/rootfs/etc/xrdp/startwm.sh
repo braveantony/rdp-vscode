@@ -4,7 +4,11 @@
 # gives it its own VSCodium data dir, runtime dir and D-Bus so two sessions of
 # the same account never share an instance. Settings are shared through a
 # symlink to ~/.config/VSCodium/User. Closing VSCodium ends the session.
+# In attached mode (RDP_ATTACHED=1, set by attached-session.sh) the launcher
+# runs this script instead of sesman: the desktop, its window manager and its
+# input method belong to another container, so only VSCodium is started here.
 set -u
+RDP_ATTACHED=${RDP_ATTACHED:-0}
 export LANG=zh_TW.UTF-8 LC_ALL=zh_TW.UTF-8 TZ=Asia/Taipei NO_AT_BRIDGE=1
 
 # Container env does not reach sesman sessions; entrypoint.sh saves it here
@@ -24,6 +28,13 @@ export XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
 # number does not collide. A directory that this account cannot remove (another
 # account created it in the sticky /tmp/sess) is refused, never reused.
 S="/tmp/sess/$dnum.$(id -u)"
+if [ "$RDP_ATTACHED" = 1 ] && [ -O "$S/data" ] &&
+   pgrep -u "$(id -u)" -f -- "^/usr/share/codium/codium --user-data-dir=$S/data " >/dev/null; then
+  # Asked again while VSCodium is open on this desktop: hand over to the
+  # running instance (it opens a window) instead of wiping its data dir
+  exec /usr/share/codium/codium --user-data-dir="$S/data" \
+    --extensions-dir="$HOME/.vscode-oss/extensions" --new-window
+fi
 rm -rf "$S" 2>/dev/null
 umask 077
 if ! mkdir -m 700 "$S"; then
@@ -59,7 +70,13 @@ ELECTRON_RUN_AS_NODE=1 /usr/share/codium/codium /opt/rdp-vscode/languagepacks.js
   "$HOME/.vscode-oss/extensions" > "$S/data/languagepacks.json" ||
   echo "[startwm] languagepacks.json failed" >&2
 
-openbox &
+if [ "$RDP_ATTACHED" = 1 ]; then
+  # The desktop's input method is reached over X (XIM); GTK's own XIM module
+  # is in every image, the desktop's input method module is not
+  export GTK_IM_MODULE=xim XMODIFIERS=@im=fcitx
+else
+  openbox &
+fi
 
 args=(--user-data-dir="$S/data" --extensions-dir="$HOME/.vscode-oss/extensions"
       --locale="$VSCODIUM_LOCALE")

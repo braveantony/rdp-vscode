@@ -81,6 +81,8 @@ bash test/unit/startwm.test.sh ghcr.io/braveantony/rdp-vscode:1.4
 bash test/image/smoke.test.sh ghcr.io/braveantony/rdp-vscode:1.4
 bash test/unit/accounts.test.sh ghcr.io/braveantony/rdp-vscode:1.4
 bash test/unit/languagepacks.test.sh ghcr.io/braveantony/rdp-vscode:1.4
+bash test/unit/launcher.test.sh ghcr.io/braveantony/rdp-vscode:1.4
+bash test/image/attached.test.sh ghcr.io/braveantony/rdp-vscode:1.4
 ```
 
 每個測試最後一行都應該是 `N passed, 0 failed`。

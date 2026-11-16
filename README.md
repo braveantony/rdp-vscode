@@ -106,6 +106,7 @@ kubectl -n default expose deploy web --port 80
 - [install.md](docs/install.md)：安裝手冊（快速安裝、Kustomize 多帳號與保留 home、單機 podman、從區網連線、移除）
 - [architecture.md](docs/architecture.md)：系統運作架構（連線路徑、Pod 內各 process 的職責、安全邊界）
 - [user-guide.md](docs/user-guide.md)：使用手冊（連線登入、連到 tkadm、開網站、多人使用、常見問題）
+- [attached-mode.md](docs/attached-mode.md)：附屬模式（不啟動 xrdp，把 VSCodium 顯示在同一個 Pod 裡另一個 container 的桌面上）
 - [build-image.md](docs/build-image.md)：建置手冊（從原始碼建置映像檔、測試，到部署上 tk8s 的完整步驟）
 - [design/](docs/design/README.md)：設計決策、驗收標準、風險與審查紀錄
 - [ops/](docs/ops/)：為了本專案對 tk8s 做的修改紀錄（tkadm sshd、local-path StorageClass）
@@ -119,6 +120,7 @@ kubectl -n default expose deploy web --port 80
 | `USERS_FILE` | `/etc/rdp-vscode/users` | 帳號檔案，一行一個 `帳號:密碼`；Kubernetes 上一定會由 Secret `rdp-vscode-users-*` 掛載 |
 | `RDP_USER` | `bigred` | 沒有帳號檔案時的登入帳號（UID 1000）；Kubernetes 上一定有帳號檔案，用不到 |
 | `RDP_PASSWORD` | — | 沒有帳號檔案時的登入密碼，此時必填；Kubernetes 上用不到 |
+| `RDP_MODE` | `standalone` | `standalone`：這個 container 自己提供桌面（本文件說明的用法）。`attached`：不啟動 xrdp，見[附屬模式](docs/attached-mode.md)。其他值會讓 container 停止 |
 | `MAX_SESSIONS` | `3` | 可以同時存在的桌面數上限（所有帳號合計，斷線後 2 分鐘內還沒清除的桌面也算在內）；每多一個桌面，約需多 1 GiB 記憶體 |
 | `SSH_AUTO_CONNECT` | `false` | 設成 `true` 時，VSCodium 一開啟就自動連到 `SSH_HOST_ALIAS`，並開啟 `SSH_REMOTE_FOLDER`；`false` 時要自己從左下角的遠端按鈕連線。空字串和其他值（包括 `True`、`1`、`yes`）一律當成 `false`；不是空字串時，Pod log 會印出 `invalid SSH_AUTO_CONNECT` |
 | `SSH_HOST_ALIAS` | `tkadm` | SSH 設定裡的 `Host` 名稱，也是自動連線的目標；空字串視為 `tkadm` |
